@@ -1,0 +1,54 @@
+/* --------------------------------------------------
+  index.css
+  --------------------------------------------------
+  This file imports the base, components, and utilities layers 
+  of Tailwind CSS, which are generated from the Tailwind configuration.
+  It also includes any global styles or custom CSS rules that are
+  not handled by Tailwind utility classes.
+*/
+
+/* Import Tailwind CSS layers. 
+  @tailwind is a directive used by Tailwind's build tools to inject 
+  the pre-generated styles into this CSS file.
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --------------------------------------------------
+  Custom Global Styles
+  --------------------------------------------------
+  These styles are applied globally to the entire application.
+*/
+
+/* Set the default font family for the entire body. 
+  The 'Inter' font is a clean, modern sans-serif font often 
+  used in web design.
+*/
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom styles for scrollbars. This improves the visual 
+  appearance of scrollbars on web browsers that support these 
+  pseudo-elements, such as WebKit-based browsers (Chrome, Safari).
+*/
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9; /* Tailwind's gray-100 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8; /* Tailwind's slate-400 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* Tailwind's slate-500 */
+}
+
