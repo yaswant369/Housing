@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Search, MapPin, Heart, Plus, User, Home, Tag, Star, Share2, X, Sun, Moon, DollarSign, Text, Ruler, ImageIcon, FileText } from 'lucide-react';
+ import React, { useState } from 'react';
+import { Search, MapPin, Heart, Plus, User, Home, Tag, Star, Share2, X, Sun, Moon } from 'lucide-react';
+// 1. CHANGE THIS IMPORT
+import PostPropertyWizard from './PostPropertyWizard.jsx'; 
 
 // --------------------------------------------------
 // Mock Data for the Application
 // --------------------------------------------------
-// Expanded data to add more properties and variety.
+// ... (initialPropertyData remains the same)
 const initialPropertyData = [
   {
     id: 1,
@@ -454,8 +456,7 @@ const initialPropertyData = [
 // --------------------------------------------------
 // Main App Component
 // --------------------------------------------------
-// This is the root component that renders the entire application.
-// It acts as the main container and orchestrates the other components.
+// ... (App component logic remains the same)
 export default function App() {
   // State to manage the list of properties, now mutable.
   const [properties, setProperties] = useState(initialPropertyData);
@@ -498,20 +499,24 @@ export default function App() {
   const themeClasses = isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-800';
 
   return (
-    <div className={`min-h-screen font-sans antialiased flex flex-col items-center pb-20 ${themeClasses}`}>
-      <div className="w-full max-w-7xl lg:px-8">
-        {/* New Combined Header Section */}
-        <Header
-          toggleDarkMode={toggleDarkMode}
-          isDarkMode={isDarkMode}
-          onPostPropertyClick={handleOpenModal}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          handleClearSearch={handleClearSearch}
-        />
-
+    // MODIFICATION: Removed 'items-center' to allow Header and AppInfoSection to be full-width
+    <div className={`min-h-screen font-sans antialiased flex flex-col pb-20 ${themeClasses}`}>
+      
+      {/* New Combined Header Section - MOVED OUTSIDE of the constraining div */}
+      <Header
+        toggleDarkMode={toggleDarkMode}
+        isDarkMode={isDarkMode}
+        onPostPropertyClick={handleOpenModal}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleClearSearch={handleClearSearch}
+      />
+      
+      {/* This div now constrains only the property sections */}
+      {/* MODIFICATION: Added 'mx-auto' to center this container */}
+      <div className="w-full max-w-7xl lg:px-8 mx-auto">
         {/* Featured Properties Section - Filtered for Nellore and featured status */}
         <PropertiesSection
           title="Featured Properties"
@@ -530,16 +535,16 @@ export default function App() {
           title="More properties"
           data={filteredProperties.filter(p => !p.location.includes('Nellore'))}
         />
-        
-        {/* App Info / Advertisement Section */}
-        <AppInfoSection />
       </div>
+      
+      {/* App Info / Advertisement Section - MOVED OUTSIDE of the constraining div */}
+      <AppInfoSection />
 
       {/* Bottom Navigation Bar */}
       <BottomNav onPostPropertyClick={handleOpenModal} />
 
-      {/* Post Property Modal - now receives the addProperty function */}
-      {isModalOpen && <PostPropertyModal onClose={handleCloseModal} onAddProperty={addProperty} />}
+      {/* 2. CHANGE THIS LINE TO USE THE NEW WIZARD */}
+      {isModalOpen && <PostPropertyWizard onClose={handleCloseModal} onAddProperty={addProperty} />}
     </div>
   );
 }
@@ -547,7 +552,7 @@ export default function App() {
 // --------------------------------------------------
 // NEW COMBINED HEADER Component
 // --------------------------------------------------
-// Combines logo, user info, search bar, and action tabs into one cohesive unit.
+// ... (Header component logic remains the same)
 const Header = ({ toggleDarkMode, isDarkMode, onPostPropertyClick, searchTerm, setSearchTerm, activeTab, setActiveTab, handleClearSearch }) => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -653,7 +658,7 @@ const Header = ({ toggleDarkMode, isDarkMode, onPostPropertyClick, searchTerm, s
 // --------------------------------------------------
 // Reusable Properties Section
 // --------------------------------------------------
-// A general component to display a grid of property cards.
+// ... (PropertiesSection component logic remains the same)
 const PropertiesSection = ({ title, data, isFeaturedSection = false }) => {
   return (
     <section className="p-4 sm:p-6 mt-6">
@@ -675,7 +680,7 @@ const PropertiesSection = ({ title, data, isFeaturedSection = false }) => {
 // --------------------------------------------------
 // Property Card Component
 // --------------------------------------------------
-// A single card component to display property details.
+// ... (PropertyCard component logic remains the same)
 const PropertyCard = ({ property }) => {
   const isFeatured = property.isFeatured;
   const [isLiked, setIsLiked] = useState(false);
@@ -780,7 +785,7 @@ const PropertyCard = ({ property }) => {
 // --------------------------------------------------
 // App Info / Advertisement Section
 // --------------------------------------------------
-// A section for app information, feedback, and sharing.
+// ... (AppInfoSection component logic remains the same)
 const AppInfoSection = () => {
   // Handler for the "Give Feedback" button
   const handleFeedback = () => {
@@ -846,8 +851,7 @@ const AppInfoSection = () => {
 // --------------------------------------------------
 // Bottom Navigation Bar
 // --------------------------------------------------
-// A fixed navigation bar at the bottom of the screen for mobile-friendly
-// navigation.
+// ... (BottomNav component logic remains the same)
 const BottomNav = ({ onPostPropertyClick }) => {
   const [activeItem, setActiveItem] = useState('Home');
 
@@ -890,7 +894,7 @@ const BottomNav = ({ onPostPropertyClick }) => {
 // --------------------------------------------------
 // Reusable Navigation Item Component
 // --------------------------------------------------
-// A single button component for the bottom navigation bar.
+// ... (NavItem component logic remains the same)
 const NavItem = ({ icon: Icon, name, isActive, onClick }) => {
   return (
     <button
@@ -903,171 +907,5 @@ const NavItem = ({ icon: Icon, name, isActive, onClick }) => {
       <Icon size={24} className="transition-all duration-300" />
       <span className={`text-xs mt-1 ${isActive ? 'font-bold' : 'font-medium'}`}>{name}</span>
     </button>
-  );
-};
-
-// --------------------------------------------------
-// Post Property Modal Component (Updated)
-// --------------------------------------------------
-// A simple modal to simulate the "Post Property" functionality.
-// Now handles form state and submission with all required fields.
-const PostPropertyModal = ({ onClose, onAddProperty }) => {
-  const [formData, setFormData] = useState({
-    type: '',
-    price: '',
-    location: '',
-    area: '',
-    description: '',
-    image: '',
-    status: 'For Sale',
-    isFeatured: false
-  });
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [id]: value
-    }));
-  };
-
-  const handleCheckboxChange = (e) => {
-    const { id, checked } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [id]: checked
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    const newProperty = { ...formData };
-    // Set a default image if no URL is provided
-    if (!newProperty.image) {
-      newProperty.image = 'https://placehold.co/400x300/a5f3fc/083344?text=New+Listing';
-    }
-
-    onAddProperty(newProperty);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6 w-full max-w-md relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors" aria-label="Close modal">
-          <X size={24} />
-        </button>
-        <h3 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-100">Post a New Property</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-center mb-6">Fill out the details to list your property.</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property Type</label>
-            <div className="relative">
-              <Text size={20} className="absolute left-3 top-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                id="type"
-                placeholder="e.g., 3 BHK, 2BHK"
-                value={formData.type}
-                onChange={handleChange}
-                className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 py-3"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price</label>
-            <div className="relative">
-              <DollarSign size={20} className="absolute left-3 top-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                id="price"
-                placeholder="e.g., ₹2.5 Cr"
-                value={formData.price}
-                onChange={handleChange}
-                className="pl-10 block py-3 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-            <div className="relative">
-              <MapPin size={20} className="absolute left-3 top-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                id="location"
-                placeholder="e.g., Nellore, V"
-                value={formData.location}
-                onChange={handleChange}
-                className="pl-10 block py-3 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="area" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Area (sqft)</label>
-            <div className="relative">
-              <Ruler size={20} className="absolute left-3 top-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                id="area"
-                placeholder="e.g., 2500 sqft"
-                value={formData.area}
-                onChange={handleChange}
-                className="pl-10 block py-3 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
-            <div className="relative">
-              <ImageIcon size={20} className="absolute left-3 top-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                id="image"
-                placeholder="e.g., https://your-image-url.com"
-                value={formData.image}
-                onChange={handleChange}
-                className="pl-10 block w-full py-3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-            <select
-              id="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-            >
-              <option value="For Sale">For Sale</option>
-              <option value="For Rent">For Rent</option>
-            </select>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isFeatured"
-              checked={formData.isFeatured}
-              onChange={handleCheckboxChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-              Mark as Featured
-            </label>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2 px-4 rounded-md font-semibold hover:from-blue-700 hover:to-blue-900 transition-colors"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
-    </div>
   );
 };
