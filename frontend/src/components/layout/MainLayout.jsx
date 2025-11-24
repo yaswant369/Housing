@@ -1,0 +1,84 @@
+ import React, { useContext, useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import Header from './Header';
+import Footer from './Footer'; 
+import BottomNav from './BottomNav';
+
+// --- Import Your Modals ---
+import PostPropertyWizard from '../../features/PostPropertyWizard';
+import EditProfileModal from '../../features/EditProfileModal';
+
+export default function MainLayout() {
+  const {
+    currentUser,
+    isPostWizardOpen, handleClosePostWizard, handleOpenPostWizard, propertyToEdit,
+    isEditProfileModalOpen, handleCloseEditProfile, handleProfileUpdate,
+    handleAddProperty, handleEditProperty,
+  } = useContext(AppContext);
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Scroll to top whenever route changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  const hideBottomNavPaths = [
+    '/property/',
+    '/login',
+    '/filter'
+  ];
+
+  const hideHeaderFooterPaths = [
+    '/login',
+    '/filter'
+  ];
+
+  const showBottomNav = !hideBottomNavPaths.some(path => location.pathname.startsWith(path));
+  const showHeaderFooter = !hideHeaderFooterPaths.some(path => location.pathname.startsWith(path));
+  const isFullScreen = hideHeaderFooterPaths.some(path => location.pathname.startsWith(path));
+
+  return (
+    <div className={`flex flex-col min-h-screen ${showBottomNav ? 'pb-16' : ''}`}>
+      {showHeaderFooter && (
+        <Header
+          currentUser={currentUser}
+          onLoginClick={() => navigate('/login')}
+          onPostPropertyClick={() => handleOpenPostWizard()}
+          onPremiumClick={() => navigate('/premium')}
+          onFilterClick={() => navigate('/filter')}
+        />
+      )}
+      
+      <div className={`${isFullScreen ? 'w-full' : 'w-full max-w-7xl lg:px-8'} mx-auto flex-grow ${showHeaderFooter ? 'pt-56' : ''}`}>
+        <Outlet />
+      </div>
+
+      {showHeaderFooter && <Footer />}
+      
+      {showBottomNav && <BottomNav />}
+
+      {/* --- Render Modals Controlled by Context --- */}
+      {/* Auth modal removed - now using /login route */}
+
+      {isPostWizardOpen && (
+        <PostPropertyWizard
+          onClose={handleClosePostWizard}
+          onAddProperty={handleAddProperty}
+          onEditProperty={handleEditProperty}
+          existingProperty={propertyToEdit}
+        />
+      )}
+
+      {isEditProfileModalOpen && currentUser && (
+        <EditProfileModal
+          onClose={handleCloseEditProfile}
+          currentUser={currentUser}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      )}
+    </div>
+  );
+}
