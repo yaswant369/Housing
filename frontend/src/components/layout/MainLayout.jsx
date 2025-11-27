@@ -37,9 +37,9 @@ export default function MainLayout() {
     '/filter'
   ];
 
-  const showBottomNav = !hideBottomNavPaths.some(path => location.pathname.startsWith(path));
-  const showHeaderFooter = !hideHeaderFooterPaths.some(path => location.pathname.startsWith(path));
-  const isFullScreen = hideHeaderFooterPaths.some(path => location.pathname.startsWith(path));
+  const showBottomNav = !hideBottomNavPaths.some(path => location.pathname.startsWith(path)) && !isPostWizardOpen;
+  const showHeaderFooter = !hideHeaderFooterPaths.some(path => location.pathname.startsWith(path)) && !isPostWizardOpen;
+  const isFullScreen = hideHeaderFooterPaths.some(path => location.pathname.startsWith(path)) || isPostWizardOpen;
 
   return (
     <div className={`flex flex-col min-h-screen ${showBottomNav ? 'pb-16' : ''}`}>
@@ -63,7 +63,7 @@ export default function MainLayout() {
         />
       )}
       
-      <div className={`${isFullScreen ? 'w-full' : 'w-full max-w-7xl lg:px-8'} mx-auto flex-grow ${showHeaderFooter ? 'pt-56' : ''}`}>
+      <div className={`${isFullScreen ? 'w-full' : 'w-full max-w-7xl lg:my-10'} mx-auto flex-grow ${showHeaderFooter && !isPostWizardOpen ? 'pt-56' : ''}`}>
         <Outlet />
       </div>
 

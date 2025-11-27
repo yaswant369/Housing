@@ -1,0 +1,276 @@
+import React from 'react';
+import {
+  CheckCircle,
+  PauseCircle,
+  Clock,
+  FileText,
+  XCircle,
+  DollarSign,
+  Eye,
+  Trash2,
+  Archive,
+  MapPin,
+  User,
+  Calendar,
+  Edit
+} from 'lucide-react';
+
+interface PropertyStatusSectionProps {
+  property: any;
+  formData: any;
+  onChangeStatus: (status: string) => void;
+  onPreviewListing: () => void;
+  onDeleteProperty: () => void;
+  onArchiveProperty: () => void;
+}
+
+const statusOptions = [
+  { 
+    value: 'active', 
+    label: 'Online / Active', 
+    color: 'text-green-600 bg-green-50 border-green-200',
+    icon: CheckCircle
+  },
+  { 
+    value: 'paused', 
+    label: 'Offline / Paused', 
+    color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    icon: PauseCircle
+  },
+  { 
+    value: 'pending', 
+    label: 'Under Review', 
+    color: 'text-blue-600 bg-blue-50 border-blue-200',
+    icon: Clock
+  },
+  { 
+    value: 'draft', 
+    label: 'Draft', 
+    color: 'text-gray-600 bg-gray-50 border-gray-200',
+    icon: FileText
+  },
+  { 
+    value: 'expired', 
+    label: 'Expired', 
+    color: 'text-red-600 bg-red-50 border-red-200',
+    icon: XCircle
+  },
+  { 
+    value: 'sold', 
+    label: 'Sold / Rented', 
+    color: 'text-purple-600 bg-purple-50 border-purple-200',
+    icon: DollarSign
+  }
+];
+
+export default function PropertyStatusSection({
+  property,
+  formData,
+  onChangeStatus,
+  onPreviewListing,
+  onDeleteProperty,
+  onArchiveProperty
+}: PropertyStatusSectionProps) {
+  const currentStatus = statusOptions.find(s => s.value === formData.status) || statusOptions[0];
+  const CurrentIcon = currentStatus.icon;
+
+  const getStatusChangeButtons = () => {
+    const buttons = [];
+    
+    if (formData.status === 'active') {
+      buttons.push(
+        <button
+          key="make-offline"
+          onClick={() => onChangeStatus('paused')}
+          className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+        >
+          <PauseCircle size={16} />
+          Make Offline
+        </button>
+      );
+    } else if (formData.status === 'paused' || formData.status === 'draft') {
+      buttons.push(
+        <button
+          key="make-online"
+          onClick={() => onChangeStatus('active')}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          <CheckCircle size={16} />
+          Make Online
+        </button>
+      );
+    }
+
+    buttons.push(
+      <button
+        key="mark-sold"
+        onClick={() => onChangeStatus('sold')}
+        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+      >
+        <DollarSign size={16} />
+        Mark as Sold / Rented
+      </button>
+    );
+
+    return buttons;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <CheckCircle className="text-blue-600" size={24} />
+          Status & Actions
+        </h2>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Section 1 of 5
+        </div>
+      </div>
+
+      {/* Property Info Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
+              <MapPin className="text-blue-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Property ID</p>
+              <p className="font-bold text-blue-900 dark:text-blue-100">#{property.id}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
+              <Calendar className="text-green-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-green-600 dark:text-green-400 font-medium">Created</p>
+              <p className="font-bold text-green-900 dark:text-green-100">
+                {new Date(property.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-100 dark:bg-orange-800 rounded-lg">
+              <Edit className="text-orange-600" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Last Updated</p>
+              <p className="font-bold text-orange-900 dark:text-orange-100">
+                {new Date(property.updatedAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Status Display */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Current Status</h3>
+        <div className="flex items-center gap-4">
+          <div className={`p-3 rounded-full ${currentStatus.color} border-2`}>
+            <CurrentIcon size={24} />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {currentStatus.label}
+            </h4>
+            <p className="text-gray-600 dark:text-gray-400">
+              Last updated: {new Date(property.updatedAt).toLocaleDateString()} at{' '}
+              {new Date(property.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Action Buttons */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          {getStatusChangeButtons()}
+        </div>
+      </div>
+
+      {/* Management Actions */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Management</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button
+            onClick={onPreviewListing}
+            className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+          >
+            <Eye size={20} className="text-blue-600" />
+            <div className="text-left">
+              <p className="font-medium text-gray-900 dark:text-gray-100">Preview Listing</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">View public listing</p>
+            </div>
+          </button>
+
+          <button
+            onClick={onArchiveProperty}
+            className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
+          >
+            <Archive size={20} className="text-yellow-600" />
+            <div className="text-left">
+              <p className="font-medium text-gray-900 dark:text-gray-100">Archive</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Hide from listing</p>
+            </div>
+          </button>
+
+          <button
+            onClick={onDeleteProperty}
+            className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <Trash2 size={20} className="text-red-600" />
+            <div className="text-left">
+              <p className="font-medium text-gray-900 dark:text-gray-100">Delete</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Permanent removal</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Status Change History */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Status History</h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-700 rounded-lg border">
+            <div className={`p-2 rounded-full ${currentStatus.color}`}>
+              <CurrentIcon size={16} />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-gray-900 dark:text-gray-100">{currentStatus.label}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {new Date(property.updatedAt).toLocaleDateString()} - Current Status
+              </p>
+            </div>
+          </div>
+          
+          {/* Add more history items if available */}
+          {property.statusHistory && property.statusHistory.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-700 rounded-lg border">
+              <div className={`p-2 rounded-full ${statusOptions.find(s => s.value === entry.status)?.color || 'text-gray-400'}`}>
+                {React.createElement(statusOptions.find(s => s.value === entry.status)?.icon || FileText, { size: 16 })}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900 dark:text-gray-100">
+                  {statusOptions.find(s => s.value === entry.status)?.label || entry.status}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {new Date(entry.date).toLocaleDateString()} - {entry.reason || 'Status changed'}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

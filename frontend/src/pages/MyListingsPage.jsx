@@ -18,10 +18,11 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AppContext } from '../context/AppContext';
-import PropertyFilters from '@/components/my-listings/PropertyFilters';
-import MyPropertyCard from '@/components/my-listings/MyPropertyCard';
-import BulkActionsBar, { SelectAllCheckbox } from '@/components/my-listings/BulkActionsBar';
-import PropertyEditModal from '@/components/my-listings/PropertyEditModal';
+import PropertyFilters from '../components/my-listings/PropertyFilters';
+import MyPropertyCard from '../components/my-listings/MyPropertyCard';
+import BulkActionsBar, { SelectAllCheckbox } from '../components/my-listings/BulkActionsBar';
+import PropertyEditModal from '../components/my-listings/PropertyEditModal';
+import PropertyEditPage from '../components/property-edit/PropertyEditPage';
 
 export default function MyListingsPage() {
   const navigate = useNavigate();
@@ -49,6 +50,10 @@ export default function MyListingsPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Full edit page states
+  const [fullEditOpen, setFullEditOpen] = useState(false);
+  const [fullEditProperty, setFullEditProperty] = useState(null);
 
   // Filter and sort properties
   const processedProperties = useMemo(() => {
@@ -149,6 +154,11 @@ export default function MyListingsPage() {
     setEditModalOpen(true);
   }, []);
 
+  const handleFullEdit = useCallback((property) => {
+    setFullEditProperty(property);
+    setFullEditOpen(true);
+  }, []);
+
   const handleEditPhotos = useCallback((property) => {
     handleOpenPostWizard(property);
   }, [handleOpenPostWizard]);
@@ -225,7 +235,7 @@ export default function MyListingsPage() {
   const handleBoost = useCallback(async (property) => {
     // Open premium/boosting options
     navigate('/premium');
-  }, [navigate]);
+  }, []);
 
   const handleDuplicate = useCallback(async (property) => {
     setIsLoading(true);
@@ -304,7 +314,7 @@ export default function MyListingsPage() {
           break;
         case 'boost':
           // Navigate to premium page with selected properties
-          navigate('/premium', { state: { selectedProperties: propertiesToProcess } });
+          navigate('/premium');
           break;
         case 'delete':
           if (window.confirm(`Delete ${propertyIds.length} properties?`)) {
@@ -435,6 +445,7 @@ export default function MyListingsPage() {
                 isSelected={selectedProperties.has(property.id)}
                 onSelect={handlePropertySelect}
                 onEdit={handleEdit}
+                onFullEdit={handleFullEdit}
                 onEditPhotos={handleEditPhotos}
                 onChangeStatus={handleChangeStatus}
                 onMarkSold={handleMarkSold}
@@ -498,6 +509,24 @@ export default function MyListingsPage() {
         onDuplicate={handleDuplicate}
         API_BASE_URL={API_BASE_URL}
       />
+
+      {/* Full Edit Property Page */}
+      {fullEditOpen && fullEditProperty && (
+        <PropertyEditPage
+          property={fullEditProperty}
+          isOpen={fullEditOpen}
+          onClose={() => {
+            setFullEditOpen(false);
+            setFullEditProperty(null);
+          }}
+          onSave={handleEditSave}
+          onChangeStatus={handleChangeStatus}
+          onEditPhotos={handleEditPhotos}
+          onDuplicate={handleDuplicate}
+          onPreviewListing={handleViewPublic}
+          API_BASE_URL={API_BASE_URL}
+        />
+      )}
 
       {/* Loading Overlay */}
       {isLoading && (

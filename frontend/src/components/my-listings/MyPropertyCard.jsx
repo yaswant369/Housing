@@ -24,7 +24,8 @@ import {
   RefreshCw,
   Check,
   Award,
-  TrendingUp
+  TrendingUp,
+  Edit
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PropertyAnalyticsPanel from './PropertyAnalyticsPanel';
@@ -80,6 +81,7 @@ export default function MyPropertyCard({
   isSelected = false,
   onSelect,
   onEdit,
+  onFullEdit,
   onEditPhotos,
   onChangeStatus,
   onMarkSold,
@@ -184,6 +186,9 @@ export default function MyPropertyCard({
       switch (action) {
         case 'edit':
           onEdit?.(property);
+          break;
+        case 'full-edit':
+          onFullEdit?.(property);
           break;
         case 'edit-photos':
           onEditPhotos?.(property);
@@ -549,7 +554,8 @@ export default function MyPropertyCard({
 // Separate component for the actions menu
 function PropertyActionsMenu({ onAction }) {
   const menuItems = [
-    { key: 'edit', label: 'Edit details', icon: Edit3 },
+    { key: 'full-edit', label: 'Edit Property (Full)', icon: Edit, description: 'Complete editing with all features' },
+    { key: 'edit', label: 'Quick Edit (Modal)', icon: Edit3, description: 'Basic details only' },
     { key: 'edit-photos', label: 'Edit photos & media', icon: Upload },
     { key: 'toggle-status', label: 'Change status', icon: Settings },
     { key: 'mark-sold', label: 'Mark as Sold / Rented', icon: Check },
@@ -562,17 +568,28 @@ function PropertyActionsMenu({ onAction }) {
   ];
 
   return (
-    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
       {menuItems.map(item => {
         const IconComponent = item.icon;
         return (
           <button
             key={item.key}
             onClick={() => onAction(item.key)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg"
+            className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+              item.key === 'full-edit' ? 'bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-700' : ''
+            }`}
           >
-            <IconComponent size={16} className="text-gray-400" />
-            <span className="text-sm text-gray-700 dark:text-gray-300">{item.label}</span>
+            <IconComponent size={16} className={item.key === 'full-edit' ? 'text-blue-600 mt-0.5' : 'text-gray-400 mt-0.5'} />
+            <div className="flex-1">
+              <span className={`text-sm font-medium ${item.key === 'full-edit' ? 'text-blue-900 dark:text-blue-100' : 'text-gray-700 dark:text-gray-300'}`}>
+                {item.label}
+              </span>
+              {item.description && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {item.description}
+                </p>
+              )}
+            </div>
           </button>
         );
       })}

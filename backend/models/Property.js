@@ -1,17 +1,55 @@
- const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const PropertySchema = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
   userId: { type: String, required: true },
   
-  // --- NEW MEDIA FIELDS ---
-  // images may be stored as either an array of strings (legacy) or
-  // an array of objects with { thumbnail, medium, optimized }.
+  // --- ENHANCED MEDIA FIELDS ---
+  media: {
+    photos: [{
+      url: { type: String },
+      thumbnail: { type: String },
+      fileName: { type: String },
+      fileType: { type: String },
+      fileSize: { type: Number },
+      imageType: { type: String }, // bedroom, living_room, kitchen, etc.
+      sortOrder: { type: Number, default: 0 },
+      isCover: { type: Boolean, default: false },
+      uploadDate: { type: Date, default: Date.now }
+    }],
+    videos: [{
+      url: { type: String },
+      youtubeUrl: { type: String },
+      fileName: { type: String },
+      fileType: { type: String },
+      fileSize: { type: Number },
+      sortOrder: { type: Number, default: 0 },
+      uploadDate: { type: Date, default: Date.now }
+    }],
+    floorplans: [{
+      url: { type: String },
+      fileName: { type: String },
+      fileType: { type: String },
+      fileSize: { type: Number },
+      sortOrder: { type: Number, default: 0 },
+      uploadDate: { type: Date, default: Date.now }
+    }],
+    brochures: [{
+      url: { type: String },
+      fileName: { type: String },
+      fileType: { type: String },
+      fileSize: { type: Number },
+      sortOrder: { type: Number, default: 0 },
+      uploadDate: { type: Date, default: Date.now }
+    }]
+  },
+  
+  // Legacy fields for backward compatibility
   images: { type: [require('mongoose').Schema.Types.Mixed], default: [] },
-  video: { type: String },    // A single video path
+  video: { type: String },
 
   // --- CORE FIELDS ---
-  type: { type: String, required: true },
+  type: { type: String, required: true }, // rent/sale
   bhk: { type: Number, required: true },
   area: { type: String, required: true },
   price: { type: String, required: true },
@@ -42,13 +80,57 @@ const PropertySchema = new mongoose.Schema({
   leadsLast30Days: { type: Number, default: 0 },
   shortlistsCount: { type: Number, default: 0 },
   
-  // All other fields from the wizard
+  // --- ENHANCED CONTACT & OWNER FIELDS ---
+  ownerName: { type: String },
+  contactRole: { type: String, enum: ['owner', 'agent', 'builder', 'tenant'], default: 'owner' },
+  alternatePhone: { type: String },
+  email: { type: String },
+  whatsapp: { type: Boolean, default: false },
+  contactOnlyLoggedIn: { type: Boolean, default: false },
+  
+  // --- SEO & META FIELDS ---
+  urlSlug: { type: String },
+  metaTitle: { type: String },
+  metaDescription: { type: String },
+  
+  // --- ENHANCED LOCATION FIELDS ---
+  country: { type: String, default: 'India' },
+  state: { type: String },
+  city: { type: String },
+  locality: { type: String },
+  landmark: { type: String },
+  pincode: { type: String },
+  addressLine: { type: String },
+  latitude: { type: Number, default: 19.0760 },
+  longitude: { type: Number, default: 72.8777 },
+  hideExactLocation: { type: Boolean, default: false },
+  
+  // --- ENHANCED PRICING FIELDS ---
+  maintenanceAmount: { type: Number },
+  maintenancePeriod: { type: String, enum: ['monthly', 'yearly', 'one-time'], default: 'monthly' },
+  negotiable: { type: Boolean, default: false },
+  securityDeposit: { type: String },
+  preferredTenants: { type: [String], default: [] },
+  
+  // --- ENHANCED PROPERTY DETAILS ---
+  superBuiltUpArea: { type: String },
+  bedrooms: { type: Number },
+  bathrooms: { type: Number },
+  balconies: { type: Number },
+  coveredParking: { type: Number },
+  openParking: { type: Number },
+  coveredBikeParking: { type: Number },
+  openBikeParking: { type: Number },
+  flooring: { type: String },
+  waterSupply: { type: String },
+  powerBackup: { type: String },
+  
+  // --- All other fields from the wizard ---
   userType: { type: String },
   phoneNumber: { type: String },
   lookingTo: { type: String },
   propertyKind: { type: String },
   propertyType: { type: String },
-  city: { type: String },
   bathrooms: { type: Number },
   balconies: { type: Number },
   plotArea: { type: String },
@@ -75,8 +157,5 @@ const PropertySchema = new mongoose.Schema({
   nearbyLandmarks: { type: [String], default: [] },
   
 }, { timestamps: true }); // Automatically adds 'createdAt' and 'updatedAt'
-
-// --- REMOVE OLD 'image' FIELD ---
-// We no longer use the single 'image' field
 
 module.exports = mongoose.model('Property', PropertySchema);

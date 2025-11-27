@@ -3,11 +3,11 @@ import { AppContext } from '../context/context';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, LogOut, Edit, Bell, Shield, FileText, 
-  MessageCircle, Info, Settings, ChevronRight, Crown
+  MessageCircle, Info, Settings, ChevronRight, Crown, Plus, Home
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { currentUser, logout, handleOpenEditProfile } = useContext(AppContext);
+  const { currentUser, logout, handleOpenEditProfile, handleOpenPostWizard } = useContext(AppContext);
   const navigate = useNavigate();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -44,8 +44,14 @@ export default function ProfilePage() {
     navigate('/');
   };
 
+  // Handle navigation for unauthenticated users
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, navigate]);
+
   if (!currentUser) {
-    navigate('/login');
     return null;
   }
 
@@ -56,6 +62,13 @@ export default function ProfilePage() {
         { icon: Edit, label: 'Edit Profile', action: handleOpenEditProfile },
         { icon: Crown, label: 'Premium Plans', path: '/premium' },
         { icon: Bell, label: 'Notifications', path: '/notifications' },
+      ]
+    },
+    {
+      title: 'My Properties',
+      items: [
+        { icon: Home, label: 'Manage My Properties', path: '/my-listings' },
+        { icon: Plus, label: 'Post New Property', action: () => handleOpenPostWizard() },
       ]
     },
     {
@@ -77,7 +90,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Profile Header - Sticky with Hide on Scroll */}
       <div 
         className={`sticky top-0 z-30 bg-gradient-to-r from-blue-600 to-purple-600 transition-transform duration-300 ${
