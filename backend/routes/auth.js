@@ -2,6 +2,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -9,6 +10,23 @@ require('dotenv').config();
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret'; // Add a refresh secret to your .env
+
+// --- Helper function to generate tokens ---
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { user: { id: user.id, _id: user._id } },
+    JWT_SECRET,
+    { expiresIn: '15m' } // Short-lived access token
+  );
+  const refreshToken = jwt.sign(
+    { user: { id: user.id, _id: user._id } },
+    JWT_REFRESH_SECRET,
+    { expiresIn: '7d' } // Long-lived refresh token
+  );
+  return { accessToken, refreshToken };
+};
+
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -30,20 +48,20 @@ router.post('/register', async (req, res) => {
       password: hashedPassword,
       savedProperties: [] 
     });
+    
+    const { accessToken, refreshToken } = generateTokens(user);
+    user.refreshToken = refreshToken;
     await user.save();
 
-    const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
-
     const userResponse = {
-      _id: user._id, // Use MongoDB _id
+      _id: user._id,
       id: user.id,
       name: user.name,
       email: user.email,
       phone: user.phone,
       savedProperties: user.savedProperties
     };
-    res.status(201).json({ token, user: userResponse });
+    res.status(201).json({ accessToken, refreshToken, user: userResponse });
 
   } catch (err) {
     console.error(err.message);
@@ -64,24 +82,67 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Incorrect password. Please try again.' });
     }
 
-    const payload = { user: { id: user.id, _id: user._id } }; // Add _id
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+    const { accessToken, refreshToken } = generateTokens(user);
+    user.refreshToken = refreshToken;
+    await user.save();
 
     const userResponse = {
-      _id: user._id, // Use MongoDB _id
+      _id: user._id,
       id: user.id,
       name: user.name,
       email: user.email,
       phone: user.phone,
       savedProperties: user.savedProperties
     };
-    res.json({ token, user: userResponse });
+    res.json({ accessToken, refreshToken, user: userResponse });
 
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
+
+// --- NEW: REFRESH TOKEN ENDPOINT ---
+router.post('/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token not provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    const user = await User.findOne({ id: decoded.user.id });
+
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: 'Invalid refresh token.' });
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res.json({ accessToken, refreshToken: newRefreshToken });
+
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid or expired refresh token.' });
+  }
+});
+
+// --- NEW: LOGOUT ENDPOINT ---
+router.post('/logout', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findOne({ id: req.user.id });
+    if (user) {
+      user.refreshToken = null;
+      await user.save();
+    }
+    res.status(200).json({ message: 'Logged out successfully.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 
 // UPDATE USER PROFILE
 router.put('/profile', authMiddleware, async (req, res) => {

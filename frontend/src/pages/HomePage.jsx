@@ -1,7 +1,7 @@
  import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WifiOff } from 'lucide-react';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 import PropertiesSection from '../components/properties/PropertiesSection';
 import PropertiesSectionSkeleton from '../components/properties/PropertiesSectionSkeleton';
 
@@ -38,7 +38,9 @@ export default function HomePage() {
 
       // 2. Filter by Listing Type (Buy/Rent/Sell)
       let matchesListingType = false;
-      if (listingType === 'Buy' || listingType === 'Sell') {
+      if (listingType === 'any') {
+        matchesListingType = true;
+      } else if (listingType === 'Buy' || listingType === 'Sell') {
         matchesListingType = property.status === 'For Sale' || property.lookingTo === 'Sell';
       } else if (listingType === 'Rent') {
         matchesListingType = property.status === 'For Rent' || property.lookingTo === 'Rent';

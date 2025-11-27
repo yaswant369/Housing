@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Receipt, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 
 export default function TransactionsPage() {
   const navigate = useNavigate();

@@ -1,9 +1,10 @@
- import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import Header from './Header';
 import Footer from './Footer'; 
 import BottomNav from './BottomNav';
+import { Toaster } from 'react-hot-toast';
 
 // --- Import Your Modals ---
 import PostPropertyWizard from '../../features/PostPropertyWizard';
@@ -42,6 +43,16 @@ export default function MainLayout() {
 
   return (
     <div className={`flex flex-col min-h-screen ${showBottomNav ? 'pb-16' : ''}`}>
+      <Toaster 
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
       {showHeaderFooter && (
         <Header
           currentUser={currentUser}

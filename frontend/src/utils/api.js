@@ -14,7 +14,7 @@ const api = axios.create({
 // Request interceptor - Add token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken'); // <-- Use accessToken
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,30 +25,49 @@ api.interceptors.request.use(
   }
 );
 
+
+
 // Response interceptor - Handle token expiration
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response) {
-      // Token expired or invalid
-      if (error.response.status === 401) {
-        const errorData = error.response.data;
-        
-        // If token expired, clear storage and redirect to login
-        if (errorData.expired || errorData.message?.includes('expired') || errorData.message?.includes('Token expired')) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          
-          // Dispatch custom event to notify app of logout
-          window.dispatchEvent(new CustomEvent('token-expired'));
-          
-          // Redirect to home page
-          window.location.href = '/';
-        }
+  async (error) => {
+    const originalRequest = error.config;
+    // Check if it's a 401 error and the request hasn't been retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (!refreshToken) {
+        // No refresh token available, logout user
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+
+      try {
+        const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
+        originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh token failed, logout user
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

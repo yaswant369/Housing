@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 import FilterModal from '../features/FilterModal';
 
 export default function FilterPage() {
-  const { filters, handleFilterChange } = useContext(AppContext);
+  const { filters, listingType, handleFilterChange } = useContext(AppContext);
   const navigate = useNavigate();
 
   // Scroll to top on mount
@@ -17,5 +17,7 @@ export default function FilterPage() {
     navigate('/'); // Navigate to home after applying filters
   };
 
-  return <FilterModal onApplyFilters={onApplyFilters} currentFilters={filters} />;
+  const currentFilters = { ...filters, listingType };
+
+  return <FilterModal onApplyFilters={onApplyFilters} currentFilters={currentFilters} />;
 }

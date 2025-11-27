@@ -4,7 +4,7 @@ import {
   ArrowLeft, Check, Shield, Zap, Phone, MapPin, 
   Crown, Star, TrendingUp, Award, X
 } from 'lucide-react';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 
 export default function PremiumPage() {
   const navigate = useNavigate();
@@ -242,7 +242,7 @@ export default function PremiumPage() {
 
       {/* CTA Section */}
       {selectedPlan && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-lg border-t border-gray-800 p-4 z-50">
+        <div className="  bg-gray-900/95 backdrop-blur-lg border-t border-gray-800 p-4 z-50">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h4 className="font-bold text-lg">{selectedPlan.planName}</h4>

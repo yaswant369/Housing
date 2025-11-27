@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 import AuthModal from '../features/AuthModal';
 
 export default function LoginPage() {

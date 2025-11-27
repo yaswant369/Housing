@@ -1,7 +1,8 @@
 // src/pages/PropertyDetailWrapper.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AppContext, API_URL } from '../context/AppContext';
+import { AppContext } from '../context/context';
+import { API_URL } from '../context/constants';
 import PropertyDetailPage from './PropertyDetailPage'; // Assumes PropertyDetailPage is in the same 'pages' folder
 
 export default function PropertyDetailWrapper() {

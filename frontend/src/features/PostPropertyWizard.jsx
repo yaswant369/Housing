@@ -1,11 +1,12 @@
  // src/PostPropertyWizard.jsx
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   X, ArrowLeft, User, Building, Phone, MapPin, LocateFixed, Upload, 
   BedDouble, Bath, Plus, Minus, Home, Aperture, Star, CheckSquare, Trash2,
   Text, DollarSign, Ruler, ImageIcon, Video, Loader2
 } from 'lucide-react';
-import { AppContext } from '../context/AppContext.jsx'; // 1. Import AppContext
+import { AppContext } from '../context/context.js'; // 1. Import AppContext
 
 // --------------------------------------------------
 // --- MAIN WIZARD COMPONENT ---
@@ -15,6 +16,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
   const isEditing = !!existingProperty;
   const contentRef = useRef(null);
   const { currentUser, API_BASE_URL } = useContext(AppContext); // 2. Get currentUser and API_BASE_URL
+  const navigate = useNavigate();
   const [isDetecting, setIsDetecting] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -26,7 +28,18 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       ...(existingProperty.image ? [existingProperty.image] : []) // Old single image
     ];
     // Add full base URL for preview
-    return allImages.filter(Boolean).map(img => `${API_BASE_URL}/${img}`);
+    return allImages.filter(Boolean).map(img => {
+      if (!img) return null;
+      if (typeof img === 'string') {
+        const clean = img.replace(/\\/g, '/');
+        return clean.startsWith('http') ? clean : (clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`);
+      }
+      // object form
+      const thumb = img.thumbnail || img.medium || img.optimized;
+      if (!thumb) return null;
+      const clean = thumb.replace(/\\/g, '/');
+      return clean.startsWith('http') ? clean : (clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`);
+    }).filter(Boolean);
   };
   
   const [formData, setFormData] = useState({
@@ -51,7 +64,18 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     totalFloors: existingProperty?.totalFloors || 1,
     availability: existingProperty?.availability || 'Ready to move',
     propertyAge: existingProperty?.propertyAge || '1-5 years',
-    // Step 4
+    // Step 4 (new)
+    keyHighlights: existingProperty?.keyHighlights || [],
+    amenities: existingProperty?.amenities || [],
+    facing: existingProperty?.facing || 'North',
+    propertyOnFloor: existingProperty?.propertyOnFloor || '',
+    reraId: existingProperty?.reraId || '',
+    priceIncludes: existingProperty?.priceIncludes || [],
+    gatedCommunity: existingProperty?.gatedCommunity || false,
+    maintenanceAmount: existingProperty?.maintenance?.amount || '',
+    maintenancePeriod: existingProperty?.maintenance?.period || 'Monthly',
+    nearbyLandmarks: existingProperty?.nearbyLandmarks || [],
+    // Step 5
     ownership: existingProperty?.ownership || 'Freehold',
     expectedPrice: existingProperty?.priceValue || '',
     allInclusive: existingProperty?.allInclusive || false,
@@ -124,15 +148,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     if (previewToDelete.startsWith('blob:')) {
       // This is tricky, we need to find the matching file
       // For simplicity, let's find the file by its preview URL
-      const fileIndex = imageFiles.findIndex(file => 
-        URL.createObjectURL(file) === previewToDelete
-      );
-      // This is not reliable. Let's re-build.
-      // Easiest way: just filter the imageFiles array based on index.
-      // This assumes the new files are always at the end.
-      
       // Let's find the index *within* the blob URLs
-      const blobPreviews = formData.imagePreviews.filter(p => p.startsWith('blob:'));
       let blobIndex = -1;
       for (let i = 0; i <= indexToDelete; i++) {
         if (formData.imagePreviews[i].startsWith('blob:')) {
@@ -253,6 +269,23 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     formDataToSubmit.append('brokerage', formData.brokerage);
     formDataToSubmit.append('description', formData.description);
 
+    // --- NEW: Append structured data ---
+    formDataToSubmit.append('keyHighlights', JSON.stringify(formData.keyHighlights));
+    formDataToSubmit.append('amenities', JSON.stringify(formData.amenities));
+    formDataToSubmit.append('priceIncludes', JSON.stringify(formData.priceIncludes));
+    formDataToSubmit.append('nearbyLandmarks', JSON.stringify(formData.nearbyLandmarks));
+    
+    formDataToSubmit.append('facing', formData.facing);
+    formDataToSubmit.append('propertyOnFloor', formData.propertyOnFloor);
+    formDataToSubmit.append('reraId', formData.reraId);
+    formDataToSubmit.append('gatedCommunity', formData.gatedCommunity);
+    
+    const maintenance = {
+      amount: formData.maintenanceAmount,
+      period: formData.maintenancePeriod
+    };
+    formDataToSubmit.append('maintenance', JSON.stringify(maintenance));
+
     // --- 3. Handle NEWLY ADDED media ---
     for (const file of imageFiles) {
       formDataToSubmit.append('images', file);
@@ -300,7 +333,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
             <h2 className="font-bold text-lg text-gray-800 dark:text-gray-100">
               {isEditing ? 'Edit Your Property' : 'Post Your Property'}
             </h2>
-            <span className="text-sm text-gray-500">Step {currentStep} of 4</span>
+            <span className="text-sm text-gray-500">Step {currentStep} of 5</span>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
             <X size={20} />
@@ -315,6 +348,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
               handleChipChange={handleChipChange} 
               handleChange={handleChange}
               currentUser={currentUser} // 12. Pass currentUser down
+              navigate={navigate}
             />
           )}
           {currentStep === 2 && <Step2_BasicDetails formData={formData} handleChipChange={handleChipChange} />}
@@ -329,7 +363,14 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
             />
           )}
           {currentStep === 4 && (
-            <Step4_PhotosPricing 
+            <Step4_AdditionalDetails
+              formData={formData}
+              handleChange={handleChange}
+              setFormData={setFormData}
+            />
+          )}
+          {currentStep === 5 && (
+            <Step5_PhotosPricing 
               formData={formData} 
               handleChipChange={handleChipChange} 
               handleChange={handleChange}
@@ -343,7 +384,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
 
         {/* Footer */}
         <footer className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          {currentStep < 4 ? (
+          {currentStep < 5 ? (
             <button
               onClick={handleNext}
               className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors"
@@ -368,6 +409,116 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
 // --- ALL REUSABLE SUB-COMPONENTS ARE BELOW ---
 // --------------------------------------------------
 
+// --------------------------------------------------
+// --- ALL REUSABLE SUB-COMPONENTS ARE BELOW ---
+// --------------------------------------------------
+
+// NEW: TagInput component
+function TagInput({ label, name, tags, setTags }) {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
+      setTags([...tags, inputValue.trim()]);
+      setInputValue('');
+    }
+  };
+
+  const removeTag = (indexToRemove) => {
+    setTags(tags.filter((_, index) => index !== indexToRemove));
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+      <div className="flex flex-wrap items-center w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+        {tags.map((tag, index) => (
+          <div key={index} className="flex items-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full px-3 py-1 text-sm font-medium mr-2 mb-1">
+            <span>{tag}</span>
+            <button
+              type="button"
+              onClick={() => removeTag(index)}
+              className="ml-2 text-blue-600 hover:text-blue-800"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type and press Enter"
+          className="flex-grow bg-transparent focus:outline-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+// NEW: CheckboxGrid component
+function CheckboxGrid({ label, name, options, selectedOptions, setSelectedOptions }) {
+  const handleToggle = (option) => {
+    const isSelected = selectedOptions.includes(option);
+    if (isSelected) {
+      setSelectedOptions(selectedOptions.filter(item => item !== option));
+    } else {
+      setSelectedOptions([...selectedOptions, option]);
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {options.map((option) => (
+          <label
+            key={option}
+            className={`flex items-center space-x-2 p-2 border rounded-lg cursor-pointer ${
+              selectedOptions.includes(option)
+                ? 'bg-blue-50 border-blue-500 dark:bg-blue-900 dark:border-blue-500'
+                : 'bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-600'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={selectedOptions.includes(option)}
+              onChange={() => handleToggle(option)}
+              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{option}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// NEW: FormSwitch component
+function FormSwitch({ label, name, checked, onChange }) {
+  return (
+    <div className="flex items-center justify-between">
+      <label className="font-medium text-gray-700 dark:text-gray-300">{label}</label>
+      <button
+        type="button"
+        onClick={() => onChange({ target: { name, value: !checked, type: 'checkbox', checked: !checked } })}
+        className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+          checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+        }`}
+      >
+        <span
+          className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+            checked ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
+
 function FormInput({ label, id, ...props }) {
   return (
     <div>
@@ -381,6 +532,7 @@ function FormInput({ label, id, ...props }) {
   );
 }
 
+// ... (keep FormSection, ChoiceChip, CounterInput)
 function FormSection({ title, children }) {
   return (
     <div className="space-y-4">
@@ -436,7 +588,9 @@ function CounterInput({ label, name, value, onCounterChange }) {
   );
 }
 
-function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUser }) { // 1. Receive currentUser
+
+// ... (keep Step1, Step2, Step3)
+function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUser, navigate }) { // 1. Receive currentUser
   return (
     <div className="space-y-6">
       <div className="flex items-center bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 p-3 rounded-lg">
@@ -616,7 +770,127 @@ function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handl
   );
 }
 
-function Step4_PhotosPricing({ formData, handleChipChange, handleChange, handleFileChange, handleVideoChange, handleDeleteImage, handleDeleteVideo }) {
+// NEW: Step4_AdditionalDetails component
+function Step4_AdditionalDetails({ formData, handleChange, setFormData }) {
+  const commonAmenities = [
+    'Lift', 'Power Backup', 'Gym', 'Swimming Pool', 'Clubhouse', 'Park',
+    'Security', 'Visitor Parking', 'Piped Gas', 'Rainwater Harvesting', 'Vaastu Compliant'
+  ];
+  const priceInclusions = [
+    'Club Membership', 'Car Parking', 'PLC', 'EDC/IDC', 'GST'
+  ];
+  const facingOptions = [
+    'North', 'South', 'East', 'West', 'North-East', 'North-West', 'South-East', 'South-West'
+  ];
+
+  return (
+    <div className="space-y-6">
+      <FormSection title="Key Highlights">
+        <TagInput
+          label="Add highlights (e.g., 'Near metro', 'Corner plot')"
+          tags={formData.keyHighlights}
+          setTags={(newTags) => setFormData(prev => ({ ...prev, keyHighlights: newTags }))}
+        />
+      </FormSection>
+      
+      <FormSection title="Amenities">
+        <CheckboxGrid
+          label="Select available amenities"
+          options={commonAmenities}
+          selectedOptions={formData.amenities}
+          setSelectedOptions={(newAmenities) => setFormData(prev => ({ ...prev, amenities: newAmenities }))}
+        />
+      </FormSection>
+
+      <FormSection title="Additional Information">
+        <div className="space-y-4">
+          <FormSwitch
+            label="Gated Community"
+            name="gatedCommunity"
+            checked={formData.gatedCommunity}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Property on Floor"
+            id="propertyOnFloor"
+            name="propertyOnFloor"
+            value={formData.propertyOnFloor}
+            onChange={handleChange}
+            placeholder="e.g., 5"
+          />
+          <div>
+            <label htmlFor="facing" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facing Direction</label>
+            <select
+              id="facing"
+              name="facing"
+              value={formData.facing}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            >
+              {facingOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          </div>
+          <FormInput
+            label="RERA ID (Optional)"
+            id="reraId"
+            name="reraId"
+            value={formData.reraId}
+            onChange={handleChange}
+            placeholder="e.g., P-123456"
+          />
+        </div>
+      </FormSection>
+
+      <FormSection title="Maintenance Details">
+        <div className="flex space-x-2">
+          <FormInput
+            label="Maintenance Amount (₹)"
+            id="maintenanceAmount"
+            name="maintenanceAmount"
+            type="number"
+            value={formData.maintenanceAmount}
+            onChange={handleChange}
+            placeholder="e.g., 2000"
+          />
+          <div className="flex-1">
+            <label htmlFor="maintenancePeriod" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Period</label>
+            <select
+              id="maintenancePeriod"
+              name="maintenancePeriod"
+              value={formData.maintenancePeriod}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            >
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
+              <option value="One-Time">One-Time</option>
+            </select>
+          </div>
+        </div>
+      </FormSection>
+
+       <FormSection title="Price Includes">
+        <CheckboxGrid
+          label="Select what's included in the price"
+          options={priceInclusions}
+          selectedOptions={formData.priceIncludes}
+          setSelectedOptions={(newInclusions) => setFormData(prev => ({ ...prev, priceIncludes: newInclusions }))}
+        />
+      </FormSection>
+
+      <FormSection title="Nearby Landmarks">
+        <TagInput
+          label="Add landmarks (e.g., 'City Hospital', 'Central Park')"
+          tags={formData.nearbyLandmarks}
+          setTags={(newLandmarks) => setFormData(prev => ({ ...prev, nearbyLandmarks: newLandmarks }))}
+        />
+      </FormSection>
+    </div>
+  );
+}
+
+
+function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleFileChange, handleVideoChange, handleDeleteImage, handleDeleteVideo, onImageZoom }) {
   return (
     <div className="space-y-6">
       <FormSection title="Add property photos">
@@ -645,7 +919,7 @@ function Step4_PhotosPricing({ formData, handleChipChange, handleChange, handleF
                   <img 
                     src={previewUrl} // URL is already full path or blob
                     alt="Property preview" 
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-contain rounded-lg bg-gray-100"
                   />
                   <button
                     type="button"

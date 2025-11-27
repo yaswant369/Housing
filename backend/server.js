@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const propertyRoutes = require('./routes/properties');
 const subscriptionRoutes = require('./routes/subscription');
+const uploadRoutes = require('./routes/uploads');
 
 // --- 2. Setup App ---
 const app = express();
@@ -33,6 +34,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/properties', propertyRoutes);
 // All subscription routes will be prefixed with /api/subscription
 app.use('/api/subscription', subscriptionRoutes);
+// Uploads (image processing)
+app.use('/api/uploads', uploadRoutes);
 
 // --- 5. Start Server ---
 app.listen(PORT, () => {

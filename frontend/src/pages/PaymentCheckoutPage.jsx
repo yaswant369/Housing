@@ -2,11 +2,12 @@ import React, { useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Smartphone, Building2, Wallet, Shield, Check } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
+import api from '../utils/api';
 
 export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { API_URL, token, currentUser } = useContext(AppContext);
+  const { API_URL, currentUser } = useContext(AppContext);
   const { selectedPlan } = location.state || {};
   
   const [paymentMethod, setPaymentMethod] = useState('upi');
@@ -31,51 +32,39 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!currentUser || !localStorage.getItem('accessToken')) {
+      setError('Please log in again to continue with payment');
+      navigate('/login');
+      return;
+    }
+
     setProcessing(true);
     setError(null);
 
     try {
       // Step 1: Initiate payment
-      const initiateResponse = await fetch(`${API_URL}/subscription/initiate-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          planType: selectedPlan.planType,
-          paymentMethod,
-          discount: 0
-        })
+      const initiateResponse = await api.post('/subscription/initiate-payment', {
+        planType: selectedPlan.planType,
+        paymentMethod,
+        discount: 0
       });
 
-      const initiateData = await initiateResponse.json();
-      
-      if (!initiateResponse.ok) {
-        throw new Error(initiateData.message || 'Payment initiation failed');
-      }
+      const initiateData = initiateResponse.data;
 
       // Step 2: In production, open Razorpay/Stripe modal here
       // For demo, simulate payment success after 2 seconds
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Step 3: Complete payment
-      const completeResponse = await fetch(`${API_URL}/subscription/complete-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          transactionId: initiateData.transactionId,
-          gatewayTransactionId: `GATEWAY_${Date.now()}`,
-          gatewayResponse: { status: 'success' }
-        })
+      const completeResponse = await api.post('/subscription/complete-payment', {
+        transactionId: initiateData.transactionId,
+        gatewayTransactionId: `GATEWAY_${Date.now()}`,
+        gatewayResponse: { status: 'success' }
       });
 
-      const completeData = await completeResponse.json();
+      const completeData = completeResponse.data;
 
-      if (!completeResponse.ok) {
+      if (!completeResponse.data.success) {
         throw new Error(completeData.message || 'Payment failed');
       }
 

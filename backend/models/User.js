@@ -3,10 +3,11 @@
 const UserSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique:true },
   phone: { type: String, required: true },
   password: { type: String, required: true },
   savedProperties: [{ type: Number, ref: 'Property' }],
+  refreshToken: { type: String },
   
   // Premium Subscription
   isPremium: { type: Boolean, default: false },

@@ -106,14 +106,14 @@ export default function EditProfileModal({ onClose, currentUser, onProfileUpdate
 }
 
 // Reusable Form Input Component (copied from AuthModal)
-const FormInput = ({ label, id, type, icon: Icon, value, onChange, disabled = false }) => (
+const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disabled = false }) => (
   <div>
     <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
       {label}
     </label>
     <div className="relative">
       <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-        <Icon size={20} className="text-gray-400" />
+        {IconComponent && <IconComponent size={20} className="text-gray-400" />}
       </span>
       <input
         type={type}

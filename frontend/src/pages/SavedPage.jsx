@@ -2,7 +2,7 @@
 import { ArrowLeft, Heart } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard.jsx';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext.jsx';
+import { AppContext } from '../context/context';
 
 export default function SavedPage() {
   const navigate = useNavigate();

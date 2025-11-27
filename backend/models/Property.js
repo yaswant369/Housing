@@ -5,7 +5,9 @@ const PropertySchema = new mongoose.Schema({
   userId: { type: String, required: true },
   
   // --- NEW MEDIA FIELDS ---
-  images: [{ type: String }], // An array of image paths
+  // images may be stored as either an array of strings (legacy) or
+  // an array of objects with { thumbnail, medium, optimized }.
+  images: { type: [require('mongoose').Schema.Types.Mixed], default: [] },
   video: { type: String },    // A single video path
 
   // --- CORE FIELDS ---
@@ -15,9 +17,30 @@ const PropertySchema = new mongoose.Schema({
   price: { type: String, required: true },
   priceValue: { type: Number, required: true },
   location: { type: String, required: true },
-  status: { type: String, required: true },
+  status: { 
+    type: String, 
+    required: true,
+    enum: ['draft', 'pending', 'active', 'paused', 'expired', 'sold', 'rejected'],
+    default: 'draft'
+  },
   furnishing: { type: String, required: true },
   isFeatured: { type: Boolean, default: false },
+  
+  // --- NEW FIELDS FOR MY PROPERTIES ---
+  planType: { 
+    type: String, 
+    enum: ['free', 'featured', 'premium'],
+    default: 'free'
+  },
+  expiresAt: { type: Date },
+  buildingName: { type: String },
+  
+  // Analytics fields
+  viewsLast7Days: { type: Number, default: 0 },
+  viewsLast30Days: { type: Number, default: 0 },
+  leadsLast7Days: { type: Number, default: 0 },
+  leadsLast30Days: { type: Number, default: 0 },
+  shortlistsCount: { type: Number, default: 0 },
   
   // All other fields from the wizard
   userType: { type: String },
@@ -38,6 +61,19 @@ const PropertySchema = new mongoose.Schema({
   ownership: { type: String },
   expectedPrice: { type: Number },
   description: { type: String },
+  keyHighlights: { type: [String], default: [] },
+  amenities: { type: [String], default: [] },
+  facing: { type: String },
+  propertyOnFloor: { type: String },
+  reraId: { type: String },
+  priceIncludes: { type: [String], default: [] },
+  gatedCommunity: { type: Boolean },
+  maintenance: {
+    amount: { type: Number },
+    period: { type: String, enum: ['Monthly', 'Yearly', 'One-Time'] }
+  },
+  nearbyLandmarks: { type: [String], default: [] },
+  
 }, { timestamps: true }); // Automatically adds 'createdAt' and 'updatedAt'
 
 // --- REMOVE OLD 'image' FIELD ---

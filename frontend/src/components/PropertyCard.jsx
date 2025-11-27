@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { 
   MapPin, Heart, Star, Share2, 
   ChevronLeft, ChevronRight, Camera, BadgeCheck, 
-  BedDouble, Bath, Ruler 
+  BedDouble, Bath, Ruler, Copy
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import ExpandableText from './ExpandableText';
 
 // --- Helper Function (No changes) ---
@@ -36,8 +37,26 @@ export default function PropertyCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // --- Image Carousel Logic (No changes) ---
-  const allImageUrls = (images.length > 0 ? images : (image ? [image] : []))
-    .map(img => `${API_BASE_URL}/${img.replace(/\\/g, '/')}`);
+  // Normalize images: support legacy strings or new objects with { thumbnail, medium, optimized }
+  const normalizeImage = (img) => {
+    const placeholder = 'https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found';
+    if (!img) return placeholder;
+    if (typeof img === 'string') {
+      const clean = img.replace(/\\/g, '/');
+      if (clean.startsWith('http')) return clean;
+      return clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`;
+    }
+    if (typeof img === 'object') {
+      const thumb = img.thumbnail || img.medium || img.optimized;
+      if (!thumb) return placeholder;
+      const clean = thumb.replace(/\\/g, '/');
+      return clean.startsWith('http') ? clean : (clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`);
+    }
+    return placeholder;
+  };
+
+  const allImageUrls = (images && images.length > 0 ? images : (image ? [image] : []))
+    .map(normalizeImage);
 
   if (allImageUrls.length === 0) {
     allImageUrls.push('https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found');
@@ -63,9 +82,37 @@ export default function PropertyCard({
     alert(`Contacting agent for property at ${location} (ID: ${id}).`);
   };
 
-  const handleShare = (e) => {
+  const handleShare = async (e) => {
     e.stopPropagation();
-    alert('Share functionality');
+    const propertyUrl = `${window.location.origin}/property/${id}`;
+    const shareData = {
+      title: `Check out this property: ${type}`,
+      text: `I found this ${type} in ${location} on Housing.com! Price: ${price}.`,
+      url: propertyUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        toast.success('Property shared successfully!');
+      } catch (err) {
+        // Handle rejection or cancellation by the user
+        if (err.name !== 'AbortError') {
+          toast.error('Could not share property.');
+        }
+      }
+    } else {
+      // Fallback for browsers without Web Share API
+      try {
+        await navigator.clipboard.writeText(propertyUrl);
+        toast.success('Link copied to clipboard!', {
+          icon: <Copy size={16} />,
+        });
+      } catch (err) {
+        console.error(err);
+        toast.error('Could not copy link.');
+      }
+    }
   };
 
   const handleToggleSaved = (e) => {
@@ -92,8 +139,11 @@ export default function PropertyCard({
         <img
           src={allImageUrls[currentImageIndex]}
           alt={type}
-          className="w-full h-48 sm:h-full object-cover object-center" // <-- Full height on desktop
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found' }}
+          className="w-full h-48 sm:h-56 md:h-60 object-contain object-center bg-gray-100" // Changed back to object-contain for better fit
+          onError={(e) => { 
+            e.target.onerror = null; 
+            e.target.src = 'https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found';
+          }}
         />
 
         {/* Carousel Arrows */}

@@ -1,12 +1,10 @@
- import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { X, Mail, Lock, User, Phone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/context';
 
 export default function AuthModal({ onLoginSuccess, onClose }) {
   const { API_URL } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState('login');
-  const navigate = useNavigate();
 
   // State for forms
   const [name, setName] = useState('');
@@ -32,7 +30,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      onLoginSuccess(data.token, data.user); // This will navigate away
+      onLoginSuccess(data); // This will navigate away
     } catch (err) {
       setError(err.message);
       setLoading(false); // <-- Stop loading on error
@@ -53,7 +51,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-      onLoginSuccess(data.token, data.user); // This will navigate away
+      onLoginSuccess(data); // This will navigate away
     } catch (err) {
       setError(err.message);
       setLoading(false); // <-- Stop loading on error
@@ -150,14 +148,14 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
 }
 
 // Reusable Form Input Component
-const FormInput = ({ label, id, type, icon: Icon, value, onChange, disabled = false }) => (
+const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disabled = false }) => (
   <div>
     <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
       {label}
     </label>
     <div className="relative">
       <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-        <Icon size={20} className="text-gray-400" />
+        {IconComponent && <IconComponent size={20} className="text-gray-400" />}
       </span>
       <input
         type={type}
