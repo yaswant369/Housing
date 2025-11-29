@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calculator, Home, Receipt, TrendingUp, Percent, FileText, PiggyBank } from 'lucide-react';
-import EMICalculator from '../components/EMICalculator';
-import AffordabilityCalculator from '../components/AffordabilityCalculator';
-import StampDutyCalculator from '../components/StampDutyCalculator';
+import EMICalculator from '../components/calculators/EMICalculator';
+import AffordabilityCalculator from '../components/calculators/AffordabilityCalculator';
+import StampDutyCalculator from '../components/calculators/StampDutyCalculator';
 
 export default function ToolsPage() {
   const navigate = useNavigate();

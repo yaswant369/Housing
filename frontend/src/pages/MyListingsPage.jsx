@@ -23,6 +23,7 @@ import MyPropertyCard from '../components/my-listings/MyPropertyCard';
 import BulkActionsBar, { SelectAllCheckbox } from '../components/my-listings/BulkActionsBar';
 import PropertyEditModal from '../components/my-listings/PropertyEditModal';
 import PropertyEditPage from '../components/property-edit/PropertyEditPage';
+import PropertyAnalyticsPanel from '../components/my-listings/PropertyAnalyticsPanel';
 
 export default function MyListingsPage() {
   const navigate = useNavigate();
@@ -55,6 +56,10 @@ export default function MyListingsPage() {
   // Full edit page states
   const [fullEditOpen, setFullEditOpen] = useState(false);
   const [fullEditProperty, setFullEditProperty] = useState(null);
+
+  // Analytics modal state
+  const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
+  const [analyticsProperty, setAnalyticsProperty] = useState(null);
 
   // Advanced filter state
   const [advancedFilters, setAdvancedFilters] = useState({});
@@ -435,13 +440,12 @@ export default function MyListingsPage() {
   }, [handleDeleteProperty]);
 
   const handleViewPublic = useCallback((property) => {
-    window.open(`/property/${property.id}`, '_blank');
-  }, []);
+    navigate(`/property/${property.id}`);
+  }, [navigate]);
 
   const handleAnalytics = useCallback((property) => {
-    // This would typically open an analytics modal or navigate to analytics page
-    console.log('Analytics for property:', property.id);
-    // For now, we'll just log it - the analytics panel is handled in the property card
+    setAnalyticsProperty(property);
+    setAnalyticsModalOpen(true);
   }, []);
 
   // Bulk actions handler
@@ -467,6 +471,15 @@ export default function MyListingsPage() {
           // Navigate to premium page with selected properties
           navigate('/premium');
           break;
+        case 'analytics':
+          // Analytics can only be viewed one property at a time
+          if (propertyIds.length === 1) {
+            const property = propertiesToProcess[0];
+            handleAnalytics(property);
+          } else {
+            toast.error('Analytics can only be viewed for one property at a time');
+          }
+          break;
         case 'delete':
           if (window.confirm(`Delete ${propertyIds.length} properties?`)) {
             await Promise.all(propertiesToProcess.map(p => handleDelete(p)));
@@ -480,7 +493,7 @@ export default function MyListingsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [filteredProperties, handleChangeStatus, handleMarkSold, handleRenew, handleDelete, navigate]);
+  }, [filteredProperties, handleChangeStatus, handleMarkSold, handleRenew, handleDelete, handleAnalytics, navigate]);
 
   // Handle edit modal save
   const handleEditSave = useCallback(async (propertyId, formData) => {
@@ -681,6 +694,17 @@ export default function MyListingsPage() {
           API_BASE_URL={API_BASE_URL}
         />
       )}
+
+      {/* Analytics Modal */}
+      <PropertyAnalyticsPanel
+        property={analyticsProperty}
+        isOpen={analyticsModalOpen}
+        onClose={() => {
+          setAnalyticsModalOpen(false);
+          setAnalyticsProperty(null);
+        }}
+        API_BASE_URL={API_BASE_URL}
+      />
 
       {/* Loading Overlay */}
       {isLoading && (

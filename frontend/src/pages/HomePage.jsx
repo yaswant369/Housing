@@ -27,7 +27,13 @@ export default function HomePage() {
   // --- ADVANCED FILTERING LOGIC ---
   const filteredProperties = React.useMemo(() => {
     return properties.filter(property => {
-      if (!property || !property.location || !property.type) return false; 
+      if (!property || !property.location || !property.type) return false;
+      
+      // Filter out non-public properties (paused, draft, expired, sold)
+      const publicStatuses = ['active', 'For Sale', 'For Rent'];
+      if (!publicStatuses.includes(property.status)) {
+        return false;
+      } 
       
       // 1. Filter by Main Property Type (Residential, Commercial, Plots, PG, Projects)
       // Check both propertyKind and propertyType fields for compatibility

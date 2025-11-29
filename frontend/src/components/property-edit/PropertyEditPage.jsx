@@ -13,8 +13,7 @@ import {
 import toast from 'react-hot-toast';
 
 // Import all property edit section components
-import PropertyStatusSection from './PropertyStatusSection';
-import PropertyActionsBar from './PropertyActionsBar';
+import PropertyQuickActions from './PropertyQuickActions';
 import PropertyBasicInfoSection from './PropertyBasicInfoSection';
 import PropertyLocationSection from './PropertyLocationSection';
 import PropertyPriceSection from './PropertyPriceSection';
@@ -45,7 +44,6 @@ const PropertyEditPage = ({
 
   // All sections including optional advanced section
   const sections = [
-    { id: 'status', title: 'Status & Actions', component: PropertyStatusSection, required: true },
     { id: 'basic', title: 'Basic Property Info', component: PropertyBasicInfoSection, required: true },
     { id: 'location', title: 'Location Details', component: PropertyLocationSection, required: true },
     { id: 'price', title: 'Price & Availability', component: PropertyPriceSection, required: true },
@@ -388,7 +386,7 @@ const PropertyEditPage = ({
           {/* Quick Actions Sidebar - only show for main sections */}
           {!currentSection?.advanced && (
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-              <PropertyActionsBar
+              <PropertyQuickActions
                 property={property}
                 onEditPhotos={() => onEditPhotos?.(property)}
                 onDuplicate={() => onDuplicate?.(property)}
@@ -407,15 +405,29 @@ const PropertyEditPage = ({
                 onAnalytics={() => {
                   toast('Analytics feature coming soon!', { icon: 'ℹ️' });
                 }}
-                onRefreshData={() => {
-                  window.location.reload();
-                }}
+                onPreviewListing={() => onPreviewListing?.(property)}
                 onSaveDraft={() => {
                   handleInputChange('status', 'draft');
                   toast.success('Draft saved');
                 }}
+                onRefreshData={() => {
+                  window.location.reload();
+                }}
+                onChangeStatus={(newStatus) => {
+                  console.log('Status change requested:', newStatus);
+                  handleInputChange('status', newStatus);
+                  onChangeStatus?.(property, newStatus);
+                  toast.success(`Property status changed to ${newStatus}`);
+                }}
+                onDeleteProperty={() => {
+                  if (confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                    toast.success('Property deleted successfully');
+                    onClose();
+                  }
+                }}
                 isSaving={isSaving}
                 hasUnsavedChanges={hasChanges}
+                currentStatus={formData.status}
               />
             </div>
           )}

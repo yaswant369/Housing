@@ -29,7 +29,6 @@ import {
   Archive
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import PropertyAnalyticsPanel from './PropertyAnalyticsPanel';
 import StatusChangeDialog from './StatusChangeDialog';
 
 const statusConfig = {
@@ -111,7 +110,6 @@ export default function MyPropertyCard({
   API_BASE_URL 
 }) {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
-  const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [statusDialogAction, setStatusDialogAction] = useState(null);
   
@@ -255,7 +253,7 @@ export default function MyPropertyCard({
           setStatusDialogOpen(true);
           break;
         case 'analytics':
-          setAnalyticsModalOpen(true);
+          onAnalytics?.(property);
           break;
         case 'boost':
           onBoost?.(property);
@@ -437,7 +435,7 @@ export default function MyPropertyCard({
                 {planInfo.label}
               </span>
               <button
-                onClick={() => setAnalyticsModalOpen(true)}
+                onClick={() => onAnalytics?.(property)}
                 className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors hover:opacity-80 ${
                   qualityScore >= 80 
                     ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
@@ -544,7 +542,7 @@ export default function MyPropertyCard({
                 </div>
                 
                 <button
-                  onClick={() => setAnalyticsModalOpen(true)}
+                  onClick={() => onAnalytics?.(property)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors hover:opacity-80 ${
                     qualityScore >= 80 
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
@@ -575,14 +573,6 @@ export default function MyPropertyCard({
           </div>
         </div>
       </div>
-
-      {/* Analytics Modal */}
-      <PropertyAnalyticsPanel
-        property={property}
-        isOpen={analyticsModalOpen}
-        onClose={() => setAnalyticsModalOpen(false)}
-        API_BASE_URL={API_BASE_URL}
-      />
 
       {/* Status Change Dialog */}
       <StatusChangeDialog

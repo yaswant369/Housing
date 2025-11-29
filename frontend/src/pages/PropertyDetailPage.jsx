@@ -14,6 +14,7 @@ import {
 import PropertyCard from '../components/PropertyCard.jsx';
 import ExpandableText from '../components/ExpandableText';
 import ImageZoomModal from '../components/ImageZoomModal';
+import ShareURL from '../components/ShareURL';
 
 import { Pannellum } from 'react-pannellum';
 
@@ -1094,6 +1095,15 @@ export default function PropertyDetailPage({
           </div>
         </div>
       </header>
+
+      {/* Share URL Section */}
+      <div className="max-w-7xl mx-auto px-4 py-2">
+        <ShareURL 
+          title={`${property?.type} for ${property?.status}`}
+          showLabel={true}
+          size="small"
+        />
+      </div>
 
       {/* Page Content */}
       <div className="max-w-7xl mx-auto p-4 md:p-8">

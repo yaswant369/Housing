@@ -4,6 +4,7 @@ import { AppContext } from '../context/AppContext';
 import PropertiesSection from '../components/properties/PropertiesSection';
 import { ArrowLeft, Filter, Search } from 'lucide-react';
 import FilterModal from '../features/FilterModal';
+import ShareURL from '../components/ShareURL';
 
 export default function PropertiesPage() {
   const navigate = useNavigate();
@@ -209,6 +210,15 @@ export default function PropertiesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+
+          {/* Share URL Section */}
+          <div className="mt-4">
+            <ShareURL 
+              title={getPageTitle()}
+              showLabel={true}
+              size="small"
             />
           </div>
         </div>

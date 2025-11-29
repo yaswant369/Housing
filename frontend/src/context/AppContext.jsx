@@ -132,13 +132,21 @@ export { AppContext };
   const fetchUserProperties = useCallback(async (filters = {}) => {
     setLoading(true);
     try {
+      // Clean up filters - remove undefined values
+      const cleanFilters = {};
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+          cleanFilters[key] = filters[key];
+        }
+      });
+      
       const params = new URLSearchParams({
         page: '1',
         limit: '50',
-        ...filters
+        ...cleanFilters
       });
       
-      console.log('Fetching user properties with filters:', filters);
+      console.log('Fetching user properties with filters:', cleanFilters);
       const response = await api.get(`/properties/user/my-properties?${params}`);
       const data = response.data;
       

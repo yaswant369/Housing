@@ -86,7 +86,7 @@ export default function BulkActionsBar({
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60]">
+    <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[200]">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 min-w-80">
         <div className="flex items-center justify-between">
           {/* Selection Info */}
@@ -138,7 +138,7 @@ export default function BulkActionsBar({
               </button>
 
               {showActionsMenu && (
-                <div className="absolute right-0 bottom-full mb-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[70]">
+                <div className="absolute right-0 bottom-full mb-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[210]">
                   <div className="p-2">
                     {bulkActionItems.map((category) => (
                       <div key={category.category} className="mb-4 last:mb-0">

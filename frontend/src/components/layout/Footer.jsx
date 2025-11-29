@@ -79,16 +79,20 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 w-8 h-8 rounded-full flex items-center justify-center">
-              <Home size={16} className="text-white" />
+        <div className="border-t border-gray-700 mt-8 pt-6 space-y-4">
+
+          
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 w-8 h-8 rounded-full flex items-center justify-center">
+                <Home size={16} className="text-white" />
+              </div>
+              <span className="font-bold text-lg text-white">Propy</span>
             </div>
-            <span className="font-bold text-lg text-white">Propy</span>
+            <p className="text-gray-500 text-sm">
+              © {new Date().getFullYear()} Propy. All rights reserved.
+            </p>
           </div>
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} Propy. All rights reserved.
-          </p>
         </div>
       </div>
     </footer>

@@ -10,7 +10,22 @@ import PropertyDetailWrapper from './pages/PropertyDetailWrapper';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
 import PropertiesPage from './pages/PropertiesPage';
-// ... import other pages
+import MyListingsPage from './pages/MyListingsPage';
+import LoginPage from './pages/LoginPage';
+import AboutPage from './pages/AboutPage';
+import ChatPage from './pages/ChatPage';
+import CheckoutPage from './pages/CheckoutPage';
+import FilterPage from './pages/FilterPage';
+import NotificationsPage from './pages/NotificationsPage';
+import PaymentCheckoutPage from './pages/PaymentCheckoutPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PremiumFeature from './pages/PremiumFeature';
+import PremiumPage from './pages/PremiumPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import SecurityPage from './pages/SecurityPage';
+import TermsPage from './pages/TermsPage';
+import ToolsPage from './pages/ToolsPage';
+import TransactionsPage from './pages/TransactionsPage';
 
 // Modals
 import PostPropertyWizard from './features/PostPropertyWizard';
@@ -79,15 +94,38 @@ function App() {
     <div className={`min-h-screen font-sans antialiased flex flex-col ${themeClasses}`}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
+          {/* Main Pages */}
           <Route index element={<HomePage />} />
           <Route path="property/:id" element={<PropertyDetailWrapper />} />
           <Route path="properties" element={<PropertiesPage />} />
           <Route path="saved" element={<SavedPage />} />
           <Route path="profile" element={<ProfilePage />} />
-
-          {/* <Route path="notifications" element={<NotificationsPage />} /> */}
-          {/* <Route path="security" element={<SecurityPage />} /> */}
-          {/* <Route path="premium" element={<PremiumFeature />} /> */}
+          <Route path="my-listings" element={<MyListingsPage />} />
+          
+          {/* Authentication & Account */}
+          <Route path="login" element={<LoginPage />} />
+          
+          {/* Property Management */}
+          <Route path="filter" element={<FilterPage />} />
+          <Route path="chat" element={<ChatPage />} />
+          
+          {/* Premium & Payments */}
+          <Route path="premium" element={<PremiumPage />} />
+          <Route path="premium-features" element={<PremiumFeature />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="payment-checkout" element={<PaymentCheckoutPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          
+          {/* Tools & Utilities */}
+          <Route path="tools" element={<ToolsPage />} />
+          
+          {/* System Pages */}
+          <Route path="about" element={<AboutPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="security" element={<SecurityPage />} />
+          <Route path="privacy" element={<PrivacyPolicyPage />} />
+          <Route path="terms" element={<TermsPage />} />
         </Route>
       </Routes>
       
