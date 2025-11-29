@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import PropertyDetailWrapper from './pages/PropertyDetailWrapper';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
+import PropertiesPage from './pages/PropertiesPage';
 // ... import other pages
 
 // Modals
@@ -80,6 +81,7 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="property/:id" element={<PropertyDetailWrapper />} />
+          <Route path="properties" element={<PropertiesPage />} />
           <Route path="saved" element={<SavedPage />} />
           <Route path="profile" element={<ProfilePage />} />
 

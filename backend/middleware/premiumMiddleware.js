@@ -4,6 +4,9 @@ const User = require('../models/User');
 
 const checkPremiumAccess = async (req, res, next) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
     const userId = req.user.id;
     
     // Get user
@@ -81,6 +84,10 @@ const checkContactLimit = async (req, res, next) => {
 // Optional premium middleware (doesn't block request, just adds subscription info)
 const optionalPremiumCheck = async (req, res, next) => {
   try {
+    if (!req.user || !req.user.id) {
+      req.isPremiumUser = false;
+      return next();
+    }
     const userId = req.user.id;
     
     const user = await User.findOne({ id: userId }).populate('currentSubscription');

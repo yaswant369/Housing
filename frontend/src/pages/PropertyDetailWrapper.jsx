@@ -55,7 +55,15 @@ export default function PropertyDetailWrapper() {
       isSaved={savedPropertyIds.has(property.id)}
       onToggleSaved={handleToggleSaved}
       allProperties={properties} 
-      onViewDetails={(id) => navigate(`/property/${id}`)}
+      onViewDetails={(idOrPath) => {
+        if (typeof idOrPath === 'string' && idOrPath.startsWith('/')) {
+          // It's a full path, navigate to it
+          navigate(idOrPath);
+        } else {
+          // It's a property ID, navigate to the property detail
+          navigate(`/property/${idOrPath}`);
+        }
+      }}
       savedPropertyIds={savedPropertyIds}
       API_BASE_URL={API_BASE_URL}
     />

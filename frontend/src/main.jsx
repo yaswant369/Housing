@@ -27,6 +27,7 @@ import ChatPage from './pages/ChatPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
+import PropertiesPage from './pages/PropertiesPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -52,6 +53,7 @@ root.render(
             <Route path="payment-success" element={<PaymentSuccessPage />} />
             <Route path="security" element={<SecurityPage />} />
             <Route path="property/:id" element={<PropertyDetailPage />} />
+            <Route path="properties" element={<PropertiesPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="filter" element={<FilterPage />} />
             <Route path="tools" element={<ToolsPage />} />

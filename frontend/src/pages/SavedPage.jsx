@@ -40,32 +40,39 @@ export default function SavedPage() {
       </header>
 
       {/* Saved Properties Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4">
         {savedProperties.length > 0 ? (
-           
-          
-          /* #   Replaced 'grid' with 'flex flex-col' to fix layout  # */
-          
-          <div className="flex flex-col gap-6">
+          /* # Better grid layout for saved properties with optimal sizing # */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {savedProperties.map(property => (
               <PropertyCard 
-                key={property.id} 
+                key={property.id}
                 property={property}
                 isSaved={true}
                 onToggleSaved={onToggleSaved}
                 onViewDetails={(id) => navigate(`/property/${id}`)}
-                API_BASE_URL={API_BASE_URL} 
+                API_BASE_URL={API_BASE_URL}
+                variant="compact"
+                className="h-full"
               />
             ))}
           </div>
            
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
-            <Heart size={64} className="mb-4" />
-            <h3 className="text-2xl font-bold mb-2">No Saved Properties</h3>
-            <p className="max-w-xs">
-              Tap the heart icon on any property to save it here for later.
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400 px-8">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-6 mb-6">
+              <Heart size={48} className="text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3">No Saved Properties</h3>
+            <p className="text-sm leading-relaxed max-w-sm">
+              Start exploring properties and tap the heart icon to save your favorites here.
             </p>
+            <button
+              onClick={() => navigate('/')}
+              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors"
+            >
+              Browse Properties
+            </button>
           </div>
         )}
       </div>

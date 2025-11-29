@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const PropertySchema = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
-  userId: { type: String, required: true },
+  userId: { type: String, required: true, index: true }, // Added index for better query performance
   
   // --- ENHANCED MEDIA FIELDS ---
   media: {
@@ -58,7 +58,7 @@ const PropertySchema = new mongoose.Schema({
   status: { 
     type: String, 
     required: true,
-    enum: ['draft', 'pending', 'active', 'paused', 'expired', 'sold', 'rejected'],
+    enum: ['draft', 'pending', 'active', 'paused', 'expired', 'sold', 'rejected', 'For Sale', 'For Rent'],
     default: 'draft'
   },
   furnishing: { type: String, required: true },
@@ -156,6 +156,42 @@ const PropertySchema = new mongoose.Schema({
   },
   nearbyLandmarks: { type: [String], default: [] },
   
-}, { timestamps: true }); // Automatically adds 'createdAt' and 'updatedAt'
+}, { 
+  timestamps: true,
+  // Add indexes for better query performance and scalability
+});
+
+// Add compound indexes for better query optimization
+PropertySchema.index({ userId: 1, status: 1 });
+PropertySchema.index({ status: 1, createdAt: -1 });
+PropertySchema.index({ userId: 1, createdAt: -1 });
+PropertySchema.index({ userId: 1, updatedAt: -1 });
+
+// Add a text index for search functionality
+PropertySchema.index({ 
+  location: 'text', 
+  description: 'text', 
+  type: 'text',
+  buildingName: 'text'
+});
+
+// Pre-save middleware to ensure data consistency
+PropertySchema.pre('save', function(next) {
+  // Ensure userId is always a string and properly formatted
+  if (this.userId && typeof this.userId !== 'string') {
+    this.userId = String(this.userId);
+  }
+  
+  // Ensure priceValue is a number
+  if (this.price && !this.priceValue) {
+    const priceStr = this.price.toString();
+    const numericValue = parseFloat(priceStr.replace(/[^0-9.-]+/g, ''));
+    if (!isNaN(numericValue)) {
+      this.priceValue = numericValue * (priceStr.includes('Cr') ? 10000000 : (priceStr.includes('L') ? 100000 : 1));
+    }
+  }
+  
+  next();
+});
 
 module.exports = mongoose.model('Property', PropertySchema);

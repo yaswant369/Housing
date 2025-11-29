@@ -117,7 +117,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
 
   const handleApply = () => {
     onApplyFilters(tempFilters);
-    navigate(-1); // Go back after applying filters
+    map(-1); // Go back after applying filters
   };
 
   return (

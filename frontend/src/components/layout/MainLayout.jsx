@@ -63,7 +63,7 @@ export default function MainLayout() {
         />
       )}
       
-      <div className={`${isFullScreen ? 'w-full' : 'w-full max-w-7xl lg:my-10'} mx-auto flex-grow ${showHeaderFooter && !isPostWizardOpen ? 'pt-56' : ''}`}>
+      <div className={`${isFullScreen ? 'w-full' : 'w-full mt-10'} flex-grow ${showHeaderFooter && !isPostWizardOpen ? 'pt-56' : ''}`}>
         <Outlet />
       </div>
 

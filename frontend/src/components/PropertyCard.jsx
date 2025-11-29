@@ -1,286 +1,336 @@
  // src/components/PropertyCard.jsx
 import React, { useState } from 'react';
-import { 
-  MapPin, Heart, Star, Share2, 
-  ChevronLeft, ChevronRight, Camera, BadgeCheck, 
-  BedDouble, Bath, Ruler, Copy
-} from 'lucide-react';
+import { MapPin, BadgeCheck, BedDouble, Bath, Ruler, Home, Archive, Heart, Share2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
-import ExpandableText from './ExpandableText';
+import { formatPrice, formatArea } from '../utils/propertyHelpers';
 
-// --- Helper Function (No changes) ---
-function calculateTimeAgo(dateString) {
-  if (!dateString) return null;
-  const postedDate = new Date(dateString);
-  const now = new Date();
-  const diffInMs = now.getTime() - postedDate.getTime();
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return '1 day ago';
-  return `${diffInDays} days ago`;
-}
-
-export default function PropertyCard({ 
-  property, isSaved, onToggleSaved, onViewDetails, API_BASE_URL 
-}) {
+// Backward compatibility with old PropertyCard usage
+const normalizeLegacyProperty = (property, API_BASE_URL) => {
+  if (!property) return {};
   
-  // --- Destructure ALL properties, including new optional ones ---
-  const { 
-    id, type, location, price, status, description,
-    images = [], image, isFeatured, isVerified,
-    bhk, bathrooms, area, dealerName, postedOn,
-    buildingName, // New: e.g., "Appaswamy Splendour"
-    highlights = [] // New: e.g., ["Swimming Pool", "Lift"]
-  } = property;
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // --- Image Carousel Logic (No changes) ---
-  // Normalize images: support legacy strings or new objects with { thumbnail, medium, optimized }
-  const normalizeImage = (img) => {
-    const placeholder = 'https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found';
-    if (!img) return placeholder;
-    if (typeof img === 'string') {
-      const clean = img.replace(/\\/g, '/');
-      if (clean.startsWith('http')) return clean;
-      return clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`;
+  // Get image from legacy images array or new media structure
+  let imageUrl = null;
+  if (property.images && property.images.length > 0) {
+    const firstImage = property.images[0];
+    if (typeof firstImage === 'object') {
+      imageUrl = firstImage.medium || firstImage.thumbnail || firstImage.optimized;
+    } else {
+      imageUrl = firstImage;
     }
-    if (typeof img === 'object') {
-      const thumb = img.thumbnail || img.medium || img.optimized;
-      if (!thumb) return placeholder;
-      const clean = thumb.replace(/\\/g, '/');
-      return clean.startsWith('http') ? clean : (clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`);
-    }
-    return placeholder;
-  };
-
-  const allImageUrls = (images && images.length > 0 ? images : (image ? [image] : []))
-    .map(normalizeImage);
-
-  if (allImageUrls.length === 0) {
-    allImageUrls.push('https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found');
+  } else if (property.media?.photos?.length > 0) {
+    const firstPhoto = property.media.photos.find(p => p.isCover) || property.media.photos[0];
+    imageUrl = firstPhoto?.thumbnail || firstPhoto?.url;
   }
 
-  const goToPrevious = (e) => {
-    e.stopPropagation();
-    const isFirstSlide = currentImageIndex === 0;
-    const newIndex = isFirstSlide ? allImageUrls.length - 1 : currentImageIndex - 1;
-    setCurrentImageIndex(newIndex);
-  };
+  // Build full image URL using the passed API_BASE_URL
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    // Remove trailing slash from API_BASE_URL to avoid double slashes
+    const baseUrl = API_BASE_URL.replace(/\/$/, '');
+    // Replace backslashes with forward slashes and clean the path
+    const cleanImagePath = imageUrl.replace(/\\/g, '/').replace(/^\/+/, '');
+    imageUrl = `${baseUrl}/${cleanImagePath}`;
+  }
 
-  const goToNext = (e) => {
-    e.stopPropagation();
-    const isLastSlide = currentImageIndex === allImageUrls.length - 1;
-    const newIndex = isLastSlide ? 0 : currentImageIndex + 1;
-    setCurrentImageIndex(newIndex);
+  return {
+    title: property.type || property.title || 'Property',
+    bhk: property.bhk,
+    location: property.location,
+    price: property.price,
+    priceLabel: property.status === 'For Sale' || property.status === 'active' ? 'For Sale' : 'For Rent',
+    isArchived: property.status === 'expired' || property.status === 'paused',
+    isVerified: property.isFeatured || false,
+    area: property.area,
+    baths: property.bathrooms || property.bhk,
+    imageUrl,
+    description: property.description,
+    id: property.id,
+    onContact: () => console.log(`Contact property ${property.id}`)
   };
+};
+
+export default function PropertyCard({ 
+  // New API props
+  title, bhk, location, price, priceLabel = "For Sale", isArchived = false, 
+  isVerified = false, area, baths, imageUrl, description, onContact, className = "", id,
   
-  // --- Event Handlers (No changes) ---
-  const handleContact = (e) => {
-    e.stopPropagation(); 
-    alert(`Contacting agent for property at ${location} (ID: ${id}).`);
+  // Legacy API props for backward compatibility
+  property, API_BASE_URL = '', onViewDetails,
+  
+
+  
+  // New props for save/share functionality
+  isSaved = false, 
+  onToggleSaved,
+  
+  // Layout variant for different contexts
+  variant = "default" // "default" or "compact"
+}) {
+  const [imageError, setImageError] = useState(false);
+
+  // Handle backward compatibility
+  let props = {
+    title, bhk, location, price, priceLabel, isArchived, isVerified, area, baths, imageUrl, description, onContact, id
   };
 
-  const handleShare = async (e) => {
-    e.stopPropagation();
-    const propertyUrl = `${window.location.origin}/property/${id}`;
-    const shareData = {
-      title: `Check out this property: ${type}`,
-      text: `I found this ${type} in ${location} on Housing.com! Price: ${price}.`,
-      url: propertyUrl,
-    };
+  if (property) {
+    // Using legacy API - normalize the property data
+    props = { ...props, ...normalizeLegacyProperty(property, API_BASE_URL) };
+  }
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        toast.success('Property shared successfully!');
-      } catch (err) {
-        // Handle rejection or cancellation by the user
-        if (err.name !== 'AbortError') {
-          toast.error('Could not share property.');
-        }
-      }
-    } else {
-      // Fallback for browsers without Web Share API
-      try {
-        await navigator.clipboard.writeText(propertyUrl);
-        toast.success('Link copied to clipboard!', {
-          icon: <Copy size={16} />,
-        });
-      } catch (err) {
-        console.error(err);
-        toast.error('Could not copy link.');
-      }
+  const {
+    title: propTitle,
+    bhk: propBhk,
+    location: propLocation,
+    price: propPrice,
+    priceLabel: propPriceLabel,
+    isArchived: propIsArchived,
+    isVerified: propIsVerified,
+    area: propArea,
+    baths: propBaths,
+    imageUrl: propImageUrl,
+    description: propDescription,
+    onContact: propOnContact,
+    id: propId,
+    onViewDetails: propOnViewDetails
+  } = props;
+
+  const handleImageError = (e) => {
+    console.warn('Image failed to load:', propImageUrl);
+    setImageError(true);
+  };
+
+  // Enhanced image URL processing
+  const getImageSrc = () => {
+    if (!propImageUrl) return null;
+    
+    // Handle blob URLs (from file uploads) - these should be used directly
+    if (propImageUrl.startsWith('blob:')) {
+      return propImageUrl;
+    }
+    
+    // Handle data URLs (base64 images)
+    if (propImageUrl.startsWith('data:')) {
+      return propImageUrl;
+    }
+    
+    // Handle full URLs (http/https)
+    if (propImageUrl.startsWith('http://') || propImageUrl.startsWith('https://')) {
+      return propImageUrl;
+    }
+    
+    // Handle relative paths - make sure they're properly formed
+    if (!propImageUrl.startsWith('/')) {
+      return `/${propImageUrl}`;
+    }
+    
+    return propImageUrl;
+  };
+
+  const handleCardClick = () => {
+    // Handle navigation based on available props
+    if (propOnViewDetails && propId) {
+      propOnViewDetails(propId);
+    } else if (onViewDetails && propId) {
+      onViewDetails(propId);
+    } else if (propOnContact) {
+      propOnContact();
     }
   };
 
-  const handleToggleSaved = (e) => {
+  const handleContact = (e) => {
     e.stopPropagation();
-    onToggleSaved(id);
+    if (propOnContact) {
+      propOnContact();
+    } else {
+      alert('Contact functionality not implemented yet');
+    }
   };
 
-  const timeAgo = calculateTimeAgo(postedOn);
+  const handleSave = (e) => {
+    e.stopPropagation();
+    if (onToggleSaved && propId) {
+      onToggleSaved(propId);
+      toast.success(isSaved ? 'Removed from saved' : 'Saved property');
+    } else {
+      toast.error('Save functionality not available');
+    }
+  };
 
-  // ######################################################################
-  // #
-  // #   NEW RESPONSIVE JSX LAYOUT
-  // #   Stacks on mobile, goes horizontal (landscape) on larger screens
-  // #
-  // ######################################################################
+  const handleShare = (e) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/property/${propId}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `${propBhk} BHK ${propTitle}`,
+        text: `Check out this property: ${propTitle}`,
+        url: shareUrl
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        toast.success('Link copied to clipboard');
+      }).catch(() => {
+        toast.error('Failed to copy link');
+      });
+    }
+  };
+
+
+
+
+
   return (
     <div 
-      onClick={() => onViewDetails(id)}
-      className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl overflow-hidden transition-all relative cursor-pointer
-                 flex flex-col sm:flex-row" // <-- Stacks on mobile, row on desktop
+      onClick={handleCardClick}
+      className={`bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer group h-full flex flex-col ${className}`}
     >
-      {/* --- Image Section (Left Side on Desktop) --- */}
-      <div className="relative w-full sm:w-2/5 flex-shrink-0">
-        <img
-          src={allImageUrls[currentImageIndex]}
-          alt={type}
-          className="w-full h-48 sm:h-56 md:h-60 object-contain object-center bg-gray-100" // Changed back to object-contain for better fit
-          onError={(e) => { 
-            e.target.onerror = null; 
-            e.target.src = 'https://placehold.co/400x300/e2e8f0/64748b?text=Image+Not+Found';
-          }}
-        />
-
-        {/* Carousel Arrows */}
-        {allImageUrls.length > 1 && (
-          <>
-            <button 
-              onClick={goToPrevious}
-              className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 text-gray-900 p-1.5 rounded-full hover:bg-white transition-all z-10 shadow-md"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button 
-              onClick={goToNext}
-              className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/70 text-gray-900 p-1.5 rounded-full hover:bg-white transition-all z-10 shadow-md"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </>
-        )}
-
-        {/* Photo Count Badge */}
-        <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center space-x-1 z-10">
-          <Camera size={14} />
-          <span>{currentImageIndex + 1} / {allImageUrls.length}</span>
-        </div>
-        
-        {/* Featured Badge */}
-        {isFeatured && (
-          <div className="absolute top-3 left-3 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center space-x-1 z-10">
-            <Star size={14} fill="currentColor" />
-            <span>Featured</span>
-          </div>
-        )}
-
-        {/* Verified Badge */}
-        {isVerified && (
-          <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center space-x-1 z-10">
-            <BadgeCheck size={14} fill="currentColor" />
-            <span>Verified</span>
-          </div>
-        )}
-      </div>
-      
-      {/* --- Card Content Body (Right Side on Desktop) --- */}
-      <div className="p-4 flex-1 flex flex-col w-full sm:w-3/5">
-        
-        {/* Top Row: Title/Location and Save Button */}
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex-1">
-            {buildingName && (
-              <span className="text-sm text-gray-500 dark:text-gray-400">{buildingName}</span>
-            )}
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 leading-tight">{type}</h2>
-            <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 text-sm mt-1">
-              <MapPin size={16} className="flex-shrink-0" />
-              <span className="truncate">{location}</span>
+      {/* Image Section with Fixed Aspect Ratio */}
+      <div className={`relative w-full ${variant === 'compact' ? 'aspect-[16/11]' : 'aspect-[4/3]'} bg-gray-100 overflow-hidden flex-shrink-0`}>
+        {(() => {
+          const imageSrc = getImageSrc();
+          return imageSrc && !imageError ? (
+            <img
+              src={imageSrc}
+              alt={propTitle}
+              className="w-full h-full object-cover object-center transition-transform duration-200 group-hover:scale-105"
+              onError={handleImageError}
+              loading="lazy"
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center ${variant === 'compact' ? 'p-6' : 'p-6'}`}>
+              <Home size={variant === 'compact' ? 32 : 36} className="text-gray-400 mb-2 flex-shrink-0" />
+              <span className={`text-gray-500 text-center font-medium leading-tight ${variant === 'compact' ? 'text-sm' : 'text-sm'}`}>No Image Available</span>
             </div>
+          );
+        })()}
+
+        {/* Status Badges */}
+        {(propIsVerified || propIsArchived) && (
+          <div className="absolute top-3 left-3 flex flex-col gap-1">
+            {propIsVerified && (
+              <span className={`bg-green-500 text-white font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow-sm ${
+                variant === 'compact' ? 'text-xs' : 'text-xs'
+              }`}>
+                <BadgeCheck size={variant === 'compact' ? 10 : 12} />
+                Verified
+              </span>
+            )}
+            {propIsArchived && (
+              <span className={`bg-gray-500 text-white font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow-sm ${
+                variant === 'compact' ? 'text-xs' : 'text-xs'
+              }`}>
+                <Archive size={variant === 'compact' ? 10 : 12} />
+                Archived
+              </span>
+            )}
           </div>
+        )}
+
+        {/* Save/Share Buttons */}
+        <div className="absolute top-3 right-3 flex gap-2">
           <button
-            onClick={handleToggleSaved}
-            className={`ml-2 p-3 rounded-full transition-colors shadow flex-shrink-0 ${
-              isSaved ? 'bg-red-100 text-red-500' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-            }`}
-            aria-label="Like property"
+            onClick={handleSave}
+            className={`rounded-full shadow-sm transition-all duration-200 backdrop-blur-sm ${
+              isSaved 
+                ? 'bg-red-500 text-white hover:bg-red-600' 
+                : 'bg-white/80 text-gray-700 hover:bg-white hover:text-red-500'
+            } ${variant === 'compact' ? 'p-1.5' : 'p-2'}`}
+            title={isSaved ? 'Remove from saved' : 'Save property'}
           >
-            <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
+            <Heart size={variant === 'compact' ? 14 : 16} fill={isSaved ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            onClick={handleShare}
+            className={`rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-blue-500 transition-all duration-200 shadow-sm backdrop-blur-sm ${
+              variant === 'compact' ? 'p-1.5' : 'p-2'
+            }`}
+            title="Share property"
+          >
+            <Share2 size={variant === 'compact' ? 14 : 16} />
           </button>
         </div>
 
-        {/* --- Key Specs Grid (Inspired by 99acres) --- */}
-        <div className="grid grid-cols-3 gap-2 text-center border-y dark:border-gray-700 my-3 py-3">
-          <div>
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400 block">{price}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{status}</span>
+      </div>
+
+      {/* Content Section - Using flex to ensure consistent heights */}
+      <div className={`flex flex-col flex-1 ${variant === 'compact' ? 'p-4' : 'p-4'}`}>
+        {/* Title */}
+        <h3 className={`font-semibold text-gray-900 leading-tight group-hover:text-blue-600 line-clamp-2 ${
+          variant === 'compact' ? 'text-sm mb-1' : 'text-lg mb-2'
+        }`}>
+          {(() => {
+            // Check if propTitle already contains BHK information to avoid duplication
+            const titleLower = propTitle.toLowerCase();
+            const hasBHK = titleLower.includes('bhk') || titleLower.includes('bedroom') || titleLower.includes('bed');
+            
+            if (hasBHK) {
+              return propTitle; // Title already contains BHK info
+            } else {
+              return `${propBhk} BHK ${propTitle}`; // Add BHK prefix
+            }
+          })()}
+        </h3>
+
+        {/* Location */}
+        <div className={`flex items-center text-gray-600 ${variant === 'compact' ? 'text-xs mb-3' : 'text-sm mb-3'}`}>
+          <MapPin size={variant === 'compact' ? 12 : 14} className="mr-2 flex-shrink-0 text-gray-400" />
+          <span className="truncate">{propLocation}</span>
+        </div>
+
+        {/* Price */}
+        <div className={variant === 'compact' ? 'mb-3' : 'mb-3'}>
+          <span className={`font-bold text-gray-900 ${variant === 'compact' ? 'text-base' : 'text-xl'}`}>
+            {formatPrice(propPrice)}
+          </span>
+          <span className={`text-gray-500 ml-2 ${variant === 'compact' ? 'text-xs' : 'text-sm'}`}>
+            {propPriceLabel}
+          </span>
+        </div>
+
+        {/* Features - Fixed layout for consistency */}
+        <div className={`flex items-center justify-between text-gray-600 bg-gray-50 rounded-lg p-2 ${
+          variant === 'compact' ? 'mb-3' : 'mb-4'
+        }`}>
+          <div className="flex items-center gap-1">
+            <Ruler size={variant === 'compact' ? 12 : 14} className="text-gray-400" />
+            <span className={`font-medium ${variant === 'compact' ? 'text-xs' : 'text-xs'}`}>{formatArea(propArea)}</span>
           </div>
-          <div>
-            <span className="text-xl font-bold text-gray-800 dark:text-gray-200 block">{area}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Built-up Area</span>
+          <div className="flex items-center gap-1">
+            <BedDouble size={variant === 'compact' ? 12 : 14} className="text-gray-400" />
+            <span className={`font-medium ${variant === 'compact' ? 'text-xs' : 'text-xs'}`}>{propBhk} BHK</span>
           </div>
-          <div>
-            <span className="text-xl font-bold text-gray-800 dark:text-gray-200 block">{bhk} BHK</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{bathrooms || '1'} {bathrooms > 1 ? 'Baths' : 'Bath'}</span>
+          <div className="flex items-center gap-1">
+            <Bath size={variant === 'compact' ? 12 : 14} className="text-gray-400" />
+            <span className={`font-medium ${variant === 'compact' ? 'text-xs' : 'text-xs'}`}>{propBaths || '1'} Bath</span>
           </div>
         </div>
 
-        {/* --- Highlights Row (New) --- */}
-        {highlights.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Highlights:</span>
-            {highlights.slice(0, 3).map((highlight, index) => (
-              <span key={index} className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
-                {highlight}
-              </span>
-            ))}
-            {highlights.length > 3 && (
-              <span className="text-xs text-gray-500">+ {highlights.length - 3} more</span>
-            )}
-          </div>
+        {/* Description - Limited to maintain consistency */}
+        {propDescription && variant === 'default' && (
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+            {propDescription}
+          </p>
         )}
 
-        {/* --- Description (Using ExpandableText) --- */}
-        {description && (
-          <ExpandableText 
-            text={description} 
-            maxLength={70} // Shorter max length for this layout
-            className="text-gray-500 dark:text-gray-400 text-sm"
-          />
-        )}
-        
-        {/* Spacer to push footer down */}
-        <div className="flex-grow"></div> 
-        
-        {/* --- Footer Actions --- */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-          {/* Agent Info */}
-          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-            {dealerName && <span className="font-bold">{dealerName}</span>}
-            {dealerName && timeAgo && <span> &bull; </span>}
-            {timeAgo && <span>{timeAgo}</span>}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-2 ml-3 flex-shrink-0">
-             <button
-              onClick={handleShare}
-              className="p-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-md"
-              aria-label="Share property"
-            >
-              <Share2 size={18} />
-            </button>
-            <button
-              onClick={handleContact}
-              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-2.5 px-5 rounded-full hover:from-blue-700 hover:to-blue-900 transition-colors text-sm shadow-lg"
-            >
-              Contact
-            </button>
-          </div>
+        {/* Footer - Always at bottom */}
+        <div className={`flex items-center justify-between pt-3 border-t border-gray-100 mt-auto ${
+          variant === 'compact' ? 'pt-3' : 'pt-3'
+        }`}>
+          <button
+            onClick={handleContact}
+            className={`flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors ${
+              variant === 'compact' ? 'text-xs' : 'text-sm'
+            }`}
+          >
+            <ExternalLink size={variant === 'compact' ? 14 : 16} />
+            Contact
+          </button>
+          
+          {variant === 'default' && (
+            <span className="text-xs text-gray-400">
+              Click to view details
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -34,6 +34,7 @@ export default function MyListingsPage() {
     handleOpenPostWizard,
     handleEditProperty,
     handleDeleteProperty,
+    fetchUserProperties,
     API_BASE_URL
   } = React.useContext(AppContext);
 
@@ -55,10 +56,15 @@ export default function MyListingsPage() {
   const [fullEditOpen, setFullEditOpen] = useState(false);
   const [fullEditProperty, setFullEditProperty] = useState(null);
 
-  // Filter and sort properties
+  // Advanced filter state
+  const [advancedFilters, setAdvancedFilters] = useState({});
+
+  // Filter and sort properties with advanced filtering
   const processedProperties = useMemo(() => {
     if (!properties) return [];
     
+    // Since we're using fetchUserProperties, all properties should already belong to current user
+    // But we still keep the filter for safety
     let filtered = properties.filter(property => 
       property.userId === currentUser?.id || property.userId === currentUser?._id
     );
@@ -70,27 +76,136 @@ export default function MyListingsPage() {
         property.type?.toLowerCase().includes(searchLower) ||
         property.location?.toLowerCase().includes(searchLower) ||
         property.id?.toString().includes(searchLower) ||
-        property.description?.toLowerCase().includes(searchLower)
+        property.description?.toLowerCase().includes(searchLower) ||
+        property.buildingName?.toLowerCase().includes(searchLower)
       );
     }
 
-    // Apply status filter
+    // Apply status filter with case-insensitive matching
     if (activeFilter !== 'all') {
       filtered = filtered.filter(property => {
-        switch (activeFilter) {
-          case 'active':
-            return property.status === 'active';
-          case 'paused':
-            return property.status === 'paused';
-          case 'pending':
-            return property.status === 'pending';
-          case 'expired':
-            return property.status === 'expired';
-          case 'draft':
-            return property.status === 'draft';
-          default:
-            return true;
+        if (!property.status) return false;
+        return property.status.toLowerCase() === activeFilter.toLowerCase();
+      });
+    }
+
+    // Apply advanced filters
+    if (Object.keys(advancedFilters).length > 0) {
+      filtered = filtered.filter(property => {
+        // Property types filter
+        if (advancedFilters.propertyTypes?.length > 0) {
+          const propertyType = property.type?.toLowerCase() || '';
+          const matchesType = advancedFilters.propertyTypes.some(type => {
+            switch (type) {
+              case 'apartment':
+                return propertyType.includes('apartment') || propertyType.includes('flat');
+              case 'villa':
+                return propertyType.includes('villa') || propertyType.includes('house');
+              case 'independent':
+                return propertyType.includes('independent') || propertyType.includes('builder floor');
+              case 'plot':
+                return propertyType.includes('plot') || propertyType.includes('land');
+              case 'office':
+                return propertyType.includes('office');
+              case 'shop':
+                return propertyType.includes('shop');
+              case 'warehouse':
+                return propertyType.includes('warehouse') || propertyType.includes('godown');
+              case 'pg':
+                return propertyType.includes('pg') || propertyType.includes('coliving');
+              default:
+                return false;
+            }
+          });
+          if (!matchesType) return false;
         }
+
+        // BHK filter
+        if (advancedFilters.bhk?.length > 0) {
+          const propertyBhk = parseInt(property.bhk) || 0;
+          if (!advancedFilters.bhk.includes(propertyBhk)) return false;
+        }
+
+        // Price range filter
+        if (advancedFilters.priceRange?.min || advancedFilters.priceRange?.max) {
+          const priceInLakhs = (property.priceValue || 0) / 100000;
+          if (advancedFilters.priceRange.min && priceInLakhs < parseFloat(advancedFilters.priceRange.min)) {
+            return false;
+          }
+          if (advancedFilters.priceRange.max && priceInLakhs > parseFloat(advancedFilters.priceRange.max)) {
+            return false;
+          }
+        }
+
+        // Area range filter
+        if (advancedFilters.areaRange?.min || advancedFilters.areaRange?.max) {
+          const area = parseInt(property.area?.replace(/[^\d]/g, '')) || 0;
+          if (advancedFilters.areaRange.min && area < parseFloat(advancedFilters.areaRange.min)) {
+            return false;
+          }
+          if (advancedFilters.areaRange.max && area > parseFloat(advancedFilters.areaRange.max)) {
+            return false;
+          }
+        }
+
+        // Furnishing filter
+        if (advancedFilters.furnishing?.length > 0) {
+          const furnishing = property.furnishing?.toLowerCase() || '';
+          const matchesFurnishing = advancedFilters.furnishing.some(furnish => {
+            switch (furnish) {
+              case 'unfurnished':
+                return furnishing.includes('unfurnished');
+              case 'semi_furnished':
+                return furnishing.includes('semi') || furnishing.includes('partially furnished');
+              case 'fully_furnished':
+                return furnishing.includes('furnished') && !furnishing.includes('semi');
+              default:
+                return false;
+            }
+          });
+          if (!matchesFurnishing) return false;
+        }
+
+        // Plan types filter
+        if (advancedFilters.planTypes?.length > 0) {
+          const planType = property.planType || 'free';
+          if (!advancedFilters.planTypes.includes(planType)) return false;
+        }
+
+        // Amenities filter
+        if (advancedFilters.amenities?.length > 0) {
+          const propertyAmenities = property.amenities || [];
+          const hasRequiredAmenities = advancedFilters.amenities.every(amenity => {
+            switch (amenity) {
+              case 'lift':
+                return propertyAmenities.some(a => a.toLowerCase().includes('lift'));
+              case 'parking':
+                return (property.coveredParking || 0) > 0 || (property.openParking || 0) > 0 || 
+                       propertyAmenities.some(a => a.toLowerCase().includes('parking'));
+              case 'power_backup':
+                return propertyAmenities.some(a => a.toLowerCase().includes('power') || a.toLowerCase().includes('backup'));
+              case 'security':
+                return propertyAmenities.some(a => a.toLowerCase().includes('security'));
+              case 'gym':
+                return propertyAmenities.some(a => a.toLowerCase().includes('gym'));
+              case 'swimming_pool':
+                return propertyAmenities.some(a => a.toLowerCase().includes('pool') || a.toLowerCase().includes('swimming'));
+              case 'clubhouse':
+                return propertyAmenities.some(a => a.toLowerCase().includes('club'));
+              case 'park':
+                return propertyAmenities.some(a => a.toLowerCase().includes('park') || a.toLowerCase().includes('garden'));
+              case 'wifi':
+                return propertyAmenities.some(a => a.toLowerCase().includes('wifi') || a.toLowerCase().includes('internet'));
+              case 'intercom':
+                return propertyAmenities.some(a => a.toLowerCase().includes('intercom'));
+              default:
+                return false;
+            }
+          });
+          if (!hasRequiredAmenities) return false;
+        }
+
+        return true;
       });
     }
 
@@ -103,23 +218,59 @@ export default function MyListingsPage() {
           return new Date(a.createdAt) - new Date(b.createdAt);
         case 'highest_price':
           return (b.priceValue || 0) - (a.priceValue || 0);
+        case 'lowest_price':
+          return (a.priceValue || 0) - (b.priceValue || 0);
         case 'most_views':
           return (b.viewsLast30Days || 0) - (a.viewsLast30Days || 0);
         case 'most_leads':
           return (b.leadsLast30Days || 0) - (a.leadsLast30Days || 0);
         case 'most_shortlists':
           return (b.shortlistsCount || 0) - (a.shortlistsCount || 0);
+        case 'quality_score':
+          // Calculate quality score for sorting
+          const calculateQualityScore = (property) => {
+            let score = 0;
+            if (property.images?.length >= 5) score += 30;
+            else if (property.images?.length >= 3) score += 20;
+            else if (property.images?.length >= 1) score += 10;
+            
+            if (property.description?.length >= 200) score += 25;
+            else if (property.description?.length >= 100) score += 15;
+            
+            if (property.amenities?.length >= 5) score += 20;
+            else if (property.amenities?.length >= 3) score += 15;
+            else if (property.amenities?.length >= 1) score += 10;
+            
+            if (property.keyHighlights?.length >= 3) score += 15;
+            else if (property.keyHighlights?.length >= 1) score += 10;
+            
+            if (property.furnishing && property.furnishing !== 'Unfurnished') score += 10;
+            
+            return score;
+          };
+          return calculateQualityScore(b) - calculateQualityScore(a);
         default:
           return 0;
       }
     });
 
     return filtered;
-  }, [properties, currentUser, searchTerm, activeFilter, sortBy]);
+  }, [properties, currentUser, searchTerm, activeFilter, sortBy, advancedFilters]);
 
   useEffect(() => {
     setFilteredProperties(processedProperties);
   }, [processedProperties]);
+
+  // Load user properties when component mounts or filters change
+  useEffect(() => {
+    if (currentUser) {
+      const filters = {
+        status: activeFilter !== 'all' ? activeFilter : undefined,
+        search: searchTerm.trim() || undefined
+      };
+      fetchUserProperties(filters);
+    }
+  }, [currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   // Handle property selection
   const handlePropertySelect = useCallback((propertyId, isSelected) => {
@@ -414,6 +565,9 @@ export default function MyListingsPage() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           totalCount={filteredProperties.length}
+          properties={properties}
+          advancedFilters={advancedFilters}
+          onAdvancedFilterChange={setAdvancedFilters}
         />
 
         {/* Select All Checkbox (when properties are selected) */}

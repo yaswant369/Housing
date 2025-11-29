@@ -25,7 +25,8 @@ import {
   Check,
   Award,
   TrendingUp,
-  Edit
+  Edit,
+  Archive
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PropertyAnalyticsPanel from './PropertyAnalyticsPanel';
@@ -66,6 +67,22 @@ const statusConfig = {
     label: 'Sold', 
     color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
     icon: Check 
+  },
+  archived: { 
+    label: 'Archived', 
+    color: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
+    icon: Archive 
+  },
+  // Transaction type statuses (treat as active for display)
+  'For Sale': { 
+    label: 'For Sale', 
+    color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    icon: CheckCircle 
+  },
+  'For Rent': { 
+    label: 'For Rent', 
+    color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    icon: CheckCircle 
   }
 };
 
@@ -110,22 +127,54 @@ export default function MyPropertyCard({
   const normalizeImage = (img) => {
     const placeholder = 'https://placehold.co/400x300/e2e8f0/64748b?text=No+Image';
     if (!img) return placeholder;
-    if (typeof img === 'string') {
-      const clean = img.replace(/\\/g, '/');
-      if (clean.startsWith('http')) return clean;
-      return clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`;
-    }
-    if (typeof img === 'object') {
-      const medium = img.medium || img.optimized || img.thumbnail;
-      if (!medium) return placeholder;
-      const clean = medium.replace(/\\/g, '/');
-      return clean.startsWith('http') ? clean : (clean.startsWith('/') ? `${API_BASE_URL}${clean}` : `${API_BASE_URL}/${clean}`);
+    
+    try {
+      if (typeof img === 'string') {
+        // Handle string URLs - replace backslashes with forward slashes
+        const clean = img.replace(/\\\\/g, '/').replace(/\\/g, '/');
+        if (clean.startsWith('http')) return clean;
+        // Ensure the path starts with / for proper API_BASE_URL concatenation
+        const normalizedPath = clean.startsWith('/') ? clean : `/${clean}`;
+        return `${API_BASE_URL}${normalizedPath}`;
+      }
+      if (typeof img === 'object') {
+        // Handle image objects - get the best available URL
+        const medium = img.medium || img.optimized || img.thumbnail || img.url;
+        if (!medium) return placeholder;
+        const clean = medium.replace(/\\\\/g, '/').replace(/\\/g, '/');
+        if (clean.startsWith('http')) return clean;
+        const normalizedPath = clean.startsWith('/') ? clean : `/${clean}`;
+        return `${API_BASE_URL}${normalizedPath}`;
+      }
+    } catch (error) {
+      console.warn('Error normalizing image:', error, img);
     }
     return placeholder;
   };
 
   const mainImage = normalizeImage(images[0]);
-  const statusInfo = statusConfig[status] || statusConfig.draft;
+  
+  // More robust status lookup with case-insensitive matching
+  const getStatusInfo = (statusValue) => {
+    if (!statusValue) return statusConfig.draft;
+    
+    // Try exact match first
+    if (statusConfig[statusValue]) return statusConfig[statusValue];
+    
+    // Try case-insensitive match
+    const lowercaseStatus = statusValue.toLowerCase();
+    if (statusConfig[lowercaseStatus]) return statusConfig[lowercaseStatus];
+    
+    // Try capitalize first letter
+    const capitalizedStatus = statusValue.charAt(0).toUpperCase() + statusValue.slice(1).toLowerCase();
+    if (statusConfig[capitalizedStatus]) return statusConfig[capitalizedStatus];
+    
+    // Default to draft if no match found
+    console.warn('Unknown property status:', statusValue, 'defaulting to draft');
+    return statusConfig.draft;
+  };
+  
+  const statusInfo = getStatusInfo(status);
   const StatusIcon = statusInfo.icon;
   const planInfo = planConfig[planType] || planConfig.free;
 

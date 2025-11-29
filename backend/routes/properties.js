@@ -1,6 +1,7 @@
 // backend/routes/properties.js
 const express = require('express');
 const Property = require('../models/Property');
+const PropertyHistory = require('../models/PropertyHistory');
 const authMiddleware = require('../middleware/authMiddleware');
 const { uploadPropertyMedia } = require('../middleware/upload'); // Import new upload middleware
 const { optionalPremiumCheck } = require('../middleware/premiumMiddleware');
@@ -209,11 +210,151 @@ async function updatePropertyStatuses() {
   }
 }
 
+// Property History Tracking Middleware
+async function trackPropertyHistory(propertyId, userId, changeType, previousData, currentData, req, additionalData = {}) {
+  try {
+    const changedFields = [];
+    
+    // Find changed fields if we have both previous and current data
+    if (previousData && currentData) {
+      const allKeys = new Set([...Object.keys(previousData), ...Object.keys(currentData)]);
+      for (const key of allKeys) {
+        if (JSON.stringify(previousData[key]) !== JSON.stringify(currentData[key])) {
+          changedFields.push(key);
+        }
+      }
+    }
+    
+    const historyEntry = new PropertyHistory({
+      propertyId,
+      userId,
+      changeType,
+      previousData,
+      currentData,
+      changedFields,
+      changedBy: userId,
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      ...additionalData
+    });
+    
+    await historyEntry.save();
+    console.log(`Property history tracked: ${changeType} for property ${propertyId}`);
+  } catch (error) {
+    console.error('Failed to track property history:', error);
+    // Don't throw error to avoid breaking the main operation
+  }
+}
+
 // Run status updates every hour
 setInterval(updatePropertyStatuses, 60 * 60 * 1000);
 
-// Call initialization on server start
-initializeAnalyticsData();
+// GET ALL ACTIVE PROPERTIES FOR HOMEPAGE (with pagination and filtering)
+router.get('/homepage', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const query = {};
+    
+    // Show all active properties - both 'active' status and 'For Sale'/'For Rent' status
+    query.$or = [
+      { status: 'active' },
+      { status: 'For Sale' },
+      { status: 'For Rent' }
+    ];
+
+    if (req.query.q) {
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { location: { $regex: req.query.q, $options: 'i' } },
+          { description: { $regex: req.query.q, $options: 'i' } },
+          { type: { $regex: req.query.q, $options: 'i' } },
+          { id: isNaN(req.query.q) ? undefined : parseInt(req.query.q) }
+        ].filter(condition => condition !== undefined)
+      });
+    }
+
+    if (req.query.listingType) {
+      if(req.query.listingType === 'Buy') {
+        query.$and = query.$and || [];
+        query.$and.push({
+          $or: [
+            { status: 'For Sale' },
+            { lookingTo: 'Sell' }
+          ]
+        });
+      }
+      else if(req.query.listingType === 'Rent') {
+        query.$and = query.$and || [];
+        query.$and.push({
+          $or: [
+            { status: 'For Rent' },
+            { lookingTo: 'Rent' }
+          ]
+        });
+      }
+    }
+
+    if (req.query.bhk && req.query.bhk !== 'any') {
+      if (req.query.bhk === '5') {
+        query.bhk = { $gte: 5 };
+      } else {
+        query.bhk = parseInt(req.query.bhk);
+      }
+    }
+
+    if (req.query.furnishing && req.query.furnishing !== 'any') {
+      query.furnishing = req.query.furnishing;
+    }
+
+    if (req.query.minPrice || req.query.maxPrice) {
+      query.priceValue = {};
+      if (req.query.minPrice) {
+        query.priceValue.$gte = parseInt(req.query.minPrice);
+      }
+      if (req.query.maxPrice) {
+        query.priceValue.$lte = parseInt(req.query.maxPrice);
+      }
+    }
+
+    if (req.query.amenities) {
+      const amenities = Array.isArray(req.query.amenities) ? req.query.amenities : req.query.amenities.split(',');
+      if (amenities.length > 0) {
+        query.amenities = { $all: amenities };
+      }
+    }
+
+    if (req.query.gatedCommunity === 'true') {
+      query.gatedCommunity = true;
+    }
+
+    if (req.query.facing && req.query.facing !== 'any') {
+      query.facing = req.query.facing;
+    }
+
+    const properties = await Property.find(query)
+      .sort({ isFeatured: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+      
+    const totalCount = await Property.countDocuments(query);
+    
+    res.json({
+      properties,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Call initialization on server start (disabled to prevent startup error)
+// initializeAnalyticsData();
 
 // GET ALL PROPERTIES (with pagination and filtering)
 router.get('/', async (req, res) => {
@@ -236,6 +377,12 @@ router.get('/', async (req, res) => {
     if (req.query.listingType) {
         if(req.query.listingType === 'Buy') query.status = 'For Sale';
         else if(req.query.listingType === 'Rent') query.status = 'For Rent';
+        // Also include properties with matching status in the enum
+        const validStatuses = ['active', 'For Sale', 'For Rent'];
+        query.$or = [
+            { status: { $in: validStatuses } },
+            { lookingTo: req.query.listingType === 'Buy' ? 'Sell' : 'Rent' }
+        ];
     }
 
     if (req.query.bhk && req.query.bhk !== 'any') {
@@ -329,6 +476,73 @@ router.get('/:id', optionalPremiumCheck, async (req, res) => {
   }
 });
 
+// GET USER PROPERTIES (for MyListingsPage) - IMPROVED VERSION
+router.get('/user/my-properties', authMiddleware, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100); // Cap at 100 for performance
+    const skip = (page - 1) * limit;
+
+    // Ensure user ID is properly handled - check both id formats for backward compatibility
+    const userId = req.user.id;
+    const userObjectId = req.user._id;
+    
+    console.log(`Fetching properties for user: ${userId} (ObjectId: ${userObjectId})`);
+
+    // Build the query with better filtering
+    const query = {
+      $or: [
+        { userId: userId },
+        { userId: userObjectId } // Handle both string and ObjectId formats
+      ]
+    };
+
+    // Add status filter if provided
+    if (req.query.status && req.query.status !== 'all') {
+      query.status = req.query.status;
+    }
+
+    // Add search filter if provided with better error handling
+    if (req.query.search && req.query.search.trim()) {
+      const searchTerm = req.query.search.trim();
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { location: { $regex: searchTerm, $options: 'i' } },
+          { type: { $regex: searchTerm, $options: 'i' } },
+          { description: { $regex: searchTerm, $options: 'i' } },
+          { buildingName: { $regex: searchTerm, $options: 'i' } }
+        ]
+      });
+    }
+
+    // Use lean() for better performance when we don't need Mongoose documents
+    const properties = await Property.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+      
+    const totalCount = await Property.countDocuments(query);
+    
+    console.log(`Found ${properties.length} properties (total: ${totalCount}) for user ${userId}`);
+    
+    res.json({
+      properties,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      hasMore: page * limit < totalCount
+    });
+  } catch (err) {
+    console.error('Error fetching user properties:', err);
+    res.status(500).json({ 
+      message: 'Failed to fetch properties', 
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+});
+
 // POST access property contact (requires premium and uses contact quota)
 router.post('/:id/access-contact', authMiddleware, async (req, res) => {
   try {
@@ -386,37 +600,102 @@ router.post('/:id/access-contact', authMiddleware, async (req, res) => {
   }
 });
 
-// --- THIS IS THE FIX for POSTING ---
+// --- IMPROVED POSTING with Better Error Handling and User ID Validation ---
 // Create new property
 router.post('/', authMiddleware, uploadPropertyMedia, async (req, res) => { 
   try {
-    const lastProperty = await Property.findOne().sort({ id: -1 });
-    const newId = lastProperty ? lastProperty.id + 1 : 1;
+    // Validate user authentication and userId consistency
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Invalid user authentication' });
+    }
+
+    console.log(`Creating property for user: ${req.user.id}`);
+
+    // Get next available property ID with transaction-like behavior
+    const session = await Property.startSession();
+    session.startTransaction();
     
-    const structuredData = parseStructuredData(req.body);
-    const propertyData = { ...req.body, ...structuredData, id: newId, userId: req.user.id };
+    try {
+      const lastProperty = await Property.findOne().sort({ id: -1 }).session(session);
+      const newId = lastProperty ? lastProperty.id + 1 : 1;
+      
+      const structuredData = parseStructuredData(req.body);
+      
+      // Ensure userId is properly set and consistent
+      const userId = req.user.id;
+      
+      const propertyData = { 
+        ...req.body, 
+        ...structuredData, 
+        id: newId, 
+        userId: userId, // Ensure consistent userId format
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    // Handle new images (process and store medium versions)
-    if (req.files.images) {
-      const processed = await processImagesAndReturnPaths(req.files.images, newId);
-      propertyData.images = processed; // e.g. 'uploads/properties/{id}/{filename}_medium.webp'
+      // Validate required fields
+      const requiredFields = ['type', 'location', 'price', 'priceValue'];
+      for (const field of requiredFields) {
+        if (!propertyData[field]) {
+          throw new Error(`Missing required field: ${field}`);
+        }
+      }
+
+      // Handle new images (process and store medium versions)
+      if (req.files.images) {
+        const processed = await processImagesAndReturnPaths(req.files.images, newId);
+        propertyData.images = processed;
+      }
+
+      // Handle new video
+      if (req.files.video) {
+        propertyData.video = req.files.video[0].path;
+      }
+
+      // Create and save property
+      const property = new Property(propertyData);
+      const newProperty = await property.save({ session });
+      
+      // Commit the transaction
+      await session.commitTransaction();
+      session.endSession();
+      
+      console.log(`Successfully created property ${newId} for user ${userId}`);
+      
+      // Track property creation in history (outside transaction)
+      await trackPropertyHistory(
+        newId, 
+        userId, 
+        'created', 
+        null, 
+        newProperty.toObject(), 
+        req,
+        { changeReason: 'Property created via wizard' }
+      );
+      
+      res.status(201).json({
+        success: true,
+        property: newProperty,
+        message: 'Property created successfully'
+      });
+      
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
     }
-
-    // Handle new video
-    if (req.files.video) {
-      propertyData.video = req.files.video[0].path;
-    }
-
-    const property = new Property(propertyData);
-    const newProperty = await property.save();
-    res.status(201).json(newProperty);
+    
   } catch (err) {
-    console.error(err.message); // Log the full error
-    res.status(400).json({ message: err.message });
+    console.error('Property creation failed:', err);
+    res.status(400).json({ 
+      success: false,
+      message: 'Failed to create property', 
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
   }
 });
 
-// --- THIS IS THE FIX for UPDATING ---
+// --- THIS IS THE FIX for UPDATING with History Tracking ---
 // Update a property
 router.put('/:id', authMiddleware, uploadPropertyMedia, async (req, res) => { 
   try {
@@ -425,6 +704,9 @@ router.put('/:id', authMiddleware, uploadPropertyMedia, async (req, res) => {
     if (property.userId !== req.user.id) {
       return res.status(401).json({ message: 'User not authorized' });
     }
+
+    // Store previous state for history tracking
+    const previousData = property.toObject();
 
     const structuredData = parseStructuredData(req.body);
     const updateData = { ...req.body, ...structuredData };
@@ -484,6 +766,28 @@ router.put('/:id', authMiddleware, uploadPropertyMedia, async (req, res) => {
       updateData, 
       { new: true }
     );
+    
+    // Determine change type for history
+    let changeType = 'updated';
+    if (updateData.status && updateData.status !== previousData.status) {
+      changeType = 'status_changed';
+    } else if (updateData.priceValue && updateData.priceValue !== previousData.priceValue) {
+      changeType = 'price_changed';
+    } else if (req.files.images || req.files.video || (updateData.images && JSON.stringify(updateData.images) !== JSON.stringify(previousData.images))) {
+      changeType = 'media_changed';
+    }
+    
+    // Track property update in history
+    await trackPropertyHistory(
+      req.params.id,
+      req.user.id,
+      changeType,
+      previousData,
+      updatedProperty.toObject(),
+      req,
+      { changeReason: 'Property updated via wizard' }
+    );
+    
     res.json(updatedProperty);
   } catch (err) {
     console.error(err.message); // Log the full error
@@ -580,7 +884,7 @@ router.patch('/bulk', authMiddleware, async (req, res) => {
   }
 });
 
-// UPDATE PROPERTY STATUS
+// UPDATE PROPERTY STATUS with History Tracking
 router.patch('/:id/status', authMiddleware, async (req, res) => {
   try {
     const { status } = req.body;
@@ -589,7 +893,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'Status is required' });
     }
 
-    const validStatuses = ['draft', 'pending', 'active', 'paused', 'expired', 'sold'];
+    const validStatuses = ['draft', 'pending', 'active', 'paused', 'expired', 'sold', 'For Sale', 'For Rent'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
@@ -601,6 +905,9 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
       return res.status(401).json({ message: 'User not authorized' });
     }
 
+    // Store previous state for history tracking
+    const previousData = property.toObject();
+
     const updatedProperty = await Property.findOneAndUpdate(
       { id: req.params.id },
       { 
@@ -608,6 +915,17 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
         updatedAt: new Date()
       },
       { new: true }
+    );
+
+    // Track status change in history
+    await trackPropertyHistory(
+      req.params.id,
+      req.user.id,
+      'status_changed',
+      previousData,
+      updatedProperty.toObject(),
+      req,
+      { changeReason: `Status changed from ${previousData.status} to ${status}` }
     );
 
     res.json({
@@ -699,7 +1017,7 @@ router.get('/:id/analytics', authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE A PROPERTY
+// DELETE A PROPERTY with History Tracking
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const property = await Property.findOne({ id: req.params.id });
@@ -709,8 +1027,43 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       return res.status(401).json({ message: 'User not authorized' });
     }
 
+    // Store property data for history before deletion
+    const propertyData = property.toObject();
+
     await Property.findOneAndDelete({ id: req.params.id });
+    
+    // Track property deletion in history
+    await trackPropertyHistory(
+      req.params.id,
+      req.user.id,
+      'deleted',
+      propertyData,
+      null,
+      req,
+      { changeReason: 'Property deleted by user' }
+    );
+    
     res.json({ message: 'Property deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET PROPERTY HISTORY
+router.get('/:id/history', authMiddleware, async (req, res) => {
+  try {
+    const property = await Property.findOne({ id: req.params.id });
+    if (!property) return res.status(404).json({ message: 'Property not found' });
+    
+    if (property.userId !== req.user.id) {
+      return res.status(401).json({ message: 'User not authorized' });
+    }
+
+    const history = await PropertyHistory.find({ propertyId: req.params.id })
+      .sort({ timestamp: -1 })
+      .limit(50); // Limit to last 50 changes
+
+    res.json(history);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,12 +1,14 @@
- // src/PostPropertyWizard.jsx
+// src/PostPropertyWizard.jsx
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, ArrowLeft, User, Building, Phone, MapPin, LocateFixed, Upload, 
   BedDouble, Bath, Plus, Minus, Home, Aperture, Star, CheckSquare, Trash2,
-  Text, DollarSign, Ruler, ImageIcon, Video, Loader2
+  Text, DollarSign, Ruler, ImageIcon, Video, Loader2, AlertTriangle, 
+  CheckCircle, Info, HelpCircle, Eye, Camera, Globe, ArrowRight
 } from 'lucide-react';
-import { AppContext } from '../context/context.js'; // 1. Import AppContext
+import { AppContext } from '../context/context.js';
+import toast from 'react-hot-toast';
 
 // --------------------------------------------------
 // --- MAIN WIZARD COMPONENT ---
@@ -15,11 +17,14 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
   
   const isEditing = !!existingProperty;
   const contentRef = useRef(null);
-  const { currentUser, API_BASE_URL } = useContext(AppContext); // 2. Get currentUser and API_BASE_URL
+  const { currentUser, API_BASE_URL } = useContext(AppContext);
   const navigate = useNavigate();
   const [isDetecting, setIsDetecting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [showValidationWarnings, setShowValidationWarnings] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
+  
   // Helper to combine old single 'image' with new 'images' array
   const getInitialImages = () => {
     if (!existingProperty) return [];
@@ -45,7 +50,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
   const [formData, setFormData] = useState({
     // Step 1
     userType: existingProperty?.userType || 'Owner',
-    phoneNumber: existingProperty?.phoneNumber || currentUser?.phone || '', // 3. Pre-fill phone
+    phoneNumber: existingProperty?.phoneNumber || currentUser?.phone || '',
     // Step 2
     lookingTo: existingProperty?.lookingTo || 'Sell',
     propertyKind: existingProperty?.propertyKind || 'Residential',
@@ -90,7 +95,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
   
   // 5. State for multiple new image files and one new video file
   const [imageFiles, setImageFiles] = useState([]);
-  const [videoFile, setVideoFile] = useState(null);
+  const [videoFile, setVideoFile] = useState([]);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -98,12 +103,105 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     }
   }, [currentStep]);
 
+  // Validation function for each step
+  const validateStep = (step) => {
+    const errors = {};
+    
+    switch (step) {
+      case 1:
+        if (!formData.phoneNumber || formData.phoneNumber.length < 10) {
+          errors.phoneNumber = 'Please enter a valid phone number';
+        }
+        break;
+      case 2:
+        if (!formData.propertyType) {
+          errors.propertyType = 'Please select a property type';
+        }
+        break;
+      case 3:
+        if (!formData.location.trim()) {
+          errors.location = 'Location is required';
+        }
+        if (!formData.carpetArea && !formData.plotArea) {
+          errors.area = 'Either carpet area or plot area is required';
+        }
+        if (!formData.bedrooms || formData.bedrooms < 1) {
+          errors.bedrooms = 'At least 1 bedroom is required';
+        }
+        break;
+      case 4:
+        // No required fields in step 4, but can add optional validations
+        break;
+      case 5:
+        if (!formData.expectedPrice || formData.expectedPrice <= 0) {
+          errors.expectedPrice = 'Please enter a valid price';
+        }
+        if (!formData.description || formData.description.length < 30) {
+          errors.description = 'Description should be at least 30 characters';
+        }
+        if (formData.imagePreviews.length === 0) {
+          errors.images = 'At least one property image is required';
+        }
+        break;
+    }
+    
+    return errors;
+  };
+
+  // Get validation warnings for incomplete fields
+  const getStepWarnings = (step) => {
+    const warnings = [];
+    
+    switch (step) {
+      case 3:
+        if (!formData.description && formData.description.length < 10) {
+          warnings.push('Consider adding a brief description');
+        }
+        if (formData.balconies === 0) {
+          warnings.push('Adding balcony information can increase interest');
+        }
+        if (formData.furnishing === 'Unfurnished') {
+          warnings.push('Furnished properties typically get more views');
+        }
+        break;
+      case 4:
+        if (formData.amenities.length === 0) {
+          warnings.push('Adding amenities can increase your property ranking');
+        }
+        if (formData.keyHighlights.length === 0) {
+          warnings.push('Key highlights make your property stand out');
+        }
+        if (!formData.reraId) {
+          warnings.push('RERA ID adds credibility to your listing');
+        }
+        break;
+      case 5:
+        if (formData.priceNegotiable) {
+          warnings.push('Marking price as negotiable can attract more buyers');
+        }
+        if (!formData.allInclusive && !formData.taxExcluded) {
+          warnings.push('Clarify if price includes taxes and other charges');
+        }
+        break;
+    }
+    
+    return warnings;
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
   
   // 6. Handle multiple file changes
@@ -120,13 +218,21 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       ...prev,
       imagePreviews: totalPreviews
     }));
+    
+    // Clear images validation error
+    if (validationErrors.images) {
+      setValidationErrors(prev => ({
+        ...prev,
+        images: ''
+      }));
+    }
   };
   
   // 7. Handle video file change
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setVideoFile(file);
+      setVideoFile([file]); // Changed to array for consistency
       setFormData(prev => ({
         ...prev,
         videoPreview: URL.createObjectURL(file)
@@ -134,7 +240,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     }
   };
   
-  // 8. Handle deleting an image (works for new blobs and old URLs)
+  // 8. Handle deleting an image
   const handleDeleteImage = (indexToDelete) => {
     const previewToDelete = formData.imagePreviews[indexToDelete];
     
@@ -146,12 +252,9 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
 
     // If it was a new file (blob), remove it from imageFiles state
     if (previewToDelete.startsWith('blob:')) {
-      // This is tricky, we need to find the matching file
-      // For simplicity, let's find the file by its preview URL
-      // Let's find the index *within* the blob URLs
       let blobIndex = -1;
       for (let i = 0; i <= indexToDelete; i++) {
-        if (formData.imagePreviews[i].startsWith('blob:')) {
+        if (formData.imagePreviews[i]?.startsWith('blob:')) {
           blobIndex++;
         }
       }
@@ -164,7 +267,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
   
   // 9. Handle deleting video
   const handleDeleteVideo = () => {
-    setVideoFile(null);
+    setVideoFile([]);
     setFormData(prev => ({ ...prev, videoPreview: null }));
   };
 
@@ -192,7 +295,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          // Use OpenStreetMap (Nominatim) for reverse geocoding (free, no API key)
+          // Use OpenStreetMap (Nominatim) for reverse geocoding
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
           if (!response.ok) throw new Error('Failed to fetch location data');
           
@@ -218,12 +321,32 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     );
   };
 
-  const handleNext = () => setCurrentStep(prev => prev + 1);
+  const handleNext = () => {
+    const errors = validateStep(currentStep);
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setShowValidationWarnings(true);
+      return;
+    }
+    
+    setCurrentStep(prev => prev + 1);
+    setValidationErrors({});
+    setShowValidationWarnings(false);
+  };
+
   const handleBack = () => setCurrentStep(prev => prev - 1);
 
   // 11. Handle final submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate final step
+    const errors = validateStep(5);
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setShowValidationWarnings(true);
+      return;
+    }
     
     const formDataToSubmit = new FormData();
     
@@ -290,8 +413,8 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
     for (const file of imageFiles) {
       formDataToSubmit.append('images', file);
     }
-    if (videoFile) {
-      formDataToSubmit.append('video', videoFile);
+    if (videoFile.length > 0) {
+      formDataToSubmit.append('video', videoFile[0]);
     }
 
     // --- 4. Handle EXISTING media (for edits) ---
@@ -309,20 +432,31 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       }
     }
 
-    if (isEditing) {
-      onEditProperty(existingProperty.id, formDataToSubmit);
-    } else {
-      onAddProperty(formDataToSubmit);
+    try {
+      if (isEditing) {
+        await onEditProperty(existingProperty.id, formDataToSubmit);
+        toast.success('Property updated successfully!');
+      } else {
+        await onAddProperty(formDataToSubmit);
+        toast.success('Property posted successfully! You can now manage it from My Properties.');
+      }
+      onClose();
+    } catch (error) {
+      console.error('Property submission failed:', error);
+      toast.error(error.message || 'Failed to submit property. Please try again.');
     }
-    onClose();
   };
+
+  // Get current step warnings
+  const currentWarnings = getStepWarnings(currentStep);
+  const stepErrors = validateStep(currentStep);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="bg-gray-100 dark:bg-gray-900 w-full max-w-lg h-full max-h-[calc(100vh-2rem)] rounded-2xl shadow-xl flex flex-col overflow-y-auto">
+      <div className="bg-gray-100 dark:bg-gray-900 w-full max-w-4xl h-full max-h-[calc(100vh-2rem)] rounded-2xl shadow-xl flex flex-col overflow-hidden">
         
-        {/* Header */}
-        <header className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        {/* Enhanced Header */}
+        <header className="flex items-center p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800">
           {currentStep > 1 ? (
             <button onClick={handleBack} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
               <ArrowLeft size={20} />
@@ -330,15 +464,57 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
           ) : <div className="w-8"></div>}
           
           <div className="flex-1 text-center">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-100">
+            <h2 className="font-bold text-xl text-gray-800 dark:text-gray-100">
               {isEditing ? 'Edit Your Property' : 'Post Your Property'}
             </h2>
-            <span className="text-sm text-gray-500">Step {currentStep} of 5</span>
+            <div className="flex items-center justify-center mt-2 space-x-4">
+              <span className="text-sm text-gray-500">Step {currentStep} of 5</span>
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((step) => (
+                  <div
+                    key={step}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      step <= currentStep ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
             <X size={20} />
           </button>
         </header>
+
+        {/* Validation Warnings */}
+        {showValidationWarnings && Object.keys(stepErrors).length > 0 && (
+          <div className="mx-6 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="flex items-center mb-2">
+              <AlertTriangle className="text-red-500 mr-2" size={20} />
+              <h3 className="text-red-800 dark:text-red-200 font-medium">Please fill in the required fields:</h3>
+            </div>
+            <ul className="list-disc list-inside text-red-700 dark:text-red-300 text-sm">
+              {Object.values(stepErrors).map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Step Warnings */}
+        {currentWarnings.length > 0 && (
+          <div className="mx-6 mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-center mb-2">
+              <Info className="text-yellow-500 mr-2" size={20} />
+              <h3 className="text-yellow-800 dark:text-yellow-200 font-medium">Suggestions to improve your listing:</h3>
+            </div>
+            <ul className="list-disc list-inside text-yellow-700 dark:text-yellow-300 text-sm">
+              {currentWarnings.map((warning, index) => (
+                <li key={index}>{warning}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Wizard Body */}
         <div ref={contentRef} className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -347,19 +523,25 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
               formData={formData} 
               handleChipChange={handleChipChange} 
               handleChange={handleChange}
-              currentUser={currentUser} // 12. Pass currentUser down
+              currentUser={currentUser}
               navigate={navigate}
+              validationErrors={validationErrors}
             />
           )}
-          {currentStep === 2 && <Step2_BasicDetails formData={formData} handleChipChange={handleChipChange} />}
+          {currentStep === 2 && <Step2_BasicDetails 
+            formData={formData} 
+            handleChipChange={handleChipChange}
+            validationErrors={validationErrors}
+          />}
           {currentStep === 3 && (
             <Step3_PropertyDetails 
               formData={formData} 
               handleChipChange={handleChipChange} 
               handleChange={handleChange} 
               handleCounterChange={handleCounterChange}
-              onDetectLocation={handleDetectLocation} // 13. Pass handler down
-              isDetecting={isDetecting} // 14. Pass loading state
+              onDetectLocation={handleDetectLocation}
+              isDetecting={isDetecting}
+              validationErrors={validationErrors}
             />
           )}
           {currentStep === 4 && (
@@ -375,39 +557,48 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
               handleChipChange={handleChipChange} 
               handleChange={handleChange}
               handleFileChange={handleFileChange}
-              handleVideoChange={handleVideoChange} // 15. Pass handlers down
+              handleVideoChange={handleVideoChange}
               handleDeleteImage={handleDeleteImage}
               handleDeleteVideo={handleDeleteVideo}
+              validationErrors={validationErrors}
             />
           )}
         </div>
 
-        {/* Footer */}
-        <footer className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          {currentStep < 5 ? (
-            <button
-              onClick={handleNext}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {isEditing ? 'Update Property' : 'Submit Property'}
-            </button>
-          )}
+        {/* Enhanced Footer */}
+        <footer className="p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {currentStep < 5 ? (
+                <>Complete all required fields to continue</>
+              ) : (
+                <>Review your property details before submitting</>
+              )}
+            </div>
+            
+            {currentStep < 5 ? (
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Next
+                <ArrowRight size={18} />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors"
+              >
+                {isEditing ? 'Update Property' : 'Submit Property'}
+                <CheckCircle size={18} />
+              </button>
+            )}
+          </div>
         </footer>
       </div>
     </div>
   );
 }
-
-// --------------------------------------------------
-// --- ALL REUSABLE SUB-COMPONENTS ARE BELOW ---
-// --------------------------------------------------
 
 // --------------------------------------------------
 // --- ALL REUSABLE SUB-COMPONENTS ARE BELOW ---
@@ -518,16 +709,23 @@ function FormSwitch({ label, name, checked, onChange }) {
   );
 }
 
-
-function FormInput({ label, id, ...props }) {
+function FormInput({ label, id, error, ...props }) {
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       <input
         id={id}
         {...props}
-        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 ${
+          error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+        }`}
       />
+      {error && (
+        <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center">
+          <AlertTriangle size={14} className="mr-1" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -588,9 +786,8 @@ function CounterInput({ label, name, value, onCounterChange }) {
   );
 }
 
-
 // ... (keep Step1, Step2, Step3)
-function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUser, navigate }) { // 1. Receive currentUser
+function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUser, navigate, validationErrors }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 p-3 rounded-lg">
@@ -605,32 +802,29 @@ function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUs
         <ChoiceChip label="Broker/Builder" name="userType" value="Broker" selected={formData.userType} onChange={handleChipChange} icon={Building} />
       </div>
       
-      <div>
-        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Enter Phone Number</label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-            <span className="text-gray-500 dark:text-gray-400">+91</span>
-          </div>
-          <input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            placeholder="Enter Phone Number"
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-            <Phone size={18} className="text-gray-400" />
-          </div>
+      <FormInput 
+        label="Enter Phone Number" 
+        id="phoneNumber" 
+        name="phoneNumber" 
+        value={formData.phoneNumber} 
+        onChange={handleChange} 
+        placeholder="Enter Phone Number"
+        type="tel"
+        error={validationErrors.phoneNumber}
+        className="pl-12"
+      />
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+          <span className="text-gray-500 dark:text-gray-400">+91</span>
         </div>
       </div>
+      
        <button className="w-full py-3 bg-cyan-500 text-black font-bold rounded-lg flex items-center justify-center space-x-2 hover:bg-cyan-600">
         <Phone size={18} />
         <span>One Tap Login with Truecaller</span>
       </button>
-      
-      {/* 2. Conditionally render the "Login" link */}
+       
+      {/* Conditionally render the "Login" link */}
       {!currentUser && (
         <p className="text-center text-sm text-gray-500">
           Existing user? <a href="#" onClick={() => navigate('/login')} className="font-medium text-blue-600">Login Here</a>
@@ -640,7 +834,7 @@ function Step1_RoleContact({ formData, handleChipChange, handleChange, currentUs
   );
 }
 
-function Step2_BasicDetails({ formData, handleChipChange }) {
+function Step2_BasicDetails({ formData, handleChipChange, validationErrors }) {
   const propertyTypes = {
     Residential: ['Apartment', 'Independent House / Villa', 'Independent / Builder Floor', '1 RK/ Studio Apartment', 'Serviced Apartment', 'Farmhouse', 'Other'],
     Commercial: ['Office Space', 'Co-Working', 'Shop', 'Showroom', 'Godown / Warehouse', 'Industrial Shed', 'Other'],
@@ -685,20 +879,33 @@ function Step2_BasicDetails({ formData, handleChipChange }) {
             </button>
           ))}
         </div>
+        {validationErrors.propertyType && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+            <AlertTriangle size={14} className="mr-1" />
+            {validationErrors.propertyType}
+          </p>
+        )}
       </FormSection>
     </div>
   );
 }
 
-function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handleCounterChange, onDetectLocation, isDetecting }) { // 1. Receive handlers
+function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handleCounterChange, onDetectLocation, isDetecting, validationErrors }) {
   return (
     <div className="space-y-6">
       <FormSection title="Where is your property located?">
         <div className="space-y-4">
           <FormInput label="City" id="city" name="city" value={formData.city} onChange={handleChange} />
-          <FormInput label="Location" id="location" name="location" value={formData.location} onChange={handleChange} placeholder="e.g., Magunta Layout" />
+          <FormInput 
+            label="Location" 
+            id="location" 
+            name="location" 
+            value={formData.location} 
+            onChange={handleChange} 
+            placeholder="e.g., Magunta Layout"
+            error={validationErrors.location}
+          />
           
-          {/* 2. Wire up the button */}
           <button 
             type="button"
             onClick={onDetectLocation}
@@ -714,18 +921,42 @@ function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handl
           </button>
         </div>
       </FormSection>
+      
       <FormSection title="Add Room Details">
         <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner">
           <CounterInput label="No. of Bedrooms" name="bedrooms" value={formData.bedrooms} onCounterChange={handleCounterChange} />
           <CounterInput label="No. of Bathrooms" name="bathrooms" value={formData.bathrooms} onCounterChange={handleCounterChange} />
           <CounterInput label="Balconies" name="balconies" value={formData.balconies} onCounterChange={handleCounterChange} />
         </div>
+        {validationErrors.bedrooms && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+            <AlertTriangle size={14} className="mr-1" />
+            {validationErrors.bedrooms}
+          </p>
+        )}
       </FormSection>
+      
       <FormSection title="Add Area Details">
         <p className="text-sm text-gray-500 -mt-2 mb-2">At least one area type is mandatory.</p>
-        <FormInput label="Plot Area" id="plotArea" name="plotArea" value={formData.plotArea} onChange={handleChange} placeholder="sq.ft." />
-        <FormInput label="Carpet Area (main)" id="carpetArea" name="carpetArea" value={formData.carpetArea} onChange={handleChange} placeholder="sq.ft." />
+        <FormInput 
+          label="Plot Area" 
+          id="plotArea" 
+          name="plotArea" 
+          value={formData.plotArea} 
+          onChange={handleChange} 
+          placeholder="sq.ft." 
+        />
+        <FormInput 
+          label="Carpet Area (main)" 
+          id="carpetArea" 
+          name="carpetArea" 
+          value={formData.carpetArea} 
+          onChange={handleChange} 
+          placeholder="sq.ft." 
+          error={validationErrors.area}
+        />
       </FormSection>
+      
       <FormSection title="Furnishing">
         <div className="flex space-x-3">
           <ChoiceChip label="Unfurnished" name="furnishing" value="Unfurnished" selected={formData.furnishing} onChange={handleChipChange} />
@@ -733,21 +964,25 @@ function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handl
           <ChoiceChip label="Furnished" name="furnishing" value="Furnished" selected={formData.furnishing} onChange={handleChipChange} />
         </div>
       </FormSection>
+      
       <FormSection title="Reserved Parking (Optional)">
         <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner">
           <CounterInput label="Covered Parking" name="coveredParking" value={formData.coveredParking} onCounterChange={handleCounterChange} />
           <CounterInput label="Open Parking" name="openParking" value={formData.openParking} onCounterChange={handleCounterChange} />
         </div>
       </FormSection>
+      
       <FormSection title="Floor Details">
         <FormInput label="Total Floors" id="totalFloors" name="totalFloors" value={formData.totalFloors} onChange={handleChange} type="number" />
       </FormSection>
+      
       <FormSection title="Availability Status">
         <div className="flex space-x-3">
           <ChoiceChip label="Ready to move" name="availability" value="Ready to move" selected={formData.availability} onChange={handleChipChange} />
           <ChoiceChip label="Under construction" name="availability" value="Under construction" selected={formData.availability} onChange={handleChipChange} />
         </div>
       </FormSection>
+      
       <FormSection title="Age of property">
         <div className="flex flex-wrap gap-3">
           {['0-1 years', '1-5 years', '5-10 years', '10+ years'].map(age => (
@@ -890,7 +1125,7 @@ function Step4_AdditionalDetails({ formData, handleChange, setFormData }) {
 }
 
 
-function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleFileChange, handleVideoChange, handleDeleteImage, handleDeleteVideo, onImageZoom }) {
+function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleFileChange, handleVideoChange, handleDeleteImage, handleDeleteVideo, validationErrors }) {
   return (
     <div className="space-y-6">
       <FormSection title="Add property photos">
@@ -905,19 +1140,26 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
                 accept="image/png, image/jpeg, image/jpg" 
                 className="hidden"
                 onChange={handleFileChange}
-                multiple // 1. Allow multiple files
+                multiple
               />
             </label>
             <p className="text-sm text-gray-500">Click to upload (max 20 photos)</p>
           </div>
           
-          {/* 2. Show a grid of all preview images */}
+          {validationErrors.images && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertTriangle size={14} className="mr-1" />
+              {validationErrors.images}
+            </p>
+          )}
+          
+          {/* Show a grid of all preview images */}
           {formData.imagePreviews.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {formData.imagePreviews.map((previewUrl, index) => (
                 <div key={index} className="relative aspect-square">
                   <img 
-                    src={previewUrl} // URL is already full path or blob
+                    src={previewUrl}
                     alt="Property preview" 
                     className="w-full h-full object-contain rounded-lg bg-gray-100"
                   />
@@ -935,7 +1177,7 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
         </div>
       </FormSection>
       
-      {/* 3. Add Video Upload Section */}
+      {/* Add Video Upload Section */}
       <FormSection title="Add property video (Optional)">
         <div className="space-y-4">
           <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
@@ -956,7 +1198,7 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
           {formData.videoPreview && (
             <div className="relative">
               <video 
-                src={formData.videoPreview} // URL is already full path or blob
+                src={formData.videoPreview}
                 controls 
                 className="w-full rounded-lg"
               />
@@ -992,7 +1234,16 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
       </FormSection>
 
       <FormSection title="Price Details">
-        <FormInput label="Expected Price (₹)" id="expectedPrice" name="expectedPrice" value={formData.expectedPrice} onChange={handleChange} placeholder="e.g. 5000000" type="number" />
+        <FormInput 
+          label="Expected Price (₹)" 
+          id="expectedPrice" 
+          name="expectedPrice" 
+          value={formData.expectedPrice} 
+          onChange={handleChange} 
+          placeholder="e.g. 5000000" 
+          type="number"
+          error={validationErrors.expectedPrice}
+        />
         <div className="space-y-2 mt-2">
           <label className="flex items-center">
             <input type="checkbox" name="allInclusive" checked={formData.allInclusive} onChange={handleChange} className="h-4 w-4 text-blue-600 rounded" />
@@ -1026,9 +1277,15 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
           onChange={handleChange}
           placeholder="Share some details about your property like spacious rooms, well maintained facilities..."
           className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
-          maxLength="8000" // 4. Increase character limit
+          maxLength="8000"
         />
         <p className="text-right text-xs text-gray-500">{formData.description.length}/8000 (Min. 30 characters)</p>
+        {validationErrors.description && (
+          <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+            <AlertTriangle size={14} className="mr-1" />
+            {validationErrors.description}
+          </p>
+        )}
       </FormSection>
     </div>
   );
