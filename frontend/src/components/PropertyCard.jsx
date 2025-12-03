@@ -1,6 +1,6 @@
  // src/components/PropertyCard.jsx
 import React, { useState } from 'react';
-import { MapPin, BadgeCheck, BedDouble, Bath, Ruler, Home, Archive, Heart, Share2, ExternalLink } from 'lucide-react';
+import { MapPin, BadgeCheck, BedDouble, Bath, Ruler, Home, Archive, Heart, Share2, ExternalLink, Scale } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatPrice, formatArea } from '../utils/propertyHelpers';
 
@@ -22,15 +22,6 @@ const normalizeLegacyProperty = (property, API_BASE_URL) => {
     imageUrl = firstPhoto?.thumbnail || firstPhoto?.url;
   }
 
-  // Build full image URL using the passed API_BASE_URL
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    // Remove trailing slash from API_BASE_URL to avoid double slashes
-    const baseUrl = API_BASE_URL.replace(/\/$/, '');
-    // Replace backslashes with forward slashes and clean the path
-    const cleanImagePath = imageUrl.replace(/\\/g, '/').replace(/^\/+/, '');
-    imageUrl = `${baseUrl}/${cleanImagePath}`;
-  }
-
   return {
     title: property.type || property.title || 'Property',
     bhk: property.bhk,
@@ -41,7 +32,7 @@ const normalizeLegacyProperty = (property, API_BASE_URL) => {
     isVerified: property.isFeatured || false,
     area: property.area,
     baths: property.bathrooms || property.bhk,
-    imageUrl,
+    imageUrl, // Store raw imageUrl, let getImageSrc handle URL building
     description: property.description,
     id: property.id,
     onContact: () => console.log(`Contact property ${property.id}`)
@@ -61,6 +52,9 @@ export default function PropertyCard({
   // New props for save/share functionality
   isSaved = false, 
   onToggleSaved,
+  
+  // Comparison functionality
+  addToComparison,
   
   // Layout variant for different contexts
   variant = "default" // "default" or "compact"
@@ -95,7 +89,10 @@ export default function PropertyCard({
   } = props;
 
   const handleImageError = (e) => {
-    console.warn('Image failed to load:', propImageUrl);
+    // Only log image errors in development mode to reduce console noise
+    if (import.meta.env.DEV) {
+      console.warn('Image failed to load:', propImageUrl);
+    }
     setImageError(true);
   };
 
@@ -113,17 +110,23 @@ export default function PropertyCard({
       return propImageUrl;
     }
     
-    // Handle full URLs (http/https)
+    // Handle full URLs (http/https) - return as-is
     if (propImageUrl.startsWith('http://') || propImageUrl.startsWith('https://')) {
       return propImageUrl;
     }
     
-    // Handle relative paths - make sure they're properly formed
-    if (!propImageUrl.startsWith('/')) {
-      return `/${propImageUrl}`;
-    }
-    
-    return propImageUrl;
+    // Handle relative paths - build proper backend URL
+    // 1. Normalize backslashes to forward slashes
+    const pathWithForwardSlashes = propImageUrl.replace(/\\/g, '/');
+
+    // 2. Remove any "uploads/" prefix
+    const cleanPath = pathWithForwardSlashes.startsWith('uploads/') 
+      ? pathWithForwardSlashes.substring('uploads/'.length) 
+      : pathWithForwardSlashes;
+
+    // 3. Build the full URL using API_BASE_URL
+    const baseUrl = API_BASE_URL.replace(/\/$/, '');
+    return `${baseUrl}/uploads/${cleanPath}`;
   };
 
   const handleCardClick = () => {
@@ -153,6 +156,26 @@ export default function PropertyCard({
       toast.success(isSaved ? 'Removed from saved' : 'Saved property');
     } else {
       toast.error('Save functionality not available');
+    }
+  };
+
+  const handleAddToComparison = (e) => {
+    e.stopPropagation();
+    if (addToComparison && propId) {
+      const propertyToAdd = {
+        id: propId,
+        bhk: propBhk,
+        location: propLocation,
+        price: propPrice,
+        area: propArea,
+        bathrooms: propBaths,
+        type: propTitle,
+        images: property?.images || []
+      };
+      addToComparison(propertyToAdd);
+      toast.success('Added to comparison');
+    } else {
+      toast.error('Comparison functionality not available');
     }
   };
 
@@ -206,57 +229,66 @@ export default function PropertyCard({
 
         {/* Status Badges */}
         {(propIsVerified || propIsArchived) && (
-          <div className="absolute top-3 left-3 flex flex-col gap-1">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
             {propIsVerified && (
-              <span className={`bg-green-500 text-white font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow-sm ${
-                variant === 'compact' ? 'text-xs' : 'text-xs'
+              <span className={`bg-green-500 text-white font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-sm ${
+                variant === 'compact' ? 'text-[10px]' : 'text-xs'
               }`}>
-                <BadgeCheck size={variant === 'compact' ? 10 : 12} />
-                Verified
+                <BadgeCheck size={variant === 'compact' ? 8 : 10} className="sm:w-[12px] sm:h-[12px]" />
+                <span className="hidden xs:inline">Verified</span>
               </span>
             )}
             {propIsArchived && (
-              <span className={`bg-gray-500 text-white font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow-sm ${
-                variant === 'compact' ? 'text-xs' : 'text-xs'
+              <span className={`bg-gray-500 text-white font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-sm ${
+                variant === 'compact' ? 'text-[10px]' : 'text-xs'
               }`}>
-                <Archive size={variant === 'compact' ? 10 : 12} />
-                Archived
+                <Archive size={variant === 'compact' ? 8 : 10} className="sm:w-[12px] sm:h-[12px]" />
+                <span className="hidden xs:inline">Archived</span>
               </span>
             )}
           </div>
         )}
 
-        {/* Save/Share Buttons */}
-        <div className="absolute top-3 right-3 flex gap-2">
+        {/* Save/Share/Compare Buttons */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1 sm:gap-1.5">
           <button
             onClick={handleSave}
-            className={`rounded-full shadow-sm transition-all duration-200 backdrop-blur-sm ${
-              isSaved 
-                ? 'bg-red-500 text-white hover:bg-red-600' 
-                : 'bg-white/80 text-gray-700 hover:bg-white hover:text-red-500'
-            } ${variant === 'compact' ? 'p-1.5' : 'p-2'}`}
+            className={`rounded-full shadow-sm transition-all duration-200 backdrop-blur-sm touch-manipulation ${
+              isSaved
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-white/90 text-gray-700 hover:bg-white hover:text-red-500'
+            } ${variant === 'compact' ? 'p-1 sm:p-1.5' : 'p-1.5 sm:p-2'}`}
             title={isSaved ? 'Remove from saved' : 'Save property'}
           >
-            <Heart size={variant === 'compact' ? 14 : 16} fill={isSaved ? 'currentColor' : 'none'} />
+            <Heart size={variant === 'compact' ? 10 : 12} className="sm:w-[16px] sm:h-[16px]" fill={isSaved ? 'currentColor' : 'none'} />
           </button>
           <button
             onClick={handleShare}
-            className={`rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-blue-500 transition-all duration-200 shadow-sm backdrop-blur-sm ${
-              variant === 'compact' ? 'p-1.5' : 'p-2'
+            className={`rounded-full bg-white/90 text-gray-700 hover:bg-white hover:text-blue-500 transition-all duration-200 shadow-sm backdrop-blur-sm touch-manipulation ${
+              variant === 'compact' ? 'p-1 sm:p-1.5' : 'p-1.5 sm:p-2'
             }`}
             title="Share property"
           >
-            <Share2 size={variant === 'compact' ? 14 : 16} />
+            <Share2 size={variant === 'compact' ? 10 : 12} className="sm:w-[16px] sm:h-[16px]" />
+          </button>
+          <button
+            onClick={handleAddToComparison}
+            className={`rounded-full bg-white/90 text-gray-700 hover:bg-white hover:text-green-500 transition-all duration-200 shadow-sm backdrop-blur-sm touch-manipulation ${
+              variant === 'compact' ? 'p-1 sm:p-1.5' : 'p-1.5 sm:p-2'
+            }`}
+            title="Add to comparison"
+          >
+            <Scale size={variant === 'compact' ? 10 : 12} className="sm:w-[16px] sm:h-[16px]" />
           </button>
         </div>
 
       </div>
 
       {/* Content Section - Using flex to ensure consistent heights */}
-      <div className={`flex flex-col flex-1 ${variant === 'compact' ? 'p-4' : 'p-4'}`}>
+      <div className={`flex flex-col flex-1 p-3 sm:p-4`}>
         {/* Title */}
         <h3 className={`font-semibold text-gray-900 leading-tight group-hover:text-blue-600 line-clamp-2 ${
-          variant === 'compact' ? 'text-sm mb-1' : 'text-lg mb-2'
+          variant === 'compact' ? 'text-sm mb-1' : 'text-base sm:text-lg mb-2'
         }`}>
           {(() => {
             // Check if propTitle already contains BHK information to avoid duplication
@@ -272,17 +304,17 @@ export default function PropertyCard({
         </h3>
 
         {/* Location */}
-        <div className={`flex items-center text-gray-600 ${variant === 'compact' ? 'text-xs mb-3' : 'text-sm mb-3'}`}>
-          <MapPin size={variant === 'compact' ? 12 : 14} className="mr-2 flex-shrink-0 text-gray-400" />
-          <span className="truncate">{propLocation}</span>
+        <div className={`flex items-center text-gray-600 ${variant === 'compact' ? 'text-xs mb-2 sm:mb-3' : 'text-sm mb-3'}`}>
+          <MapPin size={variant === 'compact' ? 12 : 14} className="mr-1.5 sm:mr-2 flex-shrink-0 text-gray-400" />
+          <span className="truncate text-xs sm:text-sm">{propLocation}</span>
         </div>
 
         {/* Price */}
-        <div className={variant === 'compact' ? 'mb-3' : 'mb-3'}>
-          <span className={`font-bold text-gray-900 ${variant === 'compact' ? 'text-base' : 'text-xl'}`}>
+        <div className={`${variant === 'compact' ? 'mb-2 sm:mb-3' : 'mb-3'}`}>
+          <span className={`font-bold text-gray-900 ${variant === 'compact' ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
             {formatPrice(propPrice)}
           </span>
-          <span className={`text-gray-500 ml-2 ${variant === 'compact' ? 'text-xs' : 'text-sm'}`}>
+          <span className={`text-gray-500 ml-1.5 sm:ml-2 ${variant === 'compact' ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-sm'}`}>
             {propPriceLabel}
           </span>
         </div>

@@ -11,12 +11,18 @@ const userRoutes = require('./routes/user');
 const propertyRoutes = require('./routes/properties');
 const subscriptionRoutes = require('./routes/subscription');
 const uploadRoutes = require('./routes/uploads');
+const notificationRoutes = require('./routes/notifications');
 
 // --- 2. Setup App ---
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded images with proper CORS and caching
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '1d', // Cache images for 1 day
+  etag: true,
+  lastModified: true
+}));
 
 const PORT = process.env.PORT || 5000;
 
@@ -76,6 +82,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 // Uploads (image processing)
 app.use('/api/uploads', uploadRoutes);
+// All notification routes will be prefixed with /api/notifications
+app.use('/api/notifications', notificationRoutes);
 
 // --- GLOBAL ERROR HANDLING MIDDLEWARE ---
 // 404 handler
@@ -134,6 +142,7 @@ app.use((err, req, res, next) => {
 });
 
 // --- 5. Start Server ---
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);
+  console.log(`Backend server is accessible on network at http://192.168.0.2:${PORT}`);
 });

@@ -193,6 +193,54 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
           </div>
         </section>
 
+          {/* Bedrooms Filter */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3">Bedrooms</h3>
+            <div className="flex gap-4">
+              <input type="number" name="minBedrooms" value={tempFilters.minBedrooms} onChange={e => setTempFilters(prev => ({ ...prev, minBedrooms: e.target.value }))} placeholder="Min" className="w-1/2 p-3 border rounded-lg" />
+              <input type="number" name="maxBedrooms" value={tempFilters.maxBedrooms} onChange={e => setTempFilters(prev => ({ ...prev, maxBedrooms: e.target.value }))} placeholder="Max" className="w-1/2 p-3 border rounded-lg" />
+            </div>
+          </section>
+
+          {/* Bathrooms Filter */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3">Bathrooms</h3>
+            <div className="flex gap-4">
+              <input type="number" name="minBathrooms" value={tempFilters.minBathrooms} onChange={e => setTempFilters(prev => ({ ...prev, minBathrooms: e.target.value }))} placeholder="Min" className="w-1/2 p-3 border rounded-lg" />
+              <input type="number" name="maxBathrooms" value={tempFilters.maxBathrooms} onChange={e => setTempFilters(prev => ({ ...prev, maxBathrooms: e.target.value }))} placeholder="Max" className="w-1/2 p-3 border rounded-lg" />
+            </div>
+          </section>
+
+          {/* Property Type Filter */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3">Property Type</h3>
+            <div className="flex flex-wrap gap-2">
+              {['any', 'Apartment', 'House', 'Villa', 'Plot', 'Studio'].map(type => (
+                <FilterButton key={type} label={type} value={type} current={tempFilters.propertyType} onClick={() => setTempFilters(prev => ({ ...prev, propertyType: type }))} />
+              ))}
+            </div>
+          </section>
+
+          {/* Property Kind Filter */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3">Property Kind</h3>
+            <div className="flex flex-wrap gap-2">
+              {['any', 'Residential', 'Commercial', 'Industrial', 'Agricultural'].map(kind => (
+                <FilterButton key={kind} label={kind} value={kind} current={tempFilters.propertyKind} onClick={() => setTempFilters(prev => ({ ...prev, propertyKind: kind }))} />
+              ))}
+            </div>
+          </section>
+
+          {/* Location Radius Filter */}
+          <section>
+            <h3 className="text-lg font-semibold mb-3">Location Radius</h3>
+            <div className="flex gap-2">
+              <input type="number" name="latitude" value={tempFilters.latitude} onChange={e => setTempFilters(prev => ({ ...prev, latitude: e.target.value }))} placeholder="Latitude" className="w-1/3 p-3 border rounded-lg" />
+              <input type="number" name="longitude" value={tempFilters.longitude} onChange={e => setTempFilters(prev => ({ ...prev, longitude: e.target.value }))} placeholder="Longitude" className="w-1/3 p-3 border rounded-lg" />
+              <input type="number" name="radiusKm" value={tempFilters.radiusKm} onChange={e => setTempFilters(prev => ({ ...prev, radiusKm: e.target.value }))} placeholder="Radius (km)" className="w-1/3 p-3 border rounded-lg" />
+            </div>
+          </section>
+
         {/* NEW: More Filters Section */}
         <section>
             <h3 className="text-lg font-semibold mb-3">More Options</h3>

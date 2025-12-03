@@ -1,7 +1,7 @@
 // frontend/src/utils/api.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:54112/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Create axios instance
 const api = axios.create({
@@ -42,6 +42,7 @@ api.interceptors.response.use(
       // Only attempt refresh for authenticated routes
       const isAuthenticatedRoute = originalRequest.url?.includes('/user/') || 
                                  originalRequest.url?.includes('/my-') ||
+                                 originalRequest.url?.includes('/notifications') ||
                                  originalRequest.method === 'post' ||
                                  originalRequest.method === 'put' ||
                                  originalRequest.method === 'delete';

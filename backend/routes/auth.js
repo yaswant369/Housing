@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const authMiddleware = require('../middleware/authMiddleware');
+const NotificationService = require('../services/notificationService');
 require('dotenv').config();
 
 const router = express.Router();
@@ -52,6 +53,17 @@ router.post('/register', async (req, res) => {
     const { accessToken, refreshToken } = generateTokens(user);
     user.refreshToken = refreshToken;
     await user.save();
+
+    // Create notification settings for the new user
+    await user.getNotificationSettings();
+
+    // Send welcome notification
+    try {
+      await NotificationService.sendWelcomeNotification(user.id);
+    } catch (notifError) {
+      console.error('Failed to send welcome notification:', notifError);
+      // Don't fail registration if notification fails
+    }
 
     const userResponse = {
       _id: user._id,
@@ -125,6 +137,20 @@ router.post('/refresh', async (req, res) => {
 
   } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired refresh token.' });
+  }
+});
+
+// --- NEW: VERIFY TOKEN ENDPOINT ---
+router.get('/verify', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findOne({ id: req.user.id }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 });
 

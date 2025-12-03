@@ -1,16 +1,8 @@
- import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': '/src'
-    }
-  },
-  // --- Add this 'server' section ---
+ // Simple Vite config without external dependencies
+export default {
   server: {
+    port: 5173,
+    host: true,
     proxy: {
       // This tells vite to proxy any request starting with /api
       // to your backend server running on http://localhost:5000
@@ -21,5 +13,9 @@ export default defineConfig({
       },
     },
   },
-  // ---------------------------------
-})
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  }
+}

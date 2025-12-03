@@ -14,6 +14,7 @@ export default function PropertiesPage() {
     properties,
     savedPropertyIds,
     handleToggleSaved,
+    addToComparison,
     API_BASE_URL,
     filters,
     listingType,
@@ -245,6 +246,7 @@ export default function PropertiesPage() {
             data={filteredProperties}
             onToggleSaved={handleToggleSaved}
             onViewDetails={handleViewDetails}
+            addToComparison={addToComparison}
             API_BASE_URL={API_BASE_URL}
             savedPropertyIds={savedPropertyIds}
           />

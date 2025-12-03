@@ -8,13 +8,12 @@ import {
   BatteryCharging, Dumbbell, Waves, Home, Trees, Shield, Flame, CloudRain, Compass, Calendar,
   Lock, FileText, Building2, Globe, Phone, MessageSquare, Calculator, Eye, 
   TrendingUp, Users, Clock, Award, Filter, Grid, List, Search, Play, Pause,
-  ExternalLink, Bookmark, Flag, AlertTriangle, Wifi, Zap, ShieldCheck, Bed,
+  ExternalLink, Bookmark, Flag, AlertTriangle, Info, Wifi, Zap, ShieldCheck, Bed,
   Sofa, CarFront, Handshake, Mail, Clock3, BarChart3, FilterX
 } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard.jsx';
 import ExpandableText from '../components/ExpandableText';
 import ImageZoomModal from '../components/ImageZoomModal';
-import ShareURL from '../components/ShareURL';
 
 import { Pannellum } from 'react-pannellum';
 
@@ -172,7 +171,7 @@ function PropertyMediaGallery({ property, API_BASE_URL }) {
       </div>
 
       {/* Main Media Display */}
-      <div className="relative w-full h-96 bg-gray-100 rounded-2xl shadow-lg overflow-hidden">
+      <div className="relative w-full h-64 xs:h-80 sm:h-96 bg-gray-100 rounded-2xl shadow-lg overflow-hidden">
         {currentTabIndex === 0 && (() => {
           const hasValidImages = allImages && allImages.length > 0 && allImages[0];
           
@@ -189,18 +188,18 @@ function PropertyMediaGallery({ property, API_BASE_URL }) {
                 />
                 
                 {/* Media Controls */}
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <div className="bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex items-center gap-1 sm:gap-2">
+                  <div className="bg-black/60 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm">
                     {currentImageIndex + 1} / {allImages.length}
                   </div>
                   {hasMultipleImages && (
                     <>
                       <button
                         onClick={toggleSlideshow}
-                        className="bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+                        className="bg-black/60 hover:bg-black/80 text-white p-1.5 sm:p-2 rounded-full transition-colors"
                         title={slideshowActive ? 'Pause slideshow' : 'Start slideshow'}
                       >
-                        {slideshowActive ? <Pause size={16} /> : <Play size={16} />}
+                        {slideshowActive ? <Pause size={14} className="sm:w-4 sm:h-4" /> : <Play size={14} className="sm:w-4 sm:h-4" />}
                       </button>
                     </>
                   )}
@@ -209,33 +208,33 @@ function PropertyMediaGallery({ property, API_BASE_URL }) {
                 {/* Navigation Controls */}
                 {hasMultipleImages && (
                   <>
-                    <button onClick={goToPrevious} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-3 rounded-full z-10">
-                      <ChevronLeft size={24} />
+                    <button onClick={goToPrevious} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 sm:p-3 rounded-full z-10 shadow-lg">
+                      <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
                     </button>
-                    <button onClick={goToNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-3 rounded-full z-10">
-                      <ChevronRight size={24} />
+                    <button onClick={goToNext} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-2 sm:p-3 rounded-full z-10 shadow-lg">
+                      <ChevronRight size={20} className="sm:w-6 sm:h-6" />
                     </button>
                   </>
                 )}
 
                 {/* Action Buttons */}
-                <div className="absolute top-4 right-4 flex items-center gap-2">
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex items-center gap-1 sm:gap-2">
                   <button
                       onClick={() => setShowZoomModal(true)}
-                      className="bg-white/70 hover:bg-white p-3 rounded-full z-10"
+                      className="bg-white/70 hover:bg-white p-2 sm:p-3 rounded-full z-10 shadow-lg"
                       title="Fullscreen"
                   >
-                      <Maximize size={20} />
+                      <Maximize size={16} className="sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </>
             );
           } else {
             return (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
-                <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📷</div>
-                <div className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">No Image Available</div>
-                <div className="text-gray-500 dark:text-gray-500 text-sm">Property images will appear here</div>
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
+                <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-4">📷</div>
+                <div className="text-gray-600 dark:text-gray-400 text-base sm:text-lg font-medium mb-2 text-center">No Image Available</div>
+                <div className="text-gray-500 dark:text-gray-500 text-xs sm:text-sm text-center">Property images will appear here</div>
               </div>
             );
           }
@@ -294,8 +293,8 @@ function PropertyMediaGallery({ property, API_BASE_URL }) {
 
       {/* Thumbnail Scroller for Photos */}
       {currentTabIndex === 0 && hasMultipleImages && (
-        <div className="w-full mt-4 overflow-x-auto pb-2">
-          <div className="flex space-x-3 px-2">
+        <div className="w-full mt-3 sm:mt-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex space-x-2 sm:space-x-3 px-2">
             {allImages.map((imgUrl, index) => (
               <button
                 key={index}
@@ -303,14 +302,14 @@ function PropertyMediaGallery({ property, API_BASE_URL }) {
                   setCurrentImageIndex(index);
                   resetSlideshow();
                 }}
-                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-4 transition-all ${
+                className={`flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 sm:border-4 transition-all touch-manipulation ${
                   index === currentImageIndex ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent hover:border-gray-400 hover:ring-2 hover:ring-gray-200'
                 }`}
               >
                 <img 
                   src={imgUrl} 
                   alt={`Thumbnail ${index + 1}`} 
-                  className="w-full h-full object-contain bg-gray-800"
+                  className="w-full h-full object-cover bg-gray-800"
                   onError={(e) => {
                     e.target.src = 'https://placehold.co/80x80/e2e8f0/64748b?text=+';
                   }}
@@ -344,7 +343,7 @@ const iconComponents = {
   BatteryCharging, Dumbbell, Waves, Home, Trees, Shield, Flame, CloudRain, Compass, Calendar,
   Lock, FileText, Building2, Globe, Phone, MessageSquare, Calculator, Eye, 
   TrendingUp, Users, Clock, Award, Filter, Grid, List, Search, Play, Pause,
-  ExternalLink, Bookmark, Flag, AlertTriangle, Wifi, Zap, ShieldCheck, Bed,
+  ExternalLink, Bookmark, Flag, AlertTriangle, Info, Wifi, Zap, ShieldCheck, Bed,
   Sofa, CarFront, Handshake, Mail, Clock3, BarChart3, FilterX
 };
 
@@ -689,54 +688,62 @@ function ContactForm({ property, onSubmit }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-      <h3 className="text-xl font-semibold mb-4 flex items-center">
-        <Mail className="text-blue-500 mr-2" size={24} />
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg">
+      <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center">
+        <Mail className="text-blue-500 mr-2" size={20} />
         Contact Owner
       </h3>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         <input
           type="text"
+          id="contact-name"
+          name="name"
           placeholder="Your Name"
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+          className="w-full p-3 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-base"
           required
         />
         
         <input
           type="email"
+          id="contact-email"
+          name="email"
           placeholder="Your Email"
           value={formData.email}
           onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+          className="w-full p-3 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-base"
           required
         />
         
         <input
           type="tel"
+          id="contact-phone"
+          name="phone"
           placeholder="Your Phone Number"
           value={formData.phone}
           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+          className="w-full p-3 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-base"
           required
         />
         
         <textarea
+          id="contact-message"
+          name="message"
           rows={4}
           placeholder="Your Message"
           value={formData.message}
           onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+          className="w-full p-3 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-base resize-none"
         />
         
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation"
         >
           <MessageSquare size={18} />
-          Send Message
+          <span>Send Message</span>
         </button>
       </form>
     </div>
@@ -766,6 +773,7 @@ export default function PropertyDetailPage({
     properties: contextProperties,
     savedPropertyIds: contextSavedPropertyIds,
     handleToggleSaved: contextHandleToggleSaved,
+    addToComparison: contextAddToComparison,
     API_BASE_URL: contextApiBaseUrl,
     API_URL,
     token
@@ -775,6 +783,7 @@ export default function PropertyDetailPage({
   const properties = propProperty ? propAllProperties : contextProperties;
   const savedPropertyIds = propProperty ? propSavedPropertyIds : contextSavedPropertyIds;
   const handleToggleSaved = propProperty ? propOnToggleSaved : contextHandleToggleSaved;
+  const addToComparison = propProperty ? undefined : contextAddToComparison;
   const API_BASE_URL = propProperty ? propApiBaseUrl : contextApiBaseUrl;
   
   // Local state for standalone mode
@@ -1040,9 +1049,9 @@ export default function PropertyDetailPage({
        
       {/* Enhanced Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
               <button 
                 onClick={() => {
                   if (navigate) {
@@ -1054,65 +1063,58 @@ export default function PropertyDetailPage({
                     window.location.href = '/';
                   }
                 }} 
-                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors touch-manipulation"
                 title="Go Back"
               >
-                <ArrowLeft size={20} />
+                <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
               </button>
-              <div>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100">{property?.type || 'Property Details'}</h2>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-bold text-sm sm:text-lg text-gray-900 dark:text-gray-100 truncate">{property?.type || 'Property Details'}</h2>
+                <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                   <span className="flex items-center gap-1">
-                    <Eye size={14} />
-                    {viewStats.todayViews} views today
+                    <Eye size={12} className="sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden xs:inline">{viewStats.todayViews} views today</span>
+                    <span className="xs:hidden">{viewStats.todayViews}v</span>
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock3 size={14} />
-                    Listed {new Date(property.createdAt).toLocaleDateString()}
+                    <Clock3 size={12} className="sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">Listed {new Date(property.createdAt).toLocaleDateString()}</span>
+                    <span className="sm:hidden">{new Date(property.createdAt).toLocaleDateString()}</span>
                   </span>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => handleToggleSaved(property.id)}
-                className={`p-3 rounded-full transition-colors shadow-md ${
+                className={`p-2 sm:p-3 rounded-full transition-colors shadow-md touch-manipulation ${
                   isSaved ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
                 }`}
                 title={isSaved ? 'Remove from favorites' : 'Add to favorites'}
               >
-                <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
+                <Heart size={16} className="sm:w-5 sm:h-5" fill={isSaved ? "currentColor" : "none"} />
               </button>
               <button
                 onClick={handleShare}
-                className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full shadow-md"
+                className="p-2 sm:p-3 bg-gray-200 dark:bg-gray-700 rounded-full shadow-md touch-manipulation"
                 title="Share property"
               >
-                <Share2 size={20} />
+                <Share2 size={16} className="sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Share URL Section */}
-      <div className="max-w-7xl mx-auto px-4 py-2">
-        <ShareURL 
-          title={`${property?.type} for ${property?.status}`}
-          showLabel={true}
-          size="small"
-        />
-      </div>
-
       {/* Page Content */}
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8">
         
         {/* Main Content Grid */}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8">
           
           {/* Left Column: Media and Descriptions */}
-          <div className="w-full lg:w-3/5">
+          <div className="w-full lg:w-2/3 xl:w-3/5">
             <PropertyMediaGallery property={property} API_BASE_URL={API_BASE_URL} />
             
             <KeyHighlightsSection highlights={property.keyHighlights} property={property} />
@@ -1132,7 +1134,7 @@ export default function PropertyDetailPage({
               {/* Description Tips */}
               <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="text-blue-500 mt-0.5" size={16} />
+                  <Info className="text-blue-500 mt-0.5" size={16} />
                   <div className="text-sm">
                     <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">Property Description Tips:</p>
                     <ul className="text-blue-700 dark:text-blue-300 space-y-1">
@@ -1154,11 +1156,11 @@ export default function PropertyDetailPage({
           </div>
 
           {/* Right Column: Core Details & Actions */}
-          <div className="w-full lg:w-2/5 flex-shrink-0">
-            <div ref={mainDetailsRef} className="sticky top-20 space-y-6">
+          <div className="w-full lg:w-1/3 xl:w-2/5 flex-shrink-0 order-first lg:order-last">
+            <div ref={mainDetailsRef} className="sticky top-14 sm:top-16 lg:top-20 space-y-3 sm:space-y-4 lg:space-y-6">
               
               {/* Enhanced Price & Actions */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Price</p>
@@ -1341,7 +1343,7 @@ export default function PropertyDetailPage({
             </div>
               
             {/* Properties Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {similarProperties.map((prop, index) => (
                 <div 
                   key={prop.id} 
@@ -1350,6 +1352,7 @@ export default function PropertyDetailPage({
                 >
                   <PropertyCard
                     property={prop}
+                    addToComparison={addToComparison}
                     onViewDetails={(id) => {
                       console.log('Similar property clicked with ID:', id);
                       if (!id) {

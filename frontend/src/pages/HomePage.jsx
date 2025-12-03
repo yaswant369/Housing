@@ -1,7 +1,7 @@
- import React, { useContext, useEffect } from 'react';
+ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WifiOff } from 'lucide-react';
-import { AppContext } from '../context/context';
+import { WifiOff, List } from 'lucide-react';
+import { AppContext } from '../context/AppContext';
 import PropertiesSection from '../components/properties/PropertiesSection';
 import PropertiesSectionSkeleton from '../components/properties/PropertiesSectionSkeleton';
 
@@ -9,15 +9,23 @@ export default function HomePage() {
   const { 
     properties, loading, error, 
     savedPropertyIds, handleToggleSaved,
+    addToComparison,
     hasMore, loadMoreProperties, API_BASE_URL,
     // --- NEW CONTEXT VALUES ---
     propertyType, // 'Residential', 'Commercial', etc.
     listingType,  // 'Buy', 'Rent'
     searchTerm, 
-    filters 
+    filters,
+    handleSearchTermChange,
+    handleFilterChange,
+    handleApplyFilters
   } = useContext(AppContext);
   
   const navigate = useNavigate();
+
+  const handlePropertySelect = useCallback((property) => {
+    navigate(`/property/${property.id}`);
+  }, [navigate]);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -109,6 +117,7 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Property List */}
       {featured.length > 0 && (
         <PropertiesSection
           title={`Featured ${propertyType} for ${listingType}`}
@@ -116,6 +125,7 @@ export default function HomePage() {
           isFeaturedSection={true}
           onToggleSaved={handleToggleSaved}
           onViewDetails={(id) => navigate(`/property/${id}`)}
+          addToComparison={addToComparison}
           API_BASE_URL={API_BASE_URL}
           savedPropertyIds={savedPropertyIds}
         />
@@ -127,6 +137,7 @@ export default function HomePage() {
         isFeaturedSection={false}
         onToggleSaved={handleToggleSaved}
         onViewDetails={(id) => navigate(`/property/${id}`)}
+        addToComparison={addToComparison}
         API_BASE_URL={API_BASE_URL}
         savedPropertyIds={savedPropertyIds}
       />

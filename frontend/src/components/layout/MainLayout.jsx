@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 // --- Import Your Modals ---
 import PostPropertyWizard from '../../features/PostPropertyWizard';
 import EditProfileModal from '../../features/EditProfileModal';
+import PropertyComparison from '../properties/PropertyComparison';
 
 export default function MainLayout() {
   const {
@@ -34,11 +35,18 @@ export default function MainLayout() {
 
   const hideHeaderFooterPaths = [
     '/login',
-    '/filter'
+    '/filter',
+    '/profile'
+  ];
+
+  const hideComparisonPaths = [
+    '/login',
+    '/signup'
   ];
 
   const showBottomNav = !hideBottomNavPaths.some(path => location.pathname.startsWith(path)) && !isPostWizardOpen;
   const showHeaderFooter = !hideHeaderFooterPaths.some(path => location.pathname.startsWith(path)) && !isPostWizardOpen;
+  const showComparison = !hideComparisonPaths.some(path => location.pathname.startsWith(path));
   const isFullScreen = hideHeaderFooterPaths.some(path => location.pathname.startsWith(path)) || isPostWizardOpen;
 
   return (
@@ -63,7 +71,7 @@ export default function MainLayout() {
         />
       )}
       
-      <div className={`${isFullScreen ? 'w-full' : 'w-full mt-10'} flex-grow ${showHeaderFooter && !isPostWizardOpen ? 'pt-56' : ''}`}>
+      <div className={`${isFullScreen ? 'w-full' : 'w-full mt-6 sm:mt-8 md:mt-10 lg:mt-12'} flex-grow ${showHeaderFooter && !isPostWizardOpen ? 'pt-40 sm:pt-44 md:pt-48 lg:pt-52 xl:pt-56' : ''}`}>
         <Outlet />
       </div>
 
@@ -90,6 +98,8 @@ export default function MainLayout() {
           onProfileUpdate={handleProfileUpdate}
         />
       )}
+
+      {showComparison && <PropertyComparison />}
     </div>
   );
 }

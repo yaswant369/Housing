@@ -20,9 +20,9 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-gray-800 text-gray-300 p-8 sm:p-12">
+    <footer className="bg-gray-800 text-gray-300 p-6 sm:p-8 lg:p-12">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           
           {/* Column 1: Explore */}
           <div>
@@ -69,12 +69,14 @@ export default function Footer() {
             </div>
             <h5 className="font-bold text-white my-4">Get the App</h5>
             <div className="flex flex-col space-y-2">
-              <a href="#" className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg flex items-center justify-center">
-                App Store
-              </a>
-              <a href="#" className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg flex items-center justify-center">
-                Google Play
-              </a>
+              <div className="bg-gray-700 text-white p-2 rounded-lg flex items-center justify-center cursor-not-allowed opacity-75">
+                <span>App Store</span>
+                <span className="ml-2 text-xs bg-blue-500 px-1.5 py-0.5 rounded">Coming Soon</span>
+              </div>
+              <div className="bg-gray-700 text-white p-2 rounded-lg flex items-center justify-center cursor-not-allowed opacity-75">
+                <span>Google Play</span>
+                <span className="ml-2 text-xs bg-blue-500 px-1.5 py-0.5 rounded">Coming Soon</span>
+              </div>
             </div>
           </div>
         </div>

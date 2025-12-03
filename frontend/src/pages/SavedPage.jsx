@@ -11,6 +11,7 @@ export default function SavedPage() {
     properties: allProperties, 
     savedPropertyIds, 
     onToggleSaved, // Renamed from handleToggleSaved to match context
+    addToComparison,
     API_BASE_URL 
   } = useContext(AppContext);
 
@@ -50,6 +51,7 @@ export default function SavedPage() {
                 property={property}
                 isSaved={true}
                 onToggleSaved={onToggleSaved}
+                addToComparison={addToComparison}
                 onViewDetails={(id) => navigate(`/property/${id}`)}
                 API_BASE_URL={API_BASE_URL}
                 variant="compact"

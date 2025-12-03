@@ -1,9 +1,11 @@
 const express = require('express');
 const Property = require('../models/Property');
 const PropertyHistory = require('../models/PropertyHistory');
+const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 const { uploadPropertyMedia } = require('../middleware/upload');
 const { optionalPremiumCheck } = require('../middleware/premiumMiddleware');
+const NotificationService = require('../services/notificationService');
 
 const router = express.Router();
 
@@ -36,8 +38,7 @@ router.get('/user/my-properties', authMiddleware, async (req, res) => {
     if (req.query.status && req.query.status !== 'all') {
       query.status = req.query.status;
     }
-    // Note: If status is 'all' or not provided, we don't add a status filter at all
-    // This allows all statuses including active, draft, paused, etc.
+     
 
     // Add search filter if provided
     if (req.query.search && req.query.search.trim()) {
@@ -63,8 +64,47 @@ router.get('/user/my-properties', authMiddleware, async (req, res) => {
     
     console.log(`Found ${properties.length} properties (total: ${totalCount}) for user ${userId}`);
     
+    // Transform image URLs to use relative paths
+    const transformedProperties = properties.map(property => {
+      // Fix legacy images array URLs - use relative paths
+      if (property.images && Array.isArray(property.images)) {
+        property.images = property.images.map(imagePath => {
+          // If it's not a string, return as is
+          if (typeof imagePath !== 'string') {
+            return imagePath;
+          }
+          
+          // If it's an absolute URL, rewrite it to relative path
+          if (imagePath.startsWith('http')) {
+            try {
+              // Extract the path part from the absolute URL
+              const url = new URL(imagePath);
+              const path = url.pathname;
+              return path.startsWith('/') ? path : '/' + path;
+            } catch (e) {
+              // If URL parsing fails, fallback to relative path conversion
+              const relativePath = imagePath.replace(/^https?:\/\/[^/]+/, '');
+              return relativePath.startsWith('/') ? relativePath : '/' + relativePath;
+            }
+          }
+          
+          // For relative paths, normalize path separators and ensure relative path
+          const normalizedPath = imagePath.replace(/^uploads[\\/]/, 'uploads/').replace(/\\/g, '/');
+          return '/' + normalizedPath;
+        });
+      }
+      
+      // Fix video URL - use relative path
+      if (property.video && typeof property.video === 'string' && !property.video.startsWith('http')) {
+        const normalizedPath = property.video.replace(/^uploads[\\/]/, 'uploads/').replace(/\\/g, '/');
+        property.video = '/' + normalizedPath;
+      }
+      
+      return property;
+    });
+    
     res.json({
-      properties,
+      properties: transformedProperties,
       totalCount,
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
@@ -80,7 +120,7 @@ router.get('/user/my-properties', authMiddleware, async (req, res) => {
 });
 
 // POST - Create a new property
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, uploadPropertyMedia, async (req, res) => {
   try {
     // Get user ID from token
     const userId = req.user.id || req.user._id;
@@ -91,12 +131,25 @@ router.post('/', authMiddleware, async (req, res) => {
     const lastProperty = await Property.findOne().sort({ id: -1 });
     const newPropertyId = lastProperty ? lastProperty.id + 1 : 1;
     
-    // Create property data
+    // Create property data with sanitization
     const propertyData = {
       id: newPropertyId,
       userId: userId,
       ...req.body
     };
+
+    // Sanitize FormData arrays - convert single-item arrays to strings
+    const fieldsToSanitize = ['furnishing', 'propertyType', 'propertyKind', 'lookingTo', 'availability', 'propertyAge', 'facing', 'ownership', 'brokerage'];
+    fieldsToSanitize.forEach(field => {
+      if (propertyData[field]) {
+        if (Array.isArray(propertyData[field])) {
+          propertyData[field] = propertyData[field][0]; // Take first item if array
+        } else if (typeof propertyData[field] === 'object') {
+          // Handle JSON string fields that were parsed as objects
+          propertyData[field] = JSON.stringify(propertyData[field]);
+        }
+      }
+    });
     
     // Handle price formatting
     if (req.body.price && !req.body.priceValue) {
@@ -141,6 +194,11 @@ router.put('/:id', authMiddleware, uploadPropertyMedia, async (req, res) => {
       return res.status(404).json({ message: 'Property not found' });
     }
     
+    // Store old values for notification comparison
+    const oldPrice = property.price;
+    const oldStatus = property.status;
+    const oldDescription = property.description;
+    
     // Update property data
     Object.keys(req.body).forEach(key => {
       if (req.body[key] !== undefined) {
@@ -158,6 +216,55 @@ router.put('/:id', authMiddleware, uploadPropertyMedia, async (req, res) => {
     }
     
     await property.save();
+    
+    // Send notifications for property updates
+    try {
+      // Check for price changes
+      if (oldPrice !== property.price && property.price) {
+        await NotificationService.sendPriceChangeNotification(
+          userId, 
+          propertyId, 
+          oldPrice, 
+          property.price
+        );
+      }
+      
+      // Check for status changes
+      if (oldStatus !== property.status && property.status) {
+        await NotificationService.sendPropertyStatusUpdateNotification(
+          userId,
+          propertyId,
+          oldStatus,
+          property.status
+        );
+      }
+      
+      // Check if property became active (for published listings)
+      if (oldStatus !== 'active' && property.status === 'active') {
+        await NotificationService.createNotification({
+          userId,
+          type: 'property_alert',
+          title: 'Property Listed Successfully',
+          message: `Your property at ${property.location} is now live and visible to potential buyers/renters.`,
+          actionUrl: `/property/${propertyId}`
+        });
+      }
+      
+      // Check for expired property
+      if (property.status === 'expired') {
+        await NotificationService.createNotification({
+          userId,
+          type: 'property_expired',
+          title: 'Property Listing Expired',
+          message: `Your property at ${property.location} has expired. Consider renewing to keep it visible.`,
+          actionUrl: `/property/${propertyId}`
+        });
+      }
+      
+    } catch (notificationError) {
+      console.error('Error sending property update notifications:', notificationError);
+      // Don't fail the update if notifications fail
+    }
     
     console.log(`Property ${propertyId} updated successfully`);
     
@@ -240,6 +347,65 @@ router.get('/', async (req, res) => {
       query.furnishing = req.query.furnishing;
     }
 
+      // Bedrooms filter
+      if (req.query.minBedrooms || req.query.maxBedrooms) {
+        query.bedrooms = {};
+        if (req.query.minBedrooms) {
+          query.bedrooms.$gte = parseInt(req.query.minBedrooms);
+        }
+        if (req.query.maxBedrooms) {
+          query.bedrooms.$lte = parseInt(req.query.maxBedrooms);
+        }
+      }
+
+      // Bathrooms filter
+      if (req.query.minBathrooms || req.query.maxBathrooms) {
+        query.bathrooms = {};
+        if (req.query.minBathrooms) {
+          query.bathrooms.$gte = parseInt(req.query.minBathrooms);
+        }
+        if (req.query.maxBathrooms) {
+          query.bathrooms.$lte = parseInt(req.query.maxBathrooms);
+        }
+      }
+
+      // Property type/kind filter
+      if (req.query.propertyType && req.query.propertyType !== 'any') {
+        query.propertyType = req.query.propertyType;
+      }
+      if (req.query.propertyKind && req.query.propertyKind !== 'any') {
+        query.propertyKind = req.query.propertyKind;
+      }
+
+      // Location radius filter (requires lat/lng and radius in km)
+      if (req.query.latitude && req.query.longitude && req.query.radiusKm) {
+        const lat = parseFloat(req.query.latitude);
+        const lng = parseFloat(req.query.longitude);
+        const radius = parseFloat(req.query.radiusKm) / 6371; // Radius in radians (Earth radius = 6371km)
+        query.latitude = { $exists: true };
+        query.longitude = { $exists: true };
+        query.$expr = {
+          $lte: [
+            {
+              $divide: [
+                {
+                  $add: [
+                    {
+                      $pow: [{ $subtract: ["$latitude", lat] }, 2]
+                    },
+                    {
+                      $pow: [{ $subtract: ["$longitude", lng] }, 2]
+                    }
+                  ]
+                },
+                1
+              ]
+            },
+            radius * radius
+          ]
+        };
+      }
+
     if (req.query.minPrice || req.query.maxPrice) {
       query.priceValue = {};
       if (req.query.minPrice) {
@@ -272,8 +438,49 @@ router.get('/', async (req, res) => {
       
     const totalCount = await Property.countDocuments(query);
     
+    // Transform image URLs to use relative paths
+    const transformedProperties = properties.map(property => {
+      const propertyObj = property.toObject();
+      
+      // Fix legacy images array URLs - use relative paths
+      if (propertyObj.images && Array.isArray(propertyObj.images)) {
+        propertyObj.images = propertyObj.images.map(imagePath => {
+          // If it's not a string, return as is
+          if (typeof imagePath !== 'string') {
+            return imagePath;
+          }
+          
+          // If it's an absolute URL, rewrite it to relative path
+          if (imagePath.startsWith('http')) {
+            try {
+              // Extract the path part from the absolute URL
+              const url = new URL(imagePath);
+              const path = url.pathname;
+              return path.startsWith('/') ? path : '/' + path;
+            } catch (e) {
+              // If URL parsing fails, fallback to relative path conversion
+              const relativePath = imagePath.replace(/^https?:\/\/[^/]+/, '');
+              return relativePath.startsWith('/') ? relativePath : '/' + relativePath;
+            }
+          }
+          
+          // For relative paths, normalize path separators and ensure relative path
+          const normalizedPath = imagePath.replace(/^uploads[\\/]/, 'uploads/').replace(/\\/g, '/');
+          return '/' + normalizedPath;
+        });
+      }
+      
+      // Fix video URL - use relative path
+      if (propertyObj.video && typeof propertyObj.video === 'string' && !propertyObj.video.startsWith('http')) {
+        const normalizedPath = propertyObj.video.replace(/^uploads[\\/]/, 'uploads/').replace(/\\/g, '/');
+        propertyObj.video = '/' + normalizedPath;
+      }
+      
+      return propertyObj;
+    });
+    
     res.json({
-      properties,
+      properties: transformedProperties,
       totalCount,
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,

@@ -128,6 +128,9 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
         if (!formData.bedrooms || formData.bedrooms < 1) {
           errors.bedrooms = 'At least 1 bedroom is required';
         }
+        if (!formData.furnishing) {
+          errors.furnishing = 'Furnishing status is required';
+        }
         break;
       case 4:
         // No required fields in step 4, but can add optional validations
@@ -359,12 +362,20 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       priceFormatted = `₹${(priceNum / 100000).toFixed(2)} Lakh`;
     }
 
-    formDataToSubmit.append('type', `${formData.bedrooms} BHK`);
-    formDataToSubmit.append('bhk', formData.bedrooms);
-    formDataToSubmit.append('area', formData.carpetArea || formData.plotArea || '1500 sqft');
+    // Ensure all required fields have valid values
+    const finalLocation = formData.location.trim() ? `${formData.location.trim()}, ${formData.city || 'Nellore'}` : 'Location, Nellore';
+    const finalArea = formData.carpetArea || formData.plotArea || '1500 sqft';
+    const finalBhk = formData.bedrooms || 1;
+    const finalType = `${finalBhk} BHK ${formData.propertyType || 'Apartment'}`;
+    const finalFurnishing = formData.furnishing || 'Unfurnished';
+
+    formDataToSubmit.append('type', finalType);
+    formDataToSubmit.append('bhk', finalBhk);
+    formDataToSubmit.append('area', finalArea);
     formDataToSubmit.append('price', priceFormatted);
     formDataToSubmit.append('priceValue', priceNum);
-    formDataToSubmit.append('location', `${formData.location || 'Location'}, ${formData.city || 'Nellore'}`);
+    formDataToSubmit.append('location', finalLocation);
+    formDataToSubmit.append('furnishing', finalFurnishing);
     formDataToSubmit.append('status', formData.lookingTo === 'Sell' ? 'For Sale' : 'For Rent');
     
     // --- 2. Add all other fields from the form state ---
@@ -443,7 +454,25 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
       onClose();
     } catch (error) {
       console.error('Property submission failed:', error);
-      toast.error(error.message || 'Failed to submit property. Please try again.');
+      
+      // More specific error handling
+      let errorMessage = 'Failed to submit property. Please try again.';
+      
+      if (error.response?.data?.errors) {
+        // Handle validation errors from backend
+        const validationErrors = error.response.data.errors;
+        const errorMessages = [];
+        
+        Object.keys(validationErrors).forEach(field => {
+          errorMessages.push(`${field}: ${validationErrors[field]}`);
+        });
+        
+        errorMessage = `Validation failed: ${errorMessages.join(', ')}`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -490,7 +519,7 @@ export default function PostPropertyWizard({ onClose, onAddProperty, onEditPrope
         {showValidationWarnings && Object.keys(stepErrors).length > 0 && (
           <div className="mx-6 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <div className="flex items-center mb-2">
-              <AlertTriangle className="text-red-500 mr-2" size={20} />
+              <AlertTriangle className="text-red-500 mr-2 flex-shrink-0" size={20} />
               <h3 className="text-red-800 dark:text-red-200 font-medium">Please fill in the required fields:</h3>
             </div>
             <ul className="list-disc list-inside text-red-700 dark:text-red-300 text-sm">
@@ -722,7 +751,7 @@ function FormInput({ label, id, error, ...props }) {
       />
       {error && (
         <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center">
-          <AlertTriangle size={14} className="mr-1" />
+          <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
           {error}
         </p>
       )}
@@ -881,7 +910,7 @@ function Step2_BasicDetails({ formData, handleChipChange, validationErrors }) {
         </div>
         {validationErrors.propertyType && (
           <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-            <AlertTriangle size={14} className="mr-1" />
+            <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
             {validationErrors.propertyType}
           </p>
         )}
@@ -930,7 +959,7 @@ function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handl
         </div>
         {validationErrors.bedrooms && (
           <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-            <AlertTriangle size={14} className="mr-1" />
+            <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
             {validationErrors.bedrooms}
           </p>
         )}
@@ -963,6 +992,12 @@ function Step3_PropertyDetails({ formData, handleChipChange, handleChange, handl
           <ChoiceChip label="Semi-Furnished" name="furnishing" value="Semi-Furnished" selected={formData.furnishing} onChange={handleChipChange} />
           <ChoiceChip label="Furnished" name="furnishing" value="Furnished" selected={formData.furnishing} onChange={handleChipChange} />
         </div>
+        {validationErrors.furnishing && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
+            <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
+            {validationErrors.furnishing}
+          </p>
+        )}
       </FormSection>
       
       <FormSection title="Reserved Parking (Optional)">
@@ -1148,7 +1183,7 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
           
           {validationErrors.images && (
             <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
-              <AlertTriangle size={14} className="mr-1" />
+              <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
               {validationErrors.images}
             </p>
           )}
@@ -1282,7 +1317,7 @@ function Step5_PhotosPricing({ formData, handleChipChange, handleChange, handleF
         <p className="text-right text-xs text-gray-500">{formData.description.length}/8000 (Min. 30 characters)</p>
         {validationErrors.description && (
           <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
-            <AlertTriangle size={14} className="mr-1" />
+            <AlertTriangle size={14} className="mr-1 flex-shrink-0" />
             {validationErrors.description}
           </p>
         )}

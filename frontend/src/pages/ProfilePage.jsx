@@ -7,37 +7,12 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { currentUser, logout, handleOpenEditProfile, handleOpenPostWizard } = useContext(AppContext);
+  const { currentUser, logout, handleOpenEditProfile, handleOpenPostWizard, authLoading } = useContext(AppContext);
   const navigate = useNavigate();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down & past threshold
-        setIsHeaderVisible(false);
-      } else {
-        // Scrolling up
-        setIsHeaderVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [lastScrollY]);
 
   const handleLogout = () => {
     logout();
@@ -46,10 +21,23 @@ export default function ProfilePage() {
 
   // Handle navigation for unauthenticated users
   useEffect(() => {
-    if (!currentUser) {
+    // Only redirect after authentication is finished loading
+    if (!authLoading && !currentUser) {
       navigate('/login');
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, authLoading]);
+
+  // Show loading spinner while authentication is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600 dark:text-gray-400 font-medium">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return null;
@@ -75,7 +63,7 @@ export default function ProfilePage() {
       title: 'Tools & Support',
       items: [
         { icon: Settings, label: 'Calculator Tools', path: '/tools' },
-        { icon: MessageCircle, label: 'Chat Support', path: '/chat' },
+        { icon: MessageCircle, label: 'Chat Support', path: '/chat-support' },
       ]
     },
     {
@@ -91,12 +79,8 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Profile Header - Sticky with Hide on Scroll */}
-      <div 
-        className={`sticky top-0 z-30 bg-gradient-to-r from-blue-600 to-purple-600 transition-transform duration-300 ${
-          isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
-      >
+      {/* Profile Header - Now integrated with main page content */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-6">
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg">

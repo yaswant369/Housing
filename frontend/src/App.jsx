@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { Toaster } from 'react-hot-toast';
 
 // Import Your Components
@@ -14,9 +15,11 @@ import MyListingsPage from './pages/MyListingsPage';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
 import ChatPage from './pages/ChatPage';
+import ChatSupportPage from './pages/ChatSupportPage';
 import CheckoutPage from './pages/CheckoutPage';
 import FilterPage from './pages/FilterPage';
 import NotificationsPage from './pages/NotificationsPage';
+import NotificationSettingsPage from './pages/NotificationSettingsPage';
 import PaymentCheckoutPage from './pages/PaymentCheckoutPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PremiumFeature from './pages/PremiumFeature';
@@ -26,6 +29,13 @@ import SecurityPage from './pages/SecurityPage';
 import TermsPage from './pages/TermsPage';
 import ToolsPage from './pages/ToolsPage';
 import TransactionsPage from './pages/TransactionsPage';
+import AgentsPage from './pages/AgentsPage';
+import ContactPage from './pages/ContactPage';
+import BlogPage from './pages/BlogPage';
+import CareersPage from './pages/CareersPage';
+import FAQPage from './pages/FAQPage';
+import SitemapPage from './pages/SitemapPage';
+import LinksPage from './pages/LinksPage';
 
 // Modals
 import PostPropertyWizard from './features/PostPropertyWizard';
@@ -76,7 +86,7 @@ function AppModals() {
       )}
       {isEditProfileModalOpen && currentUser && (
         <EditProfileModal
-          onClose={handleCloseEditProfileModal}
+          onClose={handleCloseEditProfile}
           currentUser={currentUser}
           onProfileUpdate={handleProfileUpdate}
         />
@@ -101,6 +111,7 @@ function App() {
           <Route path="saved" element={<SavedPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="my-listings" element={<MyListingsPage />} />
+          <Route path="chat-support" element={<ChatSupportPage />} />
           
           {/* Authentication & Account */}
           <Route path="login" element={<LoginPage />} />
@@ -123,9 +134,19 @@ function App() {
           {/* System Pages */}
           <Route path="about" element={<AboutPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="notification-settings" element={<NotificationSettingsPage />} />
           <Route path="security" element={<SecurityPage />} />
           <Route path="privacy" element={<PrivacyPolicyPage />} />
           <Route path="terms" element={<TermsPage />} />
+          
+          {/* Footer Pages */}
+          <Route path="agents" element={<AgentsPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="blog" element={<BlogPage />} />
+          <Route path="careers" element={<CareersPage />} />
+          <Route path="faq" element={<FAQPage />} />
+          <Route path="sitemap" element={<SitemapPage />} />
+          <Route path="links" element={<LinksPage />} />
         </Route>
       </Routes>
       
@@ -140,17 +161,19 @@ export default function AppWrapper() {
   return (
     <BrowserRouter>
       <AppProvider>
-        <Toaster 
-          position="bottom-center"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: '#333',
-              color: '#fff',
-            },
-          }}
-        />
-        <App />
+        <NotificationProvider>
+          <Toaster 
+            position="bottom-center"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+            }}
+          />
+          <App />
+        </NotificationProvider>
       </AppProvider>
     </BrowserRouter>
   );

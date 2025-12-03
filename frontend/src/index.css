@@ -7,10 +7,12 @@
   not handled by Tailwind utility classes.
 */
 
-/* Import Tailwind CSS layers. 
-  @tailwind is a directive used by Tailwind's build tools to inject 
-  the pre-generated styles into this CSS file.
-*/
+
+
+/* Import Tailwind CSS layers.
+   @tailwind is a directive used by Tailwind's build tools to inject
+   the pre-generated styles into this CSS file.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -162,4 +164,97 @@ body {
   .shadow-card-hover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
+  
+  /* Custom responsive utilities */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Enhanced responsive spacing */
+  .space-y-responsive > * + * {
+    margin-top: 0.5rem;
+  }
+  
+  @screen sm {
+    .space-y-responsive > * + * {
+      margin-top: 0.75rem;
+    }
+  }
+  
+  @screen lg {
+    .space-y-responsive > * + * {
+      margin-top: 1rem;
+    }
+  }
+  
+  /* Better focus states for mobile */
+  @media (max-width: 640px) {
+    button:focus,
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+  }
+  
+  /* Safe area utilities for modern mobile devices */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Enhanced mobile touch targets */
+  @media (max-width: 640px) {
+    button,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Mobile-specific form improvements */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea,
+    select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better mobile scrolling */
+    .scroll-smooth {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  /* Responsive text sizing */
+  .text-responsive {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  @screen sm {
+    .text-responsive {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+  
+  @screen lg {
+    .text-responsive {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+  }
 }
+
