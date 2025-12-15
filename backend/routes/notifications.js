@@ -436,13 +436,42 @@ router.post('/do-not-disturb', authMiddleware, async (req, res) => {
       await settings.disableDoNotDisturb();
     }
 
-    res.json({ 
+    res.json({
       message: `Do not disturb ${enabled ? 'enabled' : 'disabled'} successfully`,
       doNotDisturb: settings.doNotDisturb
     });
 
   } catch (err) {
     console.error('Error updating do not disturb:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/notifications/chat - Send chat message notification
+router.post('/chat', authMiddleware, async (req, res) => {
+  try {
+    const { recipientId, senderName, messagePreview, chatId } = req.body;
+
+    if (!recipientId || !senderName || !messagePreview || !chatId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const NotificationService = require('../services/notificationService');
+
+    const notification = await NotificationService.sendChatMessageNotification(
+      recipientId,
+      senderName,
+      messagePreview,
+      chatId
+    );
+
+    res.json({
+      message: 'Chat notification sent successfully',
+      notification
+    });
+
+  } catch (err) {
+    console.error('Error sending chat notification:', err.message);
     res.status(500).json({ message: 'Server error' });
   }
 });

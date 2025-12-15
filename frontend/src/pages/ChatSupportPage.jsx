@@ -1,172 +1,213 @@
-import React, { useEffect } from 'react';
-import { ArrowLeft, MessageCircle, Clock, Users, Headphones } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft, MessageSquare, Headset, X
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const ChatSupportPage = () => {
+export default function ChatSupportPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('help-center');
+  const [tawkLoaded, setTawkLoaded] = useState(false);
 
-useEffect(() => {
-    // Function to initialize and show the Tawk.to widget
-    const initTawkTo = () => {
-      if (window.Tawk_API && typeof window.Tawk_API.showWidget === 'function') {
-        window.Tawk_API.showWidget();
+  // Initialize Tawk.to chat
+  useEffect(() => {
+    // Check if Tawk.to script is already loaded
+    if (window.Tawk_API) {
+      setTawkLoaded(true);
+      // Show the widget when on chat support page
+      window.Tawk_API.showWidget();
+      return;
+    }
+
+    // Create script element
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://embed.tawk.to/692ff2b5de5fd21978d17b8d/1jbhko5b0';
+    script.charset = 'UTF-8';
+    script.setAttribute('crossorigin', '*');
+
+    // Add script to document
+    document.body.appendChild(script);
+
+    // Set up Tawk.to when loaded
+    script.onload = () => {
+      setTawkLoaded(true);
+      if (window.Tawk_API) {
+        window.Tawk_API.onLoad = function() {
+          // Customize chat widget
+          window.Tawk_API.setAttributes({
+            name: 'Customer',
+            email: 'customer@example.com'
+          }, function(error) {
+            if (error) {
+              console.error('Tawk.to error:', error);
+            }
+          });
+          // Show the widget when on chat support page
+          window.Tawk_API.showWidget();
+        };
       }
     };
 
-    // Load Tawk.to script if it's not already on the page
-    if (!window.Tawk_API) {
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = 'https://embed.tawk.to/692ff2b5de5fd21978d17b8d/1jbhko5b0';
-      script.charset = 'UTF-8';
-      script.setAttribute('crossorigin', '*');
-      
-      // Show the widget once the script is loaded
-      script.onload = initTawkTo;
-
-      document.head.appendChild(script);
-    } else {
-      // If script is already there, just show the widget
-      initTawkTo();
-    }
-
-    // Cleanup: Hide the widget when the component unmounts
+    // Cleanup - hide widget when leaving the page
     return () => {
-      if (window.Tawk_API && typeof window.Tawk_API.hideWidget === 'function') {
+      if (window.Tawk_API) {
         window.Tawk_API.hideWidget();
+      }
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
       }
     };
   }, []);
 
-  const handleBackClick = () => {
-    navigate('/profile');
+  // Function to open Tawk.to chat
+  const openTawkChat = () => {
+    if (window.Tawk_API) {
+      window.Tawk_API.maximize();
+      window.Tawk_API.showWidget();
+    } else {
+      toast.info('Loading live chat...');
+    }
   };
 
+  // Function to hide Tawk.to chat
+  const hideTawkChat = () => {
+    if (window.Tawk_API) {
+      window.Tawk_API.hideWidget();
+    }
+  };
+
+  // FAQ items
+  const faqItems = [
+    {
+      question: 'How do I list my property?',
+      answer: 'You can list your property by clicking "Post Property" in the header and following the step-by-step wizard.'
+    },
+    {
+      question: 'What are the premium features?',
+      answer: 'Premium features include advanced analytics, priority listings, and dedicated account management.'
+    },
+    {
+      question: 'How does the chat system work?',
+      answer: 'Our chat system connects you with agents and property owners in real-time for instant communication.'
+    },
+    {
+      question: 'What payment methods do you accept?',
+      answer: 'We accept all major credit cards, bank transfers, and digital payment methods.'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <button
-                onClick={handleBackClick}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                <span className="text-sm font-medium">Back</span>
-              </button>
-            </div>
-            <div className="flex items-center">
-              <MessageCircle className="h-6 w-6 text-blue-600 mr-2" />
-              <h1 className="text-xl font-semibold text-gray-900">Chat Support</h1>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Headphones className="h-8 w-8 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            How can we help you today?
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Connect with our support team through live chat. We're here to assist you with any questions about properties, listings, or your account.
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center space-x-2 text-blue-600  hover:text-blue-700  transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="font-medium">Back</span>
+          </button>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
-              <Clock className="h-6 w-6 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Response</h3>
-            <p className="text-gray-600">
-              Get instant replies to your questions during our support hours. Average response time: 2-5 minutes.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Sidebar - Support Options */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Support Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
+              <h2 className="text-xl font-bold mb-4">Support Center</h2>
+              <p className="text-blue-100 mb-6">Connect with our support team</p>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-              <Users className="h-6 w-6 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Expert Support</h3>
-            <p className="text-gray-600">
-              Our knowledgeable support team specializes in real estate, property listings, and platform features.
-            </p>
-          </div>
+              {/* Support Tabs */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => setActiveTab('help-center')}
+                  className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                    activeTab === 'help-center' ? 'bg-white text-blue-600' : 'hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Headset size={18} />
+                    <span className="font-medium">Help Center</span>
+                  </div>
+                  <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">FAQ</span>
+                </button>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-4">
-              <MessageCircle className="h-6 w-6 text-orange-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Chat</h3>
-            <p className="text-gray-600">
-              Real-time messaging with file sharing capabilities for screenshots and documents.
-            </p>
-          </div>
-        </div>
-
-        {/* Chat Widget Container */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-            <h3 className="text-lg font-semibold text-white">Start Your Conversation</h3>
-            <p className="text-blue-100 text-sm">
-              Click the chat button below to connect with our support team
-            </p>
-          </div>
-          
-          <div className="p-6">
-            {/* Tawk.to chat widget will appear here */}
-            <div className="bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-gray-300">
-              <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">
-                Our live chat widget is loading...
-              </p>
-              <p className="text-sm text-gray-500">
-                If the chat widget doesn't appear automatically, please refresh the page or try again in a moment.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Help Section */}
-        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <MessageCircle className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div className="ml-3">
-              <h4 className="text-lg font-medium text-yellow-800 mb-2">
-                Need immediate assistance?
-              </h4>
-              <p className="text-yellow-700 mb-4">
-                If you're experiencing technical issues or need urgent support, our team is ready to help. 
-                The chat widget should appear in the bottom-right corner of your screen.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  💬 Live Chat
-                </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  ⚡ Instant Response
-                </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  🖼️ File Sharing
-                </span>
+                {/* Tawk.to Live Chat Button */}
+                <button
+                  onClick={openTawkChat}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <MessageSquare size={18} />
+                    <span className="font-medium">Live Chat (Tawk.to)</span>
+                  </div>
+                  <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">24/7</span>
+                </button>
               </div>
             </div>
+
+            {/* FAQ Section */}
+            <div className="bg-white  rounded-xl shadow-sm p-4">
+              <h3 className="font-semibold text-gray-900  mb-4 flex items-center space-x-2">
+                <Headset size={18} className="text-blue-600" />
+                <span>Frequently Asked Questions</span>
+              </h3>
+
+              <div className="space-y-3">
+                {faqItems.map((item, index) => (
+                  <div key={index} className="border border-gray-100  rounded-lg">
+                    <button
+                      onClick={() => navigate('/faq')}
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-medium text-gray-900">{item.question}</span>
+                      <span className="text-blue-600">→</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            {/* Help Center Content */}
+            {activeTab === 'help-center' && (
+              <div className="bg-white  rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900  mb-4">Welcome to Help Center</h2>
+                <p className="text-gray-500  mb-6">Find answers to common questions and get support</p>
+
+                <div className="space-y-4">
+                  <div className="bg-blue-50  p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900  mb-2">Need immediate help?</h3>
+                    <p className="text-gray-600  mb-3">Click the button below to start a live chat with our support team.</p>
+                    <button
+                      onClick={openTawkChat}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
+                      Start Live Chat
+                    </button>
+                  </div>
+
+                  <div className="bg-green-50  p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900  mb-2">Browse FAQ</h3>
+                    <p className="text-gray-600  mb-3">Visit our comprehensive FAQ section for detailed answers.</p>
+                    <button
+                      onClick={() => navigate('/faq')}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    >
+                      Visit FAQ Page
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default ChatSupportPage;
+}

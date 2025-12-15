@@ -86,7 +86,7 @@ const NotificationSchema = new mongoose.Schema({
   
   // Scheduling and batching
   scheduledAt: { type: Date },
-  expiresAt: { type: Date, index: true },
+  expiresAt: { type: Date },
   batchId: { type: String, index: true },
   
   // Analytics and tracking

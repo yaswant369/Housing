@@ -1,24 +1,27 @@
  import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { WifiOff, List } from 'lucide-react';
-import { AppContext } from '../context/AppContext';
-import PropertiesSection from '../components/properties/PropertiesSection';
-import PropertiesSectionSkeleton from '../components/properties/PropertiesSectionSkeleton';
+ import { useNavigate } from 'react-router-dom';
+ import { WifiOff, List } from 'lucide-react';
+ import { AppContext } from '../context/AppContext';
+ import PropertiesSection from '../components/properties/PropertiesSection';
+ import PropertiesSectionSkeleton from '../components/properties/PropertiesSectionSkeleton';
+ import HeroSection from '../components/home/HeroSection';
+ import PromotionalSections from '../components/home/PromotionalSections';
 
 export default function HomePage() {
-  const { 
-    properties, loading, error, 
+  const {
+    properties, loading, error,
     savedPropertyIds, handleToggleSaved,
     addToComparison,
     hasMore, loadMoreProperties, API_BASE_URL,
     // --- NEW CONTEXT VALUES ---
     propertyType, // 'Residential', 'Commercial', etc.
     listingType,  // 'Buy', 'Rent'
-    searchTerm, 
+    searchTerm,
     filters,
     handleSearchTermChange,
     handleFilterChange,
-    handleApplyFilters
+    handleApplyFilters,
+    handleOpenPostWizard
   } = useContext(AppContext);
   
   const navigate = useNavigate();
@@ -117,6 +120,16 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Hero Section with CTA */}
+      <HeroSection onPostPropertyClick={() => {
+        if (!handleOpenPostWizard(null)) {
+          navigate('/login');
+        }
+      }} />
+
+      {/* Promotional Sections */}
+      <PromotionalSections />
+
       {/* Property List */}
       {featured.length > 0 && (
         <PropertiesSection
@@ -130,18 +143,8 @@ export default function HomePage() {
           savedPropertyIds={savedPropertyIds}
         />
       )}
-      
-      <PropertiesSection 
-        title={`${propertyType} for ${listingType} in your Area`}
-        data={others} // Show all non-featured results in the main list
-        isFeaturedSection={false}
-        onToggleSaved={handleToggleSaved}
-        onViewDetails={(id) => navigate(`/property/${id}`)}
-        addToComparison={addToComparison}
-        API_BASE_URL={API_BASE_URL}
-        savedPropertyIds={savedPropertyIds}
-      />
-      
+
+
       {/* Show 'No Results' message only if not loading */}
       {!loading && filteredProperties.length === 0 && (
         <div className="p-8 text-center text-gray-500">
@@ -149,8 +152,8 @@ export default function HomePage() {
           <p>Try adjusting your search or filters.</p>
         </div>
       )}
-      
-      {hasMore && !loading && ( 
+
+      {hasMore && !loading && (
         <div className="text-center p-6">
           <button
             onClick={loadMoreProperties}
@@ -160,7 +163,7 @@ export default function HomePage() {
           </button>
         </div>
       )}
-      {loading && properties.length > 0 && ( 
+      {loading && properties.length > 0 && (
         <div className="flex justify-center items-center p-6">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>

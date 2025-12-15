@@ -40,9 +40,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       // Only attempt refresh for authenticated routes
-      const isAuthenticatedRoute = originalRequest.url?.includes('/user/') || 
+      const isAuthenticatedRoute = originalRequest.url?.includes('/user/') ||
                                  originalRequest.url?.includes('/my-') ||
                                  originalRequest.url?.includes('/notifications') ||
+                                 originalRequest.url?.includes('/chat/') ||
                                  originalRequest.method === 'post' ||
                                  originalRequest.method === 'put' ||
                                  originalRequest.method === 'delete';

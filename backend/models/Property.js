@@ -4,43 +4,49 @@ const PropertySchema = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
   userId: { type: String, required: true, index: true }, // Added index for better query performance
   
-  // --- ENHANCED MEDIA FIELDS ---
+  // --- ENHANCED MEDIA FIELDS WITH DATABASE STORAGE ---
   media: {
     photos: [{
-      url: { type: String },
-      thumbnail: { type: String },
-      fileName: { type: String },
-      fileType: { type: String },
-      fileSize: { type: Number },
+      fileName: { type: String, required: true },
+      fileType: { type: String, required: true },
+      fileSize: { type: Number, required: true },
       imageType: { type: String }, // bedroom, living_room, kitchen, etc.
       sortOrder: { type: Number, default: 0 },
       isCover: { type: Boolean, default: false },
-      uploadDate: { type: Date, default: Date.now }
+      uploadDate: { type: Date, default: Date.now },
+      // Store binary data in database
+      data: { type: Buffer },
+      thumbnailData: { type: Buffer },
+      mediumData: { type: Buffer },
+      optimizedData: { type: Buffer }
     }],
     videos: [{
-      url: { type: String },
-      youtubeUrl: { type: String },
-      fileName: { type: String },
-      fileType: { type: String },
-      fileSize: { type: Number },
+      fileName: { type: String, required: true },
+      fileType: { type: String, required: true },
+      fileSize: { type: Number, required: true },
       sortOrder: { type: Number, default: 0 },
-      uploadDate: { type: Date, default: Date.now }
+      uploadDate: { type: Date, default: Date.now },
+      // Store binary data in database
+      data: { type: Buffer },
+      youtubeUrl: { type: String }
     }],
     floorplans: [{
-      url: { type: String },
-      fileName: { type: String },
-      fileType: { type: String },
-      fileSize: { type: Number },
+      fileName: { type: String, required: true },
+      fileType: { type: String, required: true },
+      fileSize: { type: Number, required: true },
       sortOrder: { type: Number, default: 0 },
-      uploadDate: { type: Date, default: Date.now }
+      uploadDate: { type: Date, default: Date.now },
+      // Store binary data in database
+      data: { type: Buffer }
     }],
     brochures: [{
-      url: { type: String },
-      fileName: { type: String },
-      fileType: { type: String },
-      fileSize: { type: Number },
+      fileName: { type: String, required: true },
+      fileType: { type: String, required: true },
+      fileSize: { type: Number, required: true },
       sortOrder: { type: Number, default: 0 },
-      uploadDate: { type: Date, default: Date.now }
+      uploadDate: { type: Date, default: Date.now },
+      // Store binary data in database
+      data: { type: Buffer }
     }]
   },
   
@@ -55,6 +61,7 @@ const PropertySchema = new mongoose.Schema({
   price: { type: String, required: true },
   priceValue: { type: Number, required: true },
   location: { type: String, required: true },
+  title: { type: String }, // Property title field
   status: { 
     type: String, 
     required: true,
@@ -107,7 +114,7 @@ const PropertySchema = new mongoose.Schema({
   
   // --- ENHANCED PRICING FIELDS ---
   maintenanceAmount: { type: Number },
-  maintenancePeriod: { type: String, enum: ['monthly', 'yearly', 'one-time'], default: 'monthly' },
+  maintenancePeriod: { type: String, enum: ['Monthly', 'Yearly', 'One-Time', 'monthly', 'yearly', 'one-time'], default: 'monthly' },
   negotiable: { type: Boolean, default: false },
   securityDeposit: { type: String },
   preferredTenants: { type: [String], default: [] },
@@ -150,6 +157,14 @@ const PropertySchema = new mongoose.Schema({
   reraId: { type: String },
   priceIncludes: { type: [String], default: [] },
   gatedCommunity: { type: Boolean },
+  security: { type: Boolean, default: false },
+  cctv: { type: Boolean, default: false },
+  fireSafety: { type: Boolean, default: false },
+  lift: { type: Boolean, default: false },
+  park: { type: Boolean, default: false },
+  gym: { type: Boolean, default: false },
+  pool: { type: Boolean, default: false },
+  parking: { type: Boolean, default: false },
   maintenance: {
     amount: { type: Number },
     period: { type: String, enum: ['Monthly', 'Yearly', 'One-Time'] }
@@ -172,7 +187,8 @@ PropertySchema.index({
   location: 'text', 
   description: 'text', 
   type: 'text',
-  buildingName: 'text'
+  buildingName: 'text',
+  title: 'text'
 });
 
 // Pre-save middleware to ensure data consistency

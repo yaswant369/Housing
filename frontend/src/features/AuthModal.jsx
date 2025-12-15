@@ -59,12 +59,12 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gray-100 text-gray-900">
       {/* Header */}
-      <header className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <header className="flex items-center p-4 border-b border-gray-200 flex-shrink-0">
         <button 
           onClick={onClose}
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 rounded-full hover:bg-gray-200"
         >
           <X size={20} />
         </button>
@@ -77,11 +77,11 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         {/* Tabs */}
-        <div className="flex mb-6 rounded-full bg-gray-200 dark:bg-gray-800 p-1">
+        <div className="flex mb-6 rounded-full bg-gray-200 p-1">
           <button
             onClick={() => setActiveTab('login')}
             className={`w-1/2 py-3 rounded-full font-semibold transition-colors ${
-              activeTab === 'login' ? 'bg-white dark:bg-gray-700 shadow' : 'text-gray-600 dark:text-gray-400'
+              activeTab === 'login' ? 'bg-white shadow' : 'text-gray-600'
             }`}
           >
             Login
@@ -89,7 +89,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
           <button
             onClick={() => setActiveTab('signup')}
             className={`w-1/2 py-3 rounded-full font-semibold transition-colors ${
-              activeTab === 'signup' ? 'bg-white dark:bg-gray-700 shadow' : 'text-gray-600 dark:text-gray-400'
+              activeTab === 'signup' ? 'bg-white shadow' : 'text-gray-600'
             }`}
           >
             Sign Up
@@ -116,7 +116,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-center text-sm text-gray-600">
               Don't have an account? 
               <button type="button" onClick={() => setActiveTab('signup')} className="font-bold text-blue-600 ml-1">Sign Up</button>
             </p>
@@ -136,7 +136,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-center text-sm text-gray-600">
               Already have an account? 
               <button type="button" onClick={() => setActiveTab('login')} className="font-bold text-blue-600 ml-1">Login</button>
             </p>
@@ -150,7 +150,7 @@ export default function AuthModal({ onLoginSuccess, onClose }) {
 // Reusable Form Input Component
 const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disabled = false }) => (
   <div>
-    <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
     </label>
     <div className="relative">
@@ -164,7 +164,7 @@ const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disa
         onChange={onChange}
         disabled={disabled}
         required
-        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700"
+        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
       />
     </div>
   </div>

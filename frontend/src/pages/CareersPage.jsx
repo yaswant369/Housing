@@ -160,7 +160,7 @@ export default function CareersPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4">
@@ -194,24 +194,24 @@ export default function CareersPage() {
       <div className="py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Why Work With Us?
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Discover the benefits of building your career with our dynamic and growing real estate company.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                   <benefit.icon className="text-blue-600" size={24} />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {benefit.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {benefit.description}
                 </p>
               </div>
@@ -221,13 +221,13 @@ export default function CareersPage() {
       </div>
 
       {/* Company Culture */}
-      <div id="company-culture" className="bg-white dark:bg-gray-800 py-16">
+      <div id="company-culture" className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Our Values & Culture
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-600">
               The principles that guide everything we do
             </p>
           </div>
@@ -238,7 +238,7 @@ export default function CareersPage() {
                 <h3 className="text-2xl font-semibold text-blue-600 mb-4">
                   {value.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {value.description}
                 </p>
               </div>
@@ -246,8 +246,8 @@ export default function CareersPage() {
           </div>
 
           {/* Employee Testimonials */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
+          <div className="bg-gray-50 rounded-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
               What Our Team Says
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -271,18 +271,18 @@ export default function CareersPage() {
                   rating: 5
                 }
               ].map((testimonial, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                <div key={index} className="bg-white rounded-lg p-6">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="text-yellow-400 fill-current" size={16} />
                     ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 italic">
+                  <p className="text-gray-600 mb-4 italic">
                     "{testimonial.quote}"
                   </p>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                    <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                    <p className="text-sm text-gray-500">{testimonial.role}</p>
                   </div>
                 </div>
               ))}
@@ -295,23 +295,23 @@ export default function CareersPage() {
       <div id="open-positions" className="py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Open Positions
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-600">
               Find your perfect role and join our growing team
             </p>
           </div>
           
           <div className="space-y-6">
             {openPositions.map((position) => (
-              <div key={position.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+              <div key={position.id} className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
                   <div className="mb-4 lg:mb-0">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
                       {position.title}
                     </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       <span className="flex items-center">
                         <Briefcase size={16} className="mr-1" />
                         {position.department}
@@ -340,17 +340,17 @@ export default function CareersPage() {
                   </button>
                 </div>
                 
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <p className="text-gray-600 mb-6">
                   {position.description}
                 </p>
                 
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Requirements:</h4>
+                  <h4 className="font-semibold text-gray-900 mb-3">Requirements:</h4>
                   <ul className="space-y-2">
                     {position.requirements.map((req, index) => (
                       <li key={index} className="flex items-start">
                         <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        <span className="text-gray-600 dark:text-gray-400">{req}</span>
+                        <span className="text-gray-600">{req}</span>
                       </li>
                     ))}
                   </ul>

@@ -8,7 +8,7 @@ const FilterButton = ({ label, value, current, onClick }) => (
     className={`py-2 px-4 rounded-full border text-sm font-medium transition-colors ${
       current === value
         ? 'bg-blue-600 border-blue-600 text-white'
-        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+        : 'bg-white border-gray-300 hover:bg-gray-50'
     }`}
   >
     {label}
@@ -17,13 +17,13 @@ const FilterButton = ({ label, value, current, onClick }) => (
 
 // NEW: Reusable Switch component for the modal
 const FormSwitch = ({ label, name, checked, onChange }) => (
-    <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600">
-      <label className="font-medium text-gray-700 dark:text-gray-300">{label}</label>
+    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-300">
+      <label className="font-medium text-gray-700">{label}</label>
       <button
         type="button"
         onClick={() => onChange(name, !checked)}
         className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
-          checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+          checked ? 'bg-blue-600' : 'bg-gray-200'
         }`}
       >
         <span
@@ -43,8 +43,8 @@ const CheckboxGrid = ({ options, selected, onChange }) => (
                 key={option}
                 className={`flex items-center space-x-2 p-2 border rounded-lg cursor-pointer text-sm ${
                     selected.includes(option)
-                        ? 'bg-blue-50 border-blue-500 dark:bg-blue-900 dark:border-blue-500'
-                        : 'bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-600'
+                        ? 'bg-blue-50 border-blue-500'
+                        : 'bg-white border-gray-300'
                 }`}
             >
                 <input
@@ -117,17 +117,17 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
 
   const handleApply = () => {
     onApplyFilters(tempFilters);
-    map(-1); // Go back after applying filters
+    navigate(-1); // Go back after applying filters
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gray-100 text-gray-900">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <header className="flex items-center justify-between p-4 border-b border-gray-200">
         <h2 className="text-xl font-bold">Filters</h2>
         <button 
           onClick={() => navigate(-1)} // 3. Use navigate
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="p-2 rounded-full hover:bg-gray-100"
         >
           <X size={20} />
         </button>
@@ -158,7 +158,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
               value={tempFilters.minPrice}
               onChange={handlePriceChange}
               placeholder="Min Price (₹)"
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <span className="text-gray-500">to</span>
             <input
@@ -167,7 +167,7 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
               value={tempFilters.maxPrice}
               onChange={handlePriceChange}
               placeholder="Max Price (₹)"
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </section>
@@ -275,10 +275,10 @@ export default function FilterModal({ onApplyFilters, currentFilters }) {
       </div>
 
       {/* Footer */}
-      <footer className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-gray-700">
+      <footer className="flex items-center justify-between p-4 border-t border-gray-200">
         <button
           onClick={handleReset}
-          className="py-2 px-6 font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="py-2 px-6 font-semibold text-gray-700 rounded-lg hover:bg-gray-100"
         >
           Reset
         </button>

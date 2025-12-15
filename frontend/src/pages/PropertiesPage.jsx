@@ -26,14 +26,29 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
 
-  // Get similar properties mode from URL params
+  // Get similar properties mode and search parameters from URL
   const isSimilarMode = searchParams.get('similar') === 'true';
   const similarToPropertyId = searchParams.get('similarTo');
+  const keywordParam = searchParams.get('keyword');
+  const preferenceParam = searchParams.get('preference');
+  const propertyTypeParam = searchParams.get('propertyType');
+  const bhkParam = searchParams.get('bhk');
+  const budgetParam = searchParams.get('budget');
+  const constructionStatusParam = searchParams.get('constructionStatus');
+  const postedByParam = searchParams.get('postedBy');
+
+  // Update location query from URL parameter
+  useEffect(() => {
+    if (keywordParam) {
+      setLocationQuery(keywordParam);
+    }
+  }, [keywordParam]);
 
   useEffect(() => {
     filterProperties();
-  }, [properties, filters, listingType, searchQuery, isSimilarMode, similarToPropertyId]);
+  }, [properties, filters, listingType, searchQuery, locationQuery, isSimilarMode, similarToPropertyId]);
 
   const filterProperties = async () => {
     try {
@@ -43,7 +58,17 @@ export default function PropertiesPage() {
       // Apply search query
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
-        filtered = filtered.filter(property => 
+        filtered = filtered.filter(property =>
+          property.location?.toLowerCase().includes(query) ||
+          property.type?.toLowerCase().includes(query) ||
+          property.description?.toLowerCase().includes(query)
+        );
+      }
+
+      // Apply location query from URL (keyword parameter)
+      if (locationQuery.trim()) {
+        const query = locationQuery.toLowerCase();
+        filtered = filtered.filter(property =>
           property.location?.toLowerCase().includes(query) ||
           property.type?.toLowerCase().includes(query) ||
           property.description?.toLowerCase().includes(query)
@@ -66,6 +91,15 @@ export default function PropertiesPage() {
         }
       }
 
+      // Apply URL parameter filters
+      if (bhkParam) {
+        if (bhkParam === '5') {
+          filtered = filtered.filter(property => property.bhk >= 5);
+        } else {
+          filtered = filtered.filter(property => property.bhk === parseInt(bhkParam));
+        }
+      }
+
       if (filters.furnishing && filters.furnishing !== 'any') {
         filtered = filtered.filter(property => property.furnishing === filters.furnishing);
       }
@@ -76,6 +110,22 @@ export default function PropertiesPage() {
 
       if (filters.priceRange && filters.priceRange.max) {
         filtered = filtered.filter(property => property.priceValue <= filters.priceRange.max);
+      }
+
+      // Apply budget filter from URL
+      if (budgetParam) {
+        const budgetRanges = {
+          '0-25l': { min: 0, max: 2500000 },
+          '25l-50l': { min: 2500000, max: 5000000 },
+          '50l-1cr': { min: 5000000, max: 10000000 },
+          '1cr-2cr': { min: 10000000, max: 20000000 },
+          '2cr+': { min: 20000000, max: null }
+        };
+        const range = budgetRanges[budgetParam];
+        if (range) {
+          if (range.min) filtered = filtered.filter(property => property.priceValue >= range.min);
+          if (range.max) filtered = filtered.filter(property => property.priceValue <= range.max);
+        }
       }
 
       if (filters.amenities && filters.amenities.length > 0) {
@@ -138,7 +188,7 @@ export default function PropertiesPage() {
   const getPageTitle = () => {
     if (isSimilarMode && similarToPropertyId) {
       const referenceProperty = properties.find(p => p.id === parseInt(similarToPropertyId));
-      return referenceProperty 
+      return referenceProperty
         ? `Properties Similar to ${referenceProperty.type} in ${referenceProperty.location}`
         : 'Similar Properties';
     }
@@ -147,6 +197,10 @@ export default function PropertiesPage() {
     
     if (searchQuery.trim()) {
       title += ` matching "${searchQuery}"`;
+    }
+    
+    if (locationQuery.trim()) {
+      title += ` in ${locationQuery}`;
     }
     
     return title;
@@ -162,24 +216,24 @@ export default function PropertiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
-                onClick={() => navigate(-1)} 
-                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                 title="Go Back"
               >
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-xl font-bold text-gray-900">
                   {getPageTitle()}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {filteredProperties.length} properties found
                   {isSimilarMode && similarToPropertyId ? ' (similar properties)' : ''}
                 </p>
@@ -189,7 +243,7 @@ export default function PropertiesPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowFilters(true)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center gap-2 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 bg-gray-200  rounded-lg flex items-center gap-2 hover:bg-gray-300  transition-colors"
               >
                 <Filter size={18} />
                 Filters
@@ -207,10 +261,13 @@ export default function PropertiesPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
-              placeholder="Search by location, property type, or description..."
+              name="keyword"
+              id="keyword"
+              autocomplete="off"
+              placeholder="Enter Locality / Project / Society / Landmark"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300  rounded-lg focus:ring-2 focus:ring-blue-500 bg-white  text-gray-900  list_header_semiBold"
             />
           </div>
 
@@ -231,10 +288,10 @@ export default function PropertiesPage() {
           <div className="space-y-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+                <div className="h-8 bg-gray-300  rounded w-1/4 mb-4"></div>
                 <div className="space-y-4">
                   {[...Array(2)].map((_, j) => (
-                    <div key={j} className="h-40 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                    <div key={j} className="h-40 bg-gray-300  rounded"></div>
                   ))}
                 </div>
               </div>
@@ -252,11 +309,11 @@ export default function PropertiesPage() {
           />
         ) : (
           <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🏠</div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+            <div className="text-gray-400  text-6xl mb-4">🏠</div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-900">
               No Properties Found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600  mb-4">
               {isSimilarMode 
                 ? 'No similar properties found. Try adjusting your search or browse all properties.'
                 : 'No properties match your current filters. Try adjusting your search criteria.'

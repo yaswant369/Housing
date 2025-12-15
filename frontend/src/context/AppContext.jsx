@@ -21,11 +21,12 @@ export { AppContext };
    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
    const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
    const [propertyToEdit, setPropertyToEdit] = useState(null); // For editing a property
- 
+
    // --- Filter/Search State ---
    const [propertyType, setPropertyType] = useState('Residential');
    const [listingType, setListingType] = useState('Buy');
    const [searchTerm, setSearchTerm] = useState('');
+   const [propertyTypeChangedByUser, setPropertyTypeChangedByUser] = useState(false);
    const [filters, setFilters] = useState({
      bhk: 'any',
      furnishing: 'any',
@@ -174,7 +175,14 @@ export { AppContext };
    }, []);
  
    // --- Handlers ---
-   const handlePropertyTypeChange = useCallback((newType) => setPropertyType(newType), []);
+   const handlePropertyTypeChange = useCallback((newType, isUserTriggered = false) => {
+     setPropertyType(newType);
+     if (isUserTriggered) {
+       setPropertyTypeChangedByUser(true);
+       // Reset the flag after a short delay so it doesn't affect subsequent searches
+       setTimeout(() => setPropertyTypeChangedByUser(false), 100);
+     }
+   }, []);
    const handleListingTypeChange = useCallback((newTab) => setListingType(newTab), []);
    const handleSearchTermChange = useCallback((term) => setSearchTerm(term), []);
    const handleFilterChange = useCallback((newFilters) => {
@@ -184,6 +192,8 @@ export { AppContext };
     }
     setFilters(otherFilters);
    }, []);
+   
+   const handleResetPropertyTypeChangeFlag = useCallback(() => setPropertyTypeChangedByUser(false), []);
  
    // --- Auth Functions ---
    const login = (userData, access, refresh) => {
@@ -219,12 +229,20 @@ export { AppContext };
  
    // --- Modal Handlers ---
    const handleOpenPostWizard = (property = null) => {
+     if (!currentUser) {
+       // User not logged in, redirect to login page
+       // Note: This function might be called from components that have access to navigate
+       // We'll handle the redirect in the component that calls this function
+       return false;
+     }
+ 
      if (property) {
        setPropertyToEdit(property);
      } else {
        setPropertyToEdit(null);
      }
      setIsPostWizardOpen(true);
+     return true;
    };
    const handleClosePostWizard = () => setIsPostWizardOpen(false);
    const handleOpenAuthModal = () => setIsAuthModalOpen(true);
@@ -488,7 +506,7 @@ export { AppContext };
     API_URL, API_BASE_URL,
     savedPropertyIds, handleToggleSaved,
     comparedProperties, addToComparison, removeFromComparison, clearComparison, isInComparison,
-    propertyType, handlePropertyTypeChange,
+    propertyType, handlePropertyTypeChange, propertyTypeChangedByUser, handleResetPropertyTypeChangeFlag,
     listingType, handleListingTypeChange,
     searchTerm, handleSearchTermChange,
     filters, handleFilterChange,

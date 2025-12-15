@@ -1,5 +1,6 @@
 // tailwind.config.js (ESM)
 export default {
+  darkMode: 'class', // Use class-based dark mode, but we'll never add the 'dark' class to keep it light mode only
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // Adjust based on your project structure
   ],

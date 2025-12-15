@@ -112,7 +112,7 @@ export default function PropertyEditModal({
     <div className="space-y-6">
       {/* Property Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Property Title
         </label>
         <input
@@ -120,13 +120,13 @@ export default function PropertyEditModal({
           value={formData.title}
           onChange={(e) => handleInputChange('title', e.target.value)}
           placeholder="e.g., 2 BHK Apartment in Andheri East"
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
         />
       </div>
 
       {/* Location */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Location
         </label>
         <div className="relative">
@@ -136,7 +136,7 @@ export default function PropertyEditModal({
             value={formData.location}
             onChange={(e) => handleInputChange('location', e.target.value)}
             placeholder="City, area, landmark"
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function PropertyEditModal({
       {/* Price and Basic Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Price
           </label>
           <div className="relative">
@@ -154,19 +154,19 @@ export default function PropertyEditModal({
               value={formData.price}
               onChange={(e) => handleInputChange('price', e.target.value)}
               placeholder="₹25,00,000"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             BHK
           </label>
           <select
             value={formData.bhk}
             onChange={(e) => handleInputChange('bhk', parseInt(e.target.value))}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           >
             {[1, 2, 3, 4, 5].map(num => (
               <option key={num} value={num}>{num} BHK</option>
@@ -175,13 +175,13 @@ export default function PropertyEditModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Bathrooms
           </label>
           <select
             value={formData.bathrooms}
             onChange={(e) => handleInputChange('bathrooms', parseInt(e.target.value))}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           >
             {[1, 2, 3, 4, 5].map(num => (
               <option key={num} value={num}>{num}</option>
@@ -193,7 +193,7 @@ export default function PropertyEditModal({
       {/* Area and Furnishing */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Built-up Area
           </label>
           <div className="relative">
@@ -203,19 +203,19 @@ export default function PropertyEditModal({
               value={formData.area}
               onChange={(e) => handleInputChange('area', e.target.value)}
               placeholder="950 sq.ft"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Furnishing
           </label>
           <select
             value={formData.furnishing}
             onChange={(e) => handleInputChange('furnishing', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="Unfurnished">Unfurnished</option>
             <option value="Semi-Furnished">Semi-Furnished</option>
@@ -226,7 +226,7 @@ export default function PropertyEditModal({
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Description
         </label>
         <textarea
@@ -234,7 +234,7 @@ export default function PropertyEditModal({
           onChange={(e) => handleInputChange('description', e.target.value)}
           placeholder="Describe your property highlighting key features..."
           rows={4}
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
         />
         <div className="text-right text-sm text-gray-500 mt-1">
           {formData.description?.length || 0}/2000 characters
@@ -247,8 +247,8 @@ export default function PropertyEditModal({
     <div className="space-y-6">
       {/* Current Status */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Current Status</h3>
-        <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Status</h3>
+        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
           <div className={`w-3 h-3 rounded-full ${getStatusColor(formData.status).replace('text-', 'bg-')}`} />
           <span className="font-medium">{statusOptions.find(s => s.value === formData.status)?.label}</span>
           <span className="text-sm text-gray-500">
@@ -259,7 +259,7 @@ export default function PropertyEditModal({
 
       {/* Change Status */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Change Status</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Status</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {statusOptions.map(status => (
             <button
@@ -267,8 +267,8 @@ export default function PropertyEditModal({
               onClick={() => handleStatusChange(status.value)}
               className={`p-4 text-left border rounded-lg transition-colors ${
                 formData.status === status.value
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -282,11 +282,11 @@ export default function PropertyEditModal({
 
       {/* Quick Actions */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <button
             onClick={() => onEditPhotos?.(property)}
-            className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 transition-colors"
+            className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors"
           >
             <Camera size={20} className="text-blue-600" />
             <span>Edit Photos & Media</span>
@@ -294,18 +294,18 @@ export default function PropertyEditModal({
           
           <button
             onClick={() => onDuplicate?.(property)}
-            className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 transition-colors"
+            className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors"
           >
             <Star size={20} className="text-yellow-600" />
             <span>Duplicate Listing</span>
           </button>
           
-          <button className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 transition-colors">
+          <button className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
             <Eye size={20} className="text-green-600" />
             <span>View Public Listing</span>
           </button>
           
-          <button className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 transition-colors">
+          <button className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
             <Settings size={20} className="text-gray-600" />
             <span>Manage Settings</span>
           </button>
@@ -317,23 +317,23 @@ export default function PropertyEditModal({
   const renderPlanTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Current Plan</h3>
-        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h3>
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              <h4 className="text-xl font-bold text-blue-900">
                 {planOptions.find(p => p.value === formData.planType)?.label}
               </h4>
-              <p className="text-blue-700 dark:text-blue-300 text-sm">
+              <p className="text-blue-700 text-sm">
                 {planOptions.find(p => p.value === formData.planType)?.features.join(' • ')}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <div className="text-2xl font-bold text-blue-900">
                 {formData.planType === 'free' ? '₹0' : 
                  formData.planType === 'featured' ? '₹299' : '₹599'}
               </div>
-              <div className="text-sm text-blue-700 dark:text-blue-300">
+              <div className="text-sm text-blue-700">
                 {formData.planType === 'free' ? 'forever' : '/month'}
               </div>
             </div>
@@ -342,20 +342,20 @@ export default function PropertyEditModal({
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Available Plans</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Available Plans</h3>
         <div className="space-y-4">
           {planOptions.map(plan => (
             <div
               key={plan.value}
               className={`p-4 border rounded-lg cursor-pointer transition-all ${
                 formData.planType === plan.value
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:border-gray-400'
               }`}
               onClick={() => handleInputChange('planType', plan.value)}
             >
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100">{plan.label}</h4>
+                <h4 className="font-semibold text-gray-900"></h4>
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold">
                     {plan.value === 'free' ? '₹0' : 
@@ -368,7 +368,7 @@ export default function PropertyEditModal({
               </div>
               <div className="space-y-1">
                 {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
                     <Check size={14} className="text-green-500" />
                     <span>{feature}</span>
                   </div>
@@ -389,39 +389,40 @@ export default function PropertyEditModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 w-full max-w-4xl h-full max-h-[90vh] rounded-2xl shadow-xl flex flex-col overflow-hidden">
+      <div className="bg-white w-full max-w-4xl h-full max-h-[90vh] rounded-2xl shadow-xl flex flex-col overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-4">
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Property</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Property ID: #{property.id}</p>
+              <h2 className="text-xl font-bold text-gray-900">Property</h2>
+              <p className="text-sm text-gray-600">ID: #{property.id}</p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             {/* Completeness Meter */}
             <div className="flex items-center gap-2">
-              <div className="text-sm text-gray-600 dark:text-gray-400">Completeness:</div>
-              <div className="flex items-center gap-2">
-                <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-green-500 transition-all duration-300"
-                    style={{ width: `${calculateCompleteness()}%` }}
-                  />
+              <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-green-500 transition-all duration-300"
+                      style={{ width: `${calculateCompleteness()}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">
+                    {calculateCompleteness()}%
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {calculateCompleteness()}%
-                </span>
               </div>
             </div>
             
             {hasChanges && (
-              <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              <span className="text-sm text-blue-600 font-medium">
                 {getChangeCount()} change{getChangeCount() > 1 ? 's' : ''}
               </span>
             )}
@@ -442,7 +443,7 @@ export default function PropertyEditModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
+        <div className="flex border-b border-gray-200">
           {tabs.map(tab => {
             const IconComponent = tab.icon;
             return (
@@ -451,8 +452,8 @@ export default function PropertyEditModal({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-600 hover:text-gray-800'
                 }`}
               >
                 <IconComponent size={16} />

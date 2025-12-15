@@ -11,7 +11,10 @@ const userRoutes = require('./routes/user');
 const propertyRoutes = require('./routes/properties');
 const subscriptionRoutes = require('./routes/subscription');
 const uploadRoutes = require('./routes/uploads');
+const databaseUploadRoutes = require('./routes/databaseUploads');
 const notificationRoutes = require('./routes/notifications');
+const chatRoutes = require('./routes/chat');
+const chartRoutes = require('./routes/charts');
 
 // --- 2. Setup App ---
 const app = express();
@@ -82,8 +85,14 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 // Uploads (image processing)
 app.use('/api/uploads', uploadRoutes);
+// Database uploads (store files in database)
+app.use('/api/uploads', databaseUploadRoutes);
 // All notification routes will be prefixed with /api/notifications
 app.use('/api/notifications', notificationRoutes);
+// All chat routes will be prefixed with /api/chat
+app.use('/api/chat', chatRoutes);
+// All chart routes will be prefixed with /api/charts
+app.use('/api/charts', chartRoutes);
 
 // --- GLOBAL ERROR HANDLING MIDDLEWARE ---
 // 404 handler

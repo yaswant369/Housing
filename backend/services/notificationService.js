@@ -86,6 +86,12 @@ const notificationTemplates = {
     message: 'Your property booking has been confirmed.',
     category: 'property',
     priority: 'high'
+  },
+  chat_message: {
+    title: 'New Chat Message',
+    message: 'You have received a new chat message.',
+    category: 'account',
+    priority: 'high'
   }
 };
 
@@ -534,6 +540,30 @@ NotificationService.sendPropertyInquiryNotification = async (propertyOwnerId, pr
       id: propertyId
     },
     actionUrl: `/property/${propertyId}`
+  });
+};
+
+/**
+ * Send chat message notification
+ */
+NotificationService.sendChatMessageNotification = async (userId, senderName, messagePreview, chatId) => {
+  return await NotificationService.createNotification({
+    userId,
+    type: 'chat_message',
+    title: 'New Chat Message',
+    message: `${senderName}: ${messagePreview}`,
+    category: 'account',
+    priority: 'high',
+    relatedEntity: {
+      type: 'chat',
+      id: chatId
+    },
+    actionUrl: `/chat/${chatId}`,
+    metadata: {
+      senderName,
+      messagePreview,
+      chatId
+    }
   });
 };
 

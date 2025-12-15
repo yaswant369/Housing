@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs').promises;
 const { uploadPropertyMedia } = require('../middleware/upload');
+const authMiddleware = require('../middleware/authMiddleware');
 
 let sharp;
 try {
@@ -14,7 +15,7 @@ const router = express.Router();
 
 // POST /api/uploads/property/:propertyId
 // Accepts form-data with field `images` (multiple). Returns processed image URLs.
-router.post('/property/:propertyId', uploadPropertyMedia, async (req, res) => {
+router.post('/property/:propertyId', authMiddleware, uploadPropertyMedia, async (req, res) => {
   if (!sharp) return res.status(500).json({ message: 'Image processing not available (sharp missing).' });
 
   const propertyId = req.params.propertyId || 'common';

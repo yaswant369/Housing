@@ -173,15 +173,28 @@ const NotificationSettingsSchema = new mongoose.Schema({
     
     system_update: {
       enabled: { type: Boolean, default: true },
-      frequency: { 
-        type: String, 
-        enum: ['immediate', 'daily', 'weekly', 'never'], 
-        default: 'immediate' 
+      frequency: {
+        type: String,
+        enum: ['immediate', 'daily', 'weekly', 'never'],
+        default: 'immediate'
       },
       channels: {
         inApp: { type: Boolean, default: true },
         email: { type: Boolean, default: false },
         push: { type: Boolean, default: false }
+      }
+    },
+    chat_message: {
+      enabled: { type: Boolean, default: true },
+      frequency: {
+        type: String,
+        enum: ['immediate', 'daily', 'weekly', 'never'],
+        default: 'immediate'
+      },
+      channels: {
+        inApp: { type: Boolean, default: true },
+        email: { type: Boolean, default: true },
+        push: { type: Boolean, default: true }
       }
     }
   },
@@ -364,7 +377,8 @@ NotificationSettingsSchema.statics.createDefaultSettings = function(userId) {
       new_match: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: true, push: true } },
       saved_property_update: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: true, push: true } },
       welcome: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: true, push: false } },
-      system_update: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: false, push: false } }
+      system_update: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: false, push: false } },
+      chat_message: { enabled: true, frequency: 'immediate', channels: { inApp: true, email: true, push: true } }
     }
   });
 };

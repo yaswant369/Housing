@@ -40,7 +40,7 @@ export default function NotificationBell({ currentUser, className = '' }) {
     <button
       onClick={handleClick}
       className={`
-        relative p-2 rounded-full transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800
+        relative p-2 rounded-full transition-all duration-200 hover:bg-gray-100
         ${isAnimating ? 'animate-pulse' : ''}
         ${className}
       `}
@@ -51,17 +51,17 @@ export default function NotificationBell({ currentUser, className = '' }) {
         className={`
           transition-colors duration-200
           ${unreadCount > 0 
-            ? 'text-blue-600 dark:text-blue-400' 
-            : 'text-gray-600 dark:text-gray-400'
+            ? 'text-blue-600'
+            : 'text-gray-600'
           }
-          ${isAnimating ? 'text-blue-700 dark:text-blue-300' : ''}
+          ${isAnimating ? 'text-blue-700' : ''}
         `}
       />
       
       {/* Badge for unread count */}
       {unreadCount > 0 && (
         <span className={`
-          absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs 
+          absolute -top-1 -right-2 min-w-[16px] h-[16px] bg-red-500 text-white text-xs
           font-bold rounded-full flex items-center justify-center transform transition-all duration-200
           ${isAnimating ? 'scale-125 animate-bounce' : ''}
           ${unreadCount > 99 ? 'text-[10px] px-1' : ''}

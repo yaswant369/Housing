@@ -44,11 +44,11 @@ export default function EditProfileModal({ onClose, currentUser, onProfileUpdate
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-white  rounded-2xl shadow-xl w-full max-w-md">
         {/* Header */}
-        <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <header className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold">Edit Profile</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
             <X size={20} />
           </button>
         </header>
@@ -108,7 +108,7 @@ export default function EditProfileModal({ onClose, currentUser, onProfileUpdate
 // Reusable Form Input Component (copied from AuthModal)
 const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disabled = false }) => (
   <div>
-    <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700  mb-1">
       {label}
     </label>
     <div className="relative">
@@ -122,7 +122,7 @@ const FormInput = ({ label, id, type, icon: IconComponent, value, onChange, disa
         onChange={onChange}
         disabled={disabled}
         required
-        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700"
+        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
       />
     </div>
   </div>

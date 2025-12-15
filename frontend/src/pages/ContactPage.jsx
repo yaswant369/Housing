@@ -82,7 +82,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -100,8 +100,8 @@ export default function ContactPage() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <MessageCircle className="mr-3" />
               Send us a Message
             </h2>
@@ -109,7 +109,7 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
@@ -124,7 +124,7 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <input
@@ -140,7 +140,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address *
                 </label>
                 <input
@@ -156,7 +156,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Inquiry Type
                 </label>
                 <select
@@ -177,7 +177,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Subject *
                 </label>
                 <input
@@ -193,7 +193,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Message *
                 </label>
                 <textarea
@@ -220,8 +220,8 @@ export default function ContactPage() {
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Contact Information
               </h2>
               
@@ -232,15 +232,15 @@ export default function ContactPage() {
                       <item.icon className="text-blue-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      <h3 className="font-semibold text-gray-900 mb-1">
                         {item.title}
                       </h3>
                       {item.details.map((detail, i) => (
-                        <p key={i} className="text-gray-600 dark:text-gray-400 text-sm">
+                        <p key={i} className="text-gray-600 text-sm">
                           {detail}
                         </p>
                       ))}
-                      <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
+                      <p className="text-gray-500 text-xs mt-1">
                         {item.description}
                       </p>
                     </div>
@@ -250,27 +250,27 @@ export default function ContactPage() {
             </div>
 
             {/* Office Locations */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Our Locations
               </h2>
               
               <div className="space-y-6">
                 {officeLocations.map((office, index) => (
-                  <div key={index} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-4 last:pb-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
+                  <div key={index} className="border-b border-gray-200 last:border-b-0 pb-4 last:pb-0">
+                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
                       <Building className="mr-2" size={18} />
                       {office.name}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+                    <p className="text-gray-600 text-sm mb-1">
                       <MapPin className="inline mr-1" size={14} />
                       {office.address}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+                    <p className="text-gray-600 text-sm mb-1">
                       <Phone className="inline mr-1" size={14} />
                       {office.phone}
                     </p>
-                    <p className="text-gray-500 dark:text-gray-500 text-xs">
+                    <p className="text-gray-500 text-xs">
                       <Clock className="inline mr-1" size={14} />
                       {office.hours}
                     </p>
@@ -283,13 +283,13 @@ export default function ContactPage() {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-gray-100 dark:bg-gray-800 py-16">
+      <div className="bg-gray-100 py-16">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Quick answers to common questions
             </p>
           </div>
@@ -313,11 +313,11 @@ export default function ContactPage() {
                 answer: "The typical timeline is 30-60 days for a sale and 45-90 days for a purchase, depending on market conditions and financing."
               }
             ].map((faq, index) => (
-              <div key={index} className="bg-white dark:bg-gray-700 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              <div key={index} className="bg-white rounded-lg p-6">
+                <h3 className="font-semibold text-gray-900 mb-2">
                   {faq.question}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {faq.answer}
                 </p>
               </div>

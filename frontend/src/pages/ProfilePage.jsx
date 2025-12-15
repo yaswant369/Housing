@@ -1,9 +1,9 @@
  import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../context/context';
 import { useNavigate } from 'react-router-dom';
-import { 
-  User, LogOut, Edit, Bell, Shield, FileText, 
-  MessageCircle, Info, Settings, ChevronRight, Crown, Plus, Home
+import {
+  User, LogOut, Edit, Bell, Shield, FileText,
+  MessageCircle, Info, Settings, ChevronRight, Crown, Plus, Home, BarChart3
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -30,10 +30,10 @@ export default function ProfilePage() {
   // Show loading spinner while authentication is being checked
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50  flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-gray-600 dark:text-gray-400 font-medium">Loading...</span>
+          <span className="text-gray-600  font-medium">Loading...</span>
         </div>
       </div>
     );
@@ -56,7 +56,12 @@ export default function ProfilePage() {
       title: 'My Properties',
       items: [
         { icon: Home, label: 'Manage My Properties', path: '/my-listings' },
-        { icon: Plus, label: 'Post New Property', action: () => handleOpenPostWizard() },
+        { icon: BarChart3, label: 'Charts & Analytics', path: '/charts' },
+        { icon: Plus, label: 'Post New Property', action: () => {
+          if (!handleOpenPostWizard()) {
+            navigate('/login');
+          }
+        }},
       ]
     },
     {
@@ -78,7 +83,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Profile Header - Now integrated with main page content */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 pt-8 pb-6">
@@ -99,19 +104,19 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 pt-6">
         {menuSections.map((section, idx) => (
           <div key={idx} className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 px-2">
+            <h3 className="text-sm font-semibold text-gray-500 mb-3 px-2">
               {section.title}
             </h3>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               {section.items.map((item, itemIdx) => (
                 <button
                   key={itemIdx}
                   onClick={() => item.action ? item.action() : navigate(item.path)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                 >
                   <div className="flex items-center space-x-3">
-                    <item.icon size={20} className="text-gray-600 dark:text-gray-400" />
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.label}</span>
+                    <item.icon size={20} className="text-gray-600" />
+                    <span className="font-medium text-gray-800">{item.label}</span>
                   </div>
                   <ChevronRight size={20} className="text-gray-400" />
                 </button>
@@ -123,7 +128,7 @@ export default function ProfilePage() {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 py-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl font-semibold transition-colors"
+          className="w-full flex items-center justify-center space-x-2 py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-semibold transition-colors"
         >
           <LogOut size={20} />
           <span>Logout</span>

@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, ArrowLeft, Check, Info, Zap, Star, Heart, Percent, Gift, 
   CreditCard, Banknote, Wallet, History, Plus 
@@ -194,7 +194,7 @@ function CheckoutPage({ selectedPlan, discount }) {
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-full">
+    <div className="bg-gray-100 min-h-full">
       <div className="p-4 bg-gradient-to-r from-teal-400 to-blue-500 text-white text-center rounded-b-xl shadow-lg">
         <h2 className="text-lg font-semibold">Buying <span className="font-bold">{selectedPlan.title} Plan</span></h2>
         <h1 className="text-4xl font-bold my-1">₹{total.toLocaleString('en-IN')}</h1>
@@ -210,19 +210,19 @@ function CheckoutPage({ selectedPlan, discount }) {
       <div className="p-4 space-y-6">
         {/* Add more for less */}
         <div className="space-y-3">
-          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">Add more for less</h3>
+          <h3 className="font-bold text-lg text-gray-800">Add more for less</h3>
           {addOnsData.map(addOn => {
             const isAdded = addOns.find(a => a.id === addOn.id);
             return (
-              <div key={addOn.id} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <div key={addOn.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
                 <div>
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-100">{addOn.title}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">for <span className="font-bold text-gray-900 dark:text-white">₹{addOn.price}</span></p>
+                  <h4 className="font-semibold text-gray-800">{addOn.title}</h4>
+                  <p className="text-sm text-gray-600">₹<span className="font-bold text-gray-900">{addOn.price}</span></p>
                 </div>
                 <button
                   onClick={() => handleAddOnToggle(addOn)}
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                    isAdded ? 'bg-green-600 text-white' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
+                    isAdded ? 'bg-green-600 text-white' : 'bg-blue-100 text-blue-600'
                   }`}
                 >
                   {isAdded ? <Check size={20} /> : <Plus size={20} />}
@@ -234,14 +234,14 @@ function CheckoutPage({ selectedPlan, discount }) {
 
         {/* Payment Options */}
         <div>
-          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-3">Payment Options</h3>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700">
+          <h3 className="font-bold text-lg text-gray-800 mb-3">Payment Options</h3>
+          <div className="bg-white rounded-lg shadow divide-y divide-gray-200">
             {paymentOptions.map(option => (
-              <button key={option.name} className="w-full flex items-center p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700">
-                <option.icon className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-4" />
+              <button key={option.name} className="w-full flex items-center p-4 text-left hover:bg-gray-50">
+                <option.icon className="w-6 h-6 text-blue-600 mr-4" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-100">{option.name}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{option.description}</p>
+                  <h4 className="font-semibold text-gray-800">{option.name}</h4>
+                  <p className="text-sm text-gray-600">{option.description}</p>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
               </button>
@@ -251,11 +251,11 @@ function CheckoutPage({ selectedPlan, discount }) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 sticky bottom-0 bg-white border-t border-gray-200">
         <button className="w-full bg-gradient-to-r from-orange-500 to-pink-600 text-white font-bold py-3 rounded-lg text-lg">
           Pay ₹{total.toLocaleString('en-IN')}
         </button>
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-center text-xs text-gray-500 mt-2">
           <svg viewBox="0 0 16 16" className="w-4 h-4 inline-block -mt-0.5"><path fill="#008C00" d="M12.4 3.6l-5 5-2.8-2.8-1.2 1.2 4 4 6.2-6.2z M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8z"></path></svg>
           100% secure payments. Powered by <span className="font-bold">Razorpay</span>
         </p>

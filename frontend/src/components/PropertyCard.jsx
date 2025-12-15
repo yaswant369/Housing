@@ -1,15 +1,18 @@
  // src/components/PropertyCard.jsx
-import React, { useState } from 'react';
-import { MapPin, BadgeCheck, BedDouble, Bath, Ruler, Home, Archive, Heart, Share2, ExternalLink, Scale } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { formatPrice, formatArea } from '../utils/propertyHelpers';
+ import React, { useState } from 'react';
+ import { MapPin, BadgeCheck, BedDouble, Bath, Ruler, Home, Archive, Heart, Share2, ExternalLink, Scale, Play, Image as ImageIcon } from 'lucide-react';
+ import toast from 'react-hot-toast';
+ import { formatPrice, formatArea } from '../utils/propertyHelpers';
 
 // Backward compatibility with old PropertyCard usage
 const normalizeLegacyProperty = (property, API_BASE_URL) => {
   if (!property) return {};
-  
+
   // Get image from legacy images array or new media structure
   let imageUrl = null;
+  let videoUrl = null;
+
+  // Check for images first
   if (property.images && property.images.length > 0) {
     const firstImage = property.images[0];
     if (typeof firstImage === 'object') {
@@ -20,6 +23,19 @@ const normalizeLegacyProperty = (property, API_BASE_URL) => {
   } else if (property.media?.photos?.length > 0) {
     const firstPhoto = property.media.photos.find(p => p.isCover) || property.media.photos[0];
     imageUrl = firstPhoto?.thumbnail || firstPhoto?.url;
+  }
+
+  // Check for videos if no images found
+  if (!imageUrl && property.videos && property.videos.length > 0) {
+    const firstVideo = property.videos[0];
+    if (typeof firstVideo === 'object') {
+      videoUrl = firstVideo.thumbnail || firstVideo.url;
+    } else {
+      videoUrl = firstVideo;
+    }
+  } else if (!imageUrl && property.media?.videos?.length > 0) {
+    const firstVideo = property.media.videos[0];
+    videoUrl = firstVideo?.thumbnail || firstVideo?.url;
   }
 
   return {
@@ -33,6 +49,7 @@ const normalizeLegacyProperty = (property, API_BASE_URL) => {
     area: property.area,
     baths: property.bathrooms || property.bhk,
     imageUrl, // Store raw imageUrl, let getImageSrc handle URL building
+    videoUrl, // Store video URL if available
     description: property.description,
     id: property.id,
     onContact: () => console.log(`Contact property ${property.id}`)
@@ -47,7 +64,7 @@ export default function PropertyCard({
   // Legacy API props for backward compatibility
   property, API_BASE_URL = '', onViewDetails,
   
-
+ 
   
   // New props for save/share functionality
   isSaved = false, 
@@ -91,12 +108,13 @@ export default function PropertyCard({
   const handleImageError = (e) => {
     // Only log image errors in development mode to reduce console noise
     if (import.meta.env.DEV) {
-      console.warn('Image failed to load:', propImageUrl);
+      // Log a single consolidated warning instead of multiple warnings
+      console.warn('Image failed to load. This is expected during development when some image URLs may be invalid or missing.');
     }
     setImageError(true);
   };
 
-  // Enhanced image URL processing
+  // Enhanced image URL processing with support for both legacy and new media structures
   const getImageSrc = () => {
     if (!propImageUrl) return null;
     
@@ -127,6 +145,25 @@ export default function PropertyCard({
     // 3. Build the full URL using API_BASE_URL
     const baseUrl = API_BASE_URL.replace(/\/$/, '');
     return `${baseUrl}/uploads/${cleanPath}`;
+  };
+
+  // Get total image count from both legacy and new structures
+  const getTotalImageCount = () => {
+    let count = 0;
+    
+    if (property) {
+      // Count legacy images
+      if (property.images && Array.isArray(property.images)) {
+        count += property.images.length;
+      }
+      
+      // Count new media photos
+      if (property.media && property.media.photos && Array.isArray(property.media.photos)) {
+        count += property.media.photos.length;
+      }
+    }
+    
+    return count;
   };
 
   const handleCardClick = () => {
@@ -201,30 +238,49 @@ export default function PropertyCard({
 
 
 
-
   return (
     <div 
       onClick={handleCardClick}
       className={`bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer group h-full flex flex-col ${className}`}
     >
-      {/* Image Section with Fixed Aspect Ratio */}
+      {/* Media Section with Fixed Aspect Ratio */}
       <div className={`relative w-full ${variant === 'compact' ? 'aspect-[16/11]' : 'aspect-[4/3]'} bg-gray-100 overflow-hidden flex-shrink-0`}>
         {(() => {
           const imageSrc = getImageSrc();
-          return imageSrc && !imageError ? (
-            <img
-              src={imageSrc}
-              alt={propTitle}
-              className="w-full h-full object-cover object-center transition-transform duration-200 group-hover:scale-105"
-              onError={handleImageError}
-              loading="lazy"
-            />
-          ) : (
-            <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center ${variant === 'compact' ? 'p-6' : 'p-6'}`}>
-              <Home size={variant === 'compact' ? 32 : 36} className="text-gray-400 mb-2 flex-shrink-0" />
-              <span className={`text-gray-500 text-center font-medium leading-tight ${variant === 'compact' ? 'text-sm' : 'text-sm'}`}>No Image Available</span>
-            </div>
-          );
+          const hasImage = imageSrc && !imageError;
+          const hasVideo = false; // Video functionality removed
+
+          if (hasImage) {
+            return (
+              <img
+                src={imageSrc}
+                alt={propTitle}
+                className="w-full h-full object-cover object-center transition-transform duration-200 group-hover:scale-105"
+                onError={handleImageError}
+                loading="lazy"
+              />
+            );
+          } else if (hasVideo) {
+            return (
+              <div className="w-full h-full bg-black relative">
+                <img
+                  src={propVideoUrl}
+                  alt={propTitle}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Play className="w-8 h-8 text-white" />
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center ${variant === 'compact' ? 'p-6' : 'p-6'}`}>
+                <ImageIcon size={variant === 'compact' ? 32 : 36} className="text-gray-400 mb-2 flex-shrink-0" />
+                <span className={`text-gray-500 text-center font-medium leading-tight ${variant === 'compact' ? 'text-sm' : 'text-sm'}`}>No Image Available</span>
+              </div>
+            );
+          }
         })()}
 
         {/* Status Badges */}
@@ -281,6 +337,20 @@ export default function PropertyCard({
             <Scale size={variant === 'compact' ? 10 : 12} className="sm:w-[16px] sm:h-[16px]" />
           </button>
         </div>
+
+        {/* Image Count Badge */}
+        {(() => {
+          const totalImageCount = getTotalImageCount();
+          if (totalImageCount > 0) {
+            return (
+              <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 bg-black/60 text-white text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-1">
+                <ImageIcon size={variant === 'compact' ? 8 : 10} />
+                {totalImageCount}
+              </div>
+            );
+          }
+          return null;
+        })()}
 
       </div>
 

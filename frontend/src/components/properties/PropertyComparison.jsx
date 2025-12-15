@@ -1,326 +1,283 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { X, Plus, Minus, Scale, MapPin, BedDouble, Bath, Ruler, Home, Check, AlertTriangle, Search } from 'lucide-react';
-import { AppContext } from '../../context/AppContext';
-import PropertyCard from '../PropertyCard';
-import { formatPrice, formatArea } from '../../utils/propertyHelpers';
+import React from 'react';
+import { X, Bed, Bath, Maximize, MapPin, Star, CheckCircle, Trash2 } from 'lucide-react';
+import { formatPrice } from '../../utils/propertyHelpers';
 
-export default function PropertyComparison() {
-  const {
-    comparedProperties,
-    removeFromComparison,
-    clearComparison,
-    isInComparison,
-    addToComparison,
-    properties,
-    API_BASE_URL
-  } = useContext(AppContext);
+const COMPARISON_FIELDS = [
+  { key: 'price', label: 'Price', format: 'price' },
+  { key: 'bhk', label: 'BHK', format: 'number' },
+  { key: 'bathrooms', label: 'Bathrooms', format: 'number' },
+  { key: 'area', label: 'Area', format: 'area' },
+  { key: 'propertyType', label: 'Property Type', format: 'text' },
+  { key: 'location', label: 'Location', format: 'text' },
+  { key: 'furnishing', label: 'Furnishing', format: 'text' },
+  { key: 'constructionStatus', label: 'Construction Status', format: 'text' },
+  { key: 'amenities', label: 'Amenities', format: 'amenities' },
+  { key: 'isVerified', label: 'Verified', format: 'boolean' },
+  { key: 'isFeatured', label: 'Featured', format: 'boolean' }
+];
 
-  const [showComparison, setShowComparison] = useState(false);
-  const [availableProperties, setAvailableProperties] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+const AMENITY_ICONS = {
+  'swimming_pool': '🏊',
+  'gym': '💪',
+  'parking': '🅿️',
+  'lift': '🛗',
+  'security': '🔒',
+  'power_backup': '🔋',
+  'cctv': '📹',
+  'garden': '🌿',
+  'children_play_area': '🎮',
+  'club_house': '🏢',
+  'water_supply': '🚿',
+  'air_conditioning': '❄️'
+};
 
-  // Filter available properties (not already in comparison)
-  useEffect(() => {
-    const filtered = properties.filter(
-      prop => !comparedProperties.some(cp => cp.id === prop.id)
-    );
-    setAvailableProperties(filtered);
-  }, [properties, comparedProperties, API_BASE_URL]);
-
-  // Filter available properties based on search term
-  const filteredAvailable = availableProperties.filter(prop =>
-    prop.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prop.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prop.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const toggleComparison = () => {
-    setShowComparison(!showComparison);
-  };
-
-  const handleAddToComparison = (property) => {
-    addToComparison(property);
-    setShowAddModal(false);
-  };
-
-  const getComparisonFeatures = () => {
-    if (comparedProperties.length === 0) return [];
-
-    // Get all unique features from compared properties
-    const allFeatures = new Set();
-
-    comparedProperties.forEach(property => {
-      if (property.bhk) allFeatures.add('BHK');
-      if (property.area) allFeatures.add('Area');
-      if (property.price) allFeatures.add('Price');
-      if (property.location) allFeatures.add('Location');
-      if (property.bathrooms) allFeatures.add('Bathrooms');
-      if (property.furnishing) allFeatures.add('Furnishing');
-      if (property.amenities) allFeatures.add('Amenities');
-    });
-
-    return Array.from(allFeatures);
-  };
-
-  const renderFeatureComparison = () => {
-    const features = getComparisonFeatures();
-
+export default function PropertyComparison({ properties, onClose, onClear }) {
+  // Ensure properties is always an array
+  const validProperties = Array.isArray(properties) ? properties : [];
+  
+  // Early return if no valid properties
+  if (validProperties.length === 0) {
     return (
-      <div className="overflow-hidden">
-        <table className="w-full table-fixed">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 bg-gray-50 sticky left-0 z-10"></th>
-              {comparedProperties.map((property, index) => (
-                <th key={property.id} className="px-4 py-3 text-center text-sm font-medium text-gray-900 bg-white">
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs text-gray-500">Property {index + 1}</span>
-                    <button
-                      onClick={() => removeFromComparison(property.id)}
-                      className="mt-1 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                      title="Remove this property from comparison"
-                    >
-                      <div className="flex items-center gap-1">
-                        <Minus size={14} />
-                        <span>Remove</span>
-                      </div>
-                    </button>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {features.map((feature, featureIndex) => (
-              <tr key={featureIndex} className="border-b border-gray-100">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50 sticky left-0 z-10">
-                  {feature}
-                </td>
-                {comparedProperties.map((property) => (
-                  <td key={`${property.id}-${feature}`} className="px-4 py-3 text-center text-sm text-gray-700 bg-white">
-                    {renderFeatureValue(property, feature)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-            <tr>
-              <td className="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50 sticky left-0 z-10">Actions</td>
-              {comparedProperties.map((property) => (
-                <td key={`actions-${property.id}`} className="px-4 py-3 text-center text-sm text-gray-700 bg-white">
-                  <button
-                    onClick={() => window.open(`/property/${property.id}`, '_blank')}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    View Details
-                  </button>
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 max-w-md mx-4">
+          <div className="text-center">
+            <div className="text-gray-400 text-6xl mb-4">⚖️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Properties to Compare
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Add properties to comparison by clicking the scale icon on property cards.
+            </p>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     );
+  }
+
+
+  // Format area
+  const formatArea = (area) => {
+    if (!area) return 'N/A';
+    if (typeof area === 'string') return area;
+    return `${area} sq ft`;
   };
 
-  const renderFeatureValue = (property, feature) => {
-    switch (feature) {
-      case 'BHK':
-        return property.bhk ? `${property.bhk} BHK` : '-';
-      case 'Area':
-        return property.area ? formatArea(property.area) : '-';
-      case 'Price':
-        return property.price ? formatPrice(property.price) : '-';
-      case 'Location':
-        return property.location ? (
-          <div className="flex items-center justify-center gap-1">
-            <MapPin size={14} className="text-gray-400" />
-            <span className="text-xs">{property.location.split(',')[0]}</span>
-          </div>
-        ) : '-';
-      case 'Bathrooms':
-        return property.bathrooms ? `${property.bathrooms} Bath` : '-';
-      case 'Furnishing':
-        return property.furnishing || '-';
-      case 'Amenities':
-        return property.amenities ? (
-          <div className="flex flex-wrap gap-1 justify-center">
-            {property.amenities.slice(0, 2).map((amenity, i) => (
-              <span key={i} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {amenity}
+  // Format field value
+  const formatFieldValue = (value, format) => {
+    switch (format) {
+      case 'price':
+        return formatPrice(value);
+      case 'area':
+        return formatArea(value);
+      case 'number':
+        return value || 'N/A';
+      case 'boolean':
+        return value ? (
+          <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+        ) : (
+          <span className="text-gray-400">-</span>
+        );
+      case 'amenities':
+        if (!value || value.length === 0) return 'None';
+        return (
+          <div className="flex flex-wrap gap-1">
+            {value.slice(0, 3).map((amenity) => (
+              <span
+                key={amenity}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+              >
+                <span>{AMENITY_ICONS[amenity] || '•'}</span>
+                {amenity.replace('_', ' ')}
               </span>
             ))}
-            {property.amenities?.length > 2 && (
-              <span className="text-xs text-gray-500">+{property.amenities.length - 2} more</span>
+            {value.length > 3 && (
+              <span className="text-xs text-gray-500 px-1">
+                +{value.length - 3} more
+              </span>
             )}
           </div>
-        ) : '-';
+        );
       default:
-        return '-';
+        return value || 'N/A';
     }
   };
 
+  // Get image source
+  const getImageSrc = (image) => {
+    if (!image) return null;
+    if (typeof image === 'string') return image;
+    return image.medium || image.thumbnail || image.optimized || image.url;
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {/* Comparison Button */}
-      <button
-        onClick={toggleComparison}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transition-all"
-      >
-        <Scale size={18} />
-        <span>Compare ({comparedProperties.length}/4)</span>
-      </button>
-
-      {/* Comparison Panel */}
-      {showComparison && (
-        <div className="fixed bottom-20 right-4 w-[95vw] max-w-6xl max-h-[80vh] bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-900">Property Comparison</h3>
-            <button
-              onClick={toggleComparison}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X size={18} />
-            </button>
-          </div>
-
-          {comparedProperties.length === 0 ? (
-            <div className="p-4 text-center">
-              <AlertTriangle size={32} className="text-gray-400 mx-auto mb-2 flex-shrink-0" />
-              <p className="text-gray-600 mb-4">No properties selected for comparison</p>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
-              >
-                <Plus size={16} className="inline mr-1" />
-                Add Properties
-              </button>
-            </div>
-          ) : (
-            <div className="p-4 flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm text-gray-600">
-                  {comparedProperties.length} properties selected
-                </span>
-                <button
-                  onClick={clearComparison}
-                  className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1 px-2 py-1 hover:bg-red-50 rounded transition-colors"
-                >
-                  <X size={14} />
-                  Clear All
-                </button>
-              </div>
-
-              {comparedProperties.length < 4 && (
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm mb-4 flex items-center justify-center gap-1"
-                >
-                  <Plus size={16} />
-                  Add More Properties
-                </button>
-              )}
-
-                {renderFeatureComparison()}
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto">
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          
+          {/* Header */}
+          <div className="bg-white rounded-t-2xl p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Property Comparison
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  Comparing {validProperties.length} properties
+                </p>
               </div>
               
-              <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setShowComparison(false)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm"
+                  onClick={onClear}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  Close Comparison
+                  <Trash2 className="w-4 h-4" />
+                  Clear All
+                </button>
+                
+                <button
+                  onClick={onClose}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
 
-      {/* Add Property Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="font-semibold text-gray-900">Add Properties to Compare</h3>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={18} />
-              </button>
+          {/* Comparison Table */}
+          <div className="bg-white rounded-b-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                
+                {/* Property Headers */}
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="w-48 p-4 text-left text-sm font-medium text-gray-700 sticky left-0 bg-gray-50 z-10">
+                      Features
+                    </th>
+                    {validProperties.map((property) => (
+                      <th key={property.id} className="p-4 text-center min-w-80">
+                        <div className="space-y-3">
+                          
+                          {/* Property Image */}
+                          <div className="relative">
+                            <img
+                              src={getImageSrc(property.images?.[0]) || 'https://via.placeholder.com/300x200'}
+                              alt={`${property.bhk} BHK ${property.propertyType}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                            {property.isVerified && (
+                              <div className="absolute top-2 right-2">
+                                <CheckCircle className="w-5 h-5 text-green-500" />
+                              </div>
+                            )}
+                            {property.isFeatured && (
+                              <div className="absolute top-2 left-2">
+                                <Star className="w-5 h-5 text-yellow-500" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Property Info */}
+                          <div>
+                            <h3 className="font-semibold text-gray-900 text-sm">
+                              {property.bhk} BHK {property.propertyType}
+                            </h3>
+                            <div className="flex items-center gap-1 text-gray-600 text-xs mt-1">
+                              <MapPin className="w-3 h-3" />
+                              <span className="truncate">{property.location}</span>
+                            </div>
+                            <div className="font-bold text-lg text-blue-600 mt-1">
+                              {formatPrice(property.price, null, property.priceValue)}
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                {/* Comparison Rows */}
+                <tbody>
+                  {COMPARISON_FIELDS.map((field, index) => (
+                    <tr key={field.key} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                      
+                      {/* Field Label */}
+                      <td className="p-4 font-medium text-gray-900 sticky left-0 bg-inherit z-10 border-r border-gray-200">
+                        {field.label}
+                      </td>
+
+                      {/* Field Values */}
+                      {validProperties.map((property) => (
+                        <td key={property.id} className="p-4 text-center">
+                          <div className="flex items-center justify-center">
+                            {formatFieldValue(property[field.key], field.format)}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <div className="p-4">
-              <div className="relative mb-4">
-                <input
-                  type="text"
-                  placeholder="Search properties..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-                <Search size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
+            {/* Quick Stats Row */}
+            <div className="bg-blue-50 p-4 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                
+                {/* Price Comparison */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Price Range</h4>
+                  <div className="text-sm text-gray-600">
+                    {formatPrice(Math.min(...validProperties.map(p => p.price)), null, Math.min(...validProperties.map(p => p.priceValue))) === 'Price on request' ? 'Price on request' : `${formatPrice(Math.min(...validProperties.map(p => p.price)), null, Math.min(...validProperties.map(p => p.priceValue)))} - ${formatPrice(Math.max(...validProperties.map(p => p.price)), null, Math.max(...validProperties.map(p => p.priceValue)))}`}
+                  </div>
+                </div>
 
-              {filteredAvailable.length === 0 ? (
-                <div className="text-center py-8">
-                  <Home size={48} className="text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600">No properties available to add</p>
+                {/* Area Comparison */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Area Range</h4>
+                  <div className="text-sm text-gray-600">
+                    {formatArea(Math.min(...validProperties.map(p => parseInt(p.area) || 0)))} - {formatArea(Math.max(...validProperties.map(p => parseInt(p.area) || 0)))}
+                  </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[50vh]">
-                  {filteredAvailable.slice(0, 10).map((property) => (
-                    <div key={property.id} className="border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          {property.images?.[0] ? (
-                            <img
-                              src={`${API_BASE_URL}/uploads/${property.images[0]}`}
-                              alt={property.type}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/64x64?text=No+Image';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                              <Home size={20} className="text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900 truncate">
-                            {property.bhk} BHK {property.type}
-                          </h4>
-                          <p className="text-sm text-gray-600 truncate">
-                            {property.location?.split(',')[0]}
-                          </p>
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatPrice(property.price)}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleAddToComparison(property)}
-                          disabled={isInComparison(property.id)}
-                          className={`p-2 rounded-lg ${isInComparison(property.id) ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
-                        >
-                          {isInComparison(property.id) ? (
-                            <Check size={16} />
-                          ) : (
-                            <Plus size={16} />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+
+                {/* BHK Comparison */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">BHK Range</h4>
+                  <div className="text-sm text-gray-600">
+                    {Math.min(...validProperties.map(p => p.bhk))} - {Math.max(...validProperties.map(p => p.bhk))} BHK
+                  </div>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              <div className="flex flex-wrap gap-3 justify-center">
+                {validProperties.map((property) => (
+                  <button
+                    key={property.id}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    onClick={() => {
+                      // Navigate to property detail
+                      console.log('View property:', property.id);
+                    }}
+                  >
+                    View {property.bhk} BHK Details
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

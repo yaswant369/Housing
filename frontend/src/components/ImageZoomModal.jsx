@@ -45,8 +45,21 @@ export default function ImageZoomModal({ images, initialIndex = 0, onClose, API_
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prevOverflow; };
-  }, []);
+
+    // Add keyboard event listener for Escape key
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? normalizedImages.length - 1 : prev - 1));
@@ -57,7 +70,7 @@ export default function ImageZoomModal({ images, initialIndex = 0, onClose, API_
   };
 
   const modal = (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 2147483647 }} className="bg-black bg-opacity-95 flex flex-col justify-center items-center p-4">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000 }} className="bg-black bg-opacity-95 flex flex-col justify-center items-center p-4">
       {/* Close Button */}
       <button
         onClick={onClose}

@@ -2,6 +2,9 @@ import React, { useContext } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { SearchProvider } from './contexts/SearchContext';
+import { ChatProvider } from './context/ChatContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { Toaster } from 'react-hot-toast';
 
 // Import Your Components
@@ -12,6 +15,7 @@ import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
 import PropertiesPage from './pages/PropertiesPage';
 import MyListingsPage from './pages/MyListingsPage';
+import PropertyEditPageWrapper from './pages/PropertyEditPageWrapper';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
 import ChatPage from './pages/ChatPage';
@@ -36,6 +40,13 @@ import CareersPage from './pages/CareersPage';
 import FAQPage from './pages/FAQPage';
 import SitemapPage from './pages/SitemapPage';
 import LinksPage from './pages/LinksPage';
+import SearchResultsPage from './pages/SearchResultsPage';
+import PropertyMarketingPage from './pages/PropertyMarketingPage';
+import ChartPage from './pages/ChartPage';
+
+// Test Components
+import MediaUploaderTest from './test/MediaUploaderTest';
+import MediaBoxDemo from './pages/MediaBoxDemo';
 
 // Modals
 import PostPropertyWizard from './features/PostPropertyWizard';
@@ -97,20 +108,21 @@ function AppModals() {
 
 // This is the main App component
 function App() {
-  const { isDarkMode } = useContext(AppContext);
-  const themeClasses = isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-800';
-
   return (
-    <div className={`min-h-screen font-sans antialiased flex flex-col ${themeClasses}`}>
+    <div className="min-h-screen font-sans antialiased flex flex-col bg-gray-100 text-gray-800">
       <Routes>
         <Route path="/" element={<MainLayout />}>
           {/* Main Pages */}
           <Route index element={<HomePage />} />
           <Route path="property/:id" element={<PropertyDetailWrapper />} />
           <Route path="properties" element={<PropertiesPage />} />
+          <Route path="search" element={<SearchResultsPage />} />
+          <Route path="property-search" element={<SearchResultsPage />} />
+          <Route path="search-results/:propertyType?" element={<SearchResultsPage />} />
           <Route path="saved" element={<SavedPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="my-listings" element={<MyListingsPage />} />
+          <Route path="my-listings/edit/:propertyId" element={<PropertyEditPageWrapper />} />
           <Route path="chat-support" element={<ChatSupportPage />} />
           
           {/* Authentication & Account */}
@@ -147,6 +159,12 @@ function App() {
           <Route path="faq" element={<FAQPage />} />
           <Route path="sitemap" element={<SitemapPage />} />
           <Route path="links" element={<LinksPage />} />
+          <Route path="property-marketing" element={<PropertyMarketingPage />} />
+
+          {/* Test Routes - Remove in production */}
+          <Route path="test-media-uploader" element={<MediaUploaderTest />} />
+          {/* Charting and Analytics */}
+          <Route path="charts" element={<ChartPage />} />
         </Route>
       </Routes>
       
@@ -161,19 +179,25 @@ export default function AppWrapper() {
   return (
     <BrowserRouter>
       <AppProvider>
-        <NotificationProvider>
-          <Toaster 
-            position="bottom-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#333',
-                color: '#fff',
-              },
-            }}
-          />
-          <App />
-        </NotificationProvider>
+        <SearchProvider>
+          <NotificationProvider>
+            <SettingsProvider>
+              <Toaster
+                position="bottom-center"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    background: '#333',
+                    color: '#fff',
+                  },
+                }}
+              />
+              <ChatProvider>
+                <App />
+              </ChatProvider>
+            </SettingsProvider>
+          </NotificationProvider>
+        </SearchProvider>
       </AppProvider>
     </BrowserRouter>
   );

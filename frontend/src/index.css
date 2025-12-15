@@ -1,18 +1,14 @@
 /* --------------------------------------------------
   index.css
   --------------------------------------------------
-  This file imports the base, components, and utilities layers 
-  of Tailwind CSS, which are generated from the Tailwind configuration.
+  This file imports Tailwind CSS v4 using the new @import syntax.
   It also includes any global styles or custom CSS rules that are
   not handled by Tailwind utility classes.
 */
 
-
-
-/* Import Tailwind CSS layers.
-   @tailwind is a directive used by Tailwind's build tools to inject
-   the pre-generated styles into this CSS file.
- */
+/* Import Tailwind CSS.
+   In Tailwind CSS v3, you use @tailwind directives.
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -114,6 +110,7 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 2; /* Standard property for compatibility */
 }
 
 .line-clamp-3 {
@@ -121,6 +118,7 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 3; /* Standard property for compatibility */
 }
 
 /* Enhanced grid animations */
@@ -237,6 +235,27 @@ body {
     }
   }
   
+  @layer utilities {
+    /* 99acres media box style for no image placeholder */
+    .ytvideo__videoBackdrop {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+  
+    .ytvideo__videoBackdrop::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23e2e8f0" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+      opacity: 0.3;
+    }
+  }
   /* Responsive text sizing */
   .text-responsive {
     font-size: 0.875rem;
@@ -257,4 +276,3 @@ body {
     }
   }
 }
-

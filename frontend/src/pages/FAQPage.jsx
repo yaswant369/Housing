@@ -174,7 +174,7 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -191,7 +191,7 @@ export default function FAQPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Search and Filter */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -213,7 +213,7 @@ export default function FAQPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedCategory === category.id
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 {category.name} ({category.count})
@@ -227,21 +227,21 @@ export default function FAQPage() {
           {filteredFAQs.length === 0 ? (
             <div className="text-center py-12">
               <HelpCircle className="mx-auto text-gray-400 mb-4" size={48} />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 No questions found
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-gray-500">
                 Try adjusting your search terms or category filter
               </p>
             </div>
           ) : (
             filteredFAQs.map((faq) => (
-              <div key={faq.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+              <div key={faq.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <button
                   onClick={() => toggleFAQ(faq.id)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <span className="text-lg font-semibold text-gray-900">
                     {faq.question}
                   </span>
                   {openFAQ === faq.id ? (
@@ -253,7 +253,7 @@ export default function FAQPage() {
                 
                 {openFAQ === faq.id && (
                   <div className="px-6 pb-4">
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-gray-600 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
@@ -312,7 +312,7 @@ export default function FAQPage() {
 
         {/* Popular Questions */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Most Popular Questions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,9 +320,9 @@ export default function FAQPage() {
               <button
                 key={faq.id}
                 onClick={() => toggleFAQ(faq.id)}
-                className="text-left p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow"
+                className="text-left p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
               >
-                <span className="text-gray-900 dark:text-white font-medium">
+                <span className="text-gray-900 font-medium">
                   {faq.question}
                 </span>
               </button>

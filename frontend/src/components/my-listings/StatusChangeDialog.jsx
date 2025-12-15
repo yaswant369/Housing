@@ -19,7 +19,7 @@ export default function StatusChangeDialog({
   currentStatus
 }) {
   const [formData, setFormData] = useState({
-    soldDate: new Date().toISOString().split('T')[0],
+    soldDate: '',
     soldPrice: '',
     notes: ''
   });
@@ -55,7 +55,7 @@ export default function StatusChangeDialog({
       }
       onClose();
     } catch (error) {
-      toast.error('Failed to update status: ' + error.message);
+      toast.error('Failed to update status: ' + (error.message || 'Unknown error occurred'));
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +69,7 @@ export default function StatusChangeDialog({
           description: 'This will mark your property as sold and it will no longer be visible to buyers.',
           icon: CheckCircle,
           color: 'text-green-600',
-          bgColor: 'bg-green-50 dark:bg-green-900/20',
+          bgColor: 'bg-green-50',
           requiresForm: true,
           formFields: [
             {
@@ -95,7 +95,7 @@ export default function StatusChangeDialog({
           description: 'Renew your property listing to keep it visible for another 30 days.',
           icon: Clock,
           color: 'text-blue-600',
-          bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+          bgColor: 'bg-blue-50',
           requiresForm: true,
           formFields: [
             {
@@ -115,7 +115,7 @@ export default function StatusChangeDialog({
             description: 'This will pause your listing and it will no longer be visible to buyers. You can reactivate it anytime.',
             icon: Clock,
             color: 'text-yellow-600',
-            bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
+            bgColor: 'bg-yellow-50',
             requiresForm: false
           };
         } else {
@@ -124,7 +124,7 @@ export default function StatusChangeDialog({
             description: 'This will activate your listing and make it visible to buyers again.',
             icon: TrendingUp,
             color: 'text-green-600',
-            bgColor: 'bg-green-50 dark:bg-green-900/20',
+            bgColor: 'bg-green-50',
             requiresForm: false
           };
         }
@@ -135,7 +135,7 @@ export default function StatusChangeDialog({
           description: 'Are you sure you want to change the status of this property?',
           icon: AlertCircle,
           color: 'text-gray-600',
-          bgColor: 'bg-gray-50 dark:bg-gray-900/20',
+          bgColor: 'bg-gray-50',
           requiresForm: false
         };
     }
@@ -146,42 +146,42 @@ export default function StatusChangeDialog({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-2xl shadow-xl">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${config.bgColor}`}>
               <IconComponent className={`h-5 w-5 ${config.color}`} />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-gray-900">
               {config.title}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="p-1 rounded-full hover:bg-gray-100"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Property Info */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span className="text-xs font-semibold text-gray-600">
                 {property.bhk}BHK
               </span>
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="font-medium text-gray-900">
                 {property.type}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 {property.location} • ₹{property.price}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
+              <p className="text-xs text-gray-500">
                 Property ID: #{property.id}
               </p>
             </div>
@@ -190,7 +190,7 @@ export default function StatusChangeDialog({
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             {config.description}
           </p>
 
@@ -198,7 +198,7 @@ export default function StatusChangeDialog({
             <form onSubmit={handleSubmit} className="space-y-4">
               {config.formFields.map((field, index) => (
                 <div key={index}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
                     {field.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
@@ -209,7 +209,7 @@ export default function StatusChangeDialog({
                       onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
                       placeholder={field.placeholder}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     />
                   ) : (
                     <input
@@ -218,7 +218,7 @@ export default function StatusChangeDialog({
                       onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
                       placeholder={field.placeholder}
                       required={field.required}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     />
                   )}
                 </div>
@@ -229,7 +229,7 @@ export default function StatusChangeDialog({
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -275,7 +275,7 @@ export default function StatusChangeDialog({
               <button
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
               >
                 Cancel
               </button>

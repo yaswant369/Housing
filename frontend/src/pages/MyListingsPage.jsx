@@ -25,6 +25,41 @@ import PropertyEditModal from '../components/my-listings/PropertyEditModal';
 import PropertyEditPage from '../components/property-edit/PropertyEditPage';
 import PropertyAnalyticsPanel from '../components/my-listings/PropertyAnalyticsPanel';
 
+// Helper function to convert properties to CSV format
+const convertPropertiesToCSV = (properties) => {
+  if (properties.length === 0) return '';
+
+  // Define the CSV headers
+  const headers = [
+    'ID', 'Type', 'Location', 'Price', 'Area', 'BHK', 'Status',
+    'Description', 'Amenities', 'Created At', 'Updated At'
+  ];
+
+  // Create CSV rows
+  const rows = properties.map(property => {
+    const amenities = Array.isArray(property.amenities)
+      ? property.amenities.join(', ')
+      : property.amenities || '';
+
+    return [
+      property.id || '',
+      property.type || '',
+      property.location || '',
+      property.priceValue ? `₹${property.priceValue.toLocaleString()}` : '',
+      property.area || '',
+      property.bhk || '',
+      property.status || '',
+      `"${property.description?.replace(/"/g, '""') || ''}"`,
+      `"${amenities.replace(/"/g, '""')}"`,
+      property.createdAt ? new Date(property.createdAt).toLocaleString() : '',
+      property.updatedAt ? new Date(property.updatedAt).toLocaleString() : ''
+    ];
+  });
+
+  // Combine headers and rows
+  return [headers, ...rows].map(row => row.join(',')).join('\n');
+};
+
 export default function MyListingsPage() {
   const navigate = useNavigate();
   const {
@@ -52,10 +87,6 @@ export default function MyListingsPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Full edit page states
-  const [fullEditOpen, setFullEditOpen] = useState(false);
-  const [fullEditProperty, setFullEditProperty] = useState(null);
 
   // Analytics modal state
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
@@ -235,9 +266,11 @@ export default function MyListingsPage() {
           // Calculate quality score for sorting
           const calculateQualityScore = (property) => {
             let score = 0;
-            if (property.images?.length >= 5) score += 30;
-            else if (property.images?.length >= 3) score += 20;
-            else if (property.images?.length >= 1) score += 10;
+            // Support both legacy images and new media structure
+            const imageCount = (property.images?.length || 0) + (property.media?.photos?.length || 0);
+            if (imageCount >= 5) score += 30;
+            else if (imageCount >= 3) score += 20;
+            else if (imageCount >= 1) score += 10;
             
             if (property.description?.length >= 200) score += 25;
             else if (property.description?.length >= 100) score += 15;
@@ -311,13 +344,14 @@ export default function MyListingsPage() {
   }, []);
 
   const handleFullEdit = useCallback((property) => {
-    setFullEditProperty(property);
-    setFullEditOpen(true);
-  }, []);
+    navigate(`/my-listings/edit/${property.id}`);
+  }, [navigate]);
 
   const handleEditPhotos = useCallback((property) => {
-    handleOpenPostWizard(property);
-  }, [handleOpenPostWizard]);
+    if (!handleOpenPostWizard(property)) {
+      navigate('/login');
+    }
+  }, [handleOpenPostWizard, navigate]);
 
   const handleChangeStatus = useCallback(async (property, newStatus, additionalData = {}) => {
     setIsLoading(true);
@@ -333,13 +367,22 @@ export default function MyListingsPage() {
       });
       
       await handleEditProperty(property.id, formData);
+      
+      // Refresh the properties list to show the latest changes
+      if (currentUser) {
+        await fetchUserProperties({
+          status: activeFilter !== 'all' ? activeFilter : undefined,
+          search: searchTerm.trim() || undefined
+        });
+      }
+      
       toast.success(`Property ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
     } catch (error) {
       toast.error('Failed to change status: ' + error.message);
     } finally {
       setIsLoading(false);
     }
-  }, [handleEditProperty]);
+  }, [handleEditProperty, currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   const handleMarkSold = useCallback(async (property, soldData = {}) => {
     setIsLoading(true);
@@ -355,13 +398,22 @@ export default function MyListingsPage() {
       });
       
       await handleEditProperty(property.id, formData);
+      
+      // Refresh the properties list to show the latest changes
+      if (currentUser) {
+        await fetchUserProperties({
+          status: activeFilter !== 'all' ? activeFilter : undefined,
+          search: searchTerm.trim() || undefined
+        });
+      }
+      
       toast.success('Property marked as sold/rented');
     } catch (error) {
       toast.error('Failed to mark as sold: ' + error.message);
     } finally {
       setIsLoading(false);
     }
-  }, [handleEditProperty]);
+  }, [handleEditProperty, currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   const handleRenew = useCallback(async (property, renewalData = {}) => {
     setIsLoading(true);
@@ -380,13 +432,22 @@ export default function MyListingsPage() {
       }
       
       await handleEditProperty(property.id, formData);
+      
+      // Refresh the properties list to show the latest changes
+      if (currentUser) {
+        await fetchUserProperties({
+          status: activeFilter !== 'all' ? activeFilter : undefined,
+          search: searchTerm.trim() || undefined
+        });
+      }
+      
       toast.success('Property renewed successfully');
     } catch (error) {
       toast.error('Failed to renew property: ' + error.message);
     } finally {
       setIsLoading(false);
     }
-  }, [handleEditProperty]);
+  }, [handleEditProperty, currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   const handleBoost = useCallback(async (property) => {
     // Open premium/boosting options
@@ -430,6 +491,15 @@ export default function MyListingsPage() {
       setIsLoading(true);
       try {
         await handleDeleteProperty(property.id);
+        
+        // Refresh the properties list to show the latest changes
+        if (currentUser) {
+          await fetchUserProperties({
+            status: activeFilter !== 'all' ? activeFilter : undefined,
+            search: searchTerm.trim() || undefined
+          });
+        }
+        
         toast.success('Property deleted successfully');
       } catch (error) {
         toast.error('Failed to delete property: ' + error.message);
@@ -437,7 +507,7 @@ export default function MyListingsPage() {
         setIsLoading(false);
       }
     }
-  }, [handleDeleteProperty]);
+  }, [handleDeleteProperty, currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   const handleViewPublic = useCallback((property) => {
     navigate(`/property/${property.id}`);
@@ -446,6 +516,29 @@ export default function MyListingsPage() {
   const handleAnalytics = useCallback((property) => {
     setAnalyticsProperty(property);
     setAnalyticsModalOpen(true);
+  }, []);
+
+  // Export properties handler
+  const handleExportProperties = useCallback(async (propertiesToExport) => {
+    try {
+      // Convert properties to CSV format
+      const csvData = convertPropertiesToCSV(propertiesToExport);
+
+      // Create download link
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `properties_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Successfully exported ${propertiesToExport.length} properties`);
+    } catch (error) {
+      toast.error('Failed to export properties: ' + error.message);
+    }
   }, []);
 
   // Bulk actions handler
@@ -485,6 +578,10 @@ export default function MyListingsPage() {
             await Promise.all(propertiesToProcess.map(p => handleDelete(p)));
           }
           break;
+        case 'export':
+          // Export selected properties data
+          await handleExportProperties(propertiesToProcess);
+          break;
         default:
           throw new Error(`Unknown action: ${action}`);
       }
@@ -495,12 +592,50 @@ export default function MyListingsPage() {
     }
   }, [filteredProperties, handleChangeStatus, handleMarkSold, handleRenew, handleDelete, handleAnalytics, navigate]);
 
-  // Handle edit modal save
+  // Handle edit modal save with refresh
   const handleEditSave = useCallback(async (propertyId, formData) => {
-    await handleEditProperty(propertyId, formData);
-    setEditModalOpen(false);
-    setEditingProperty(null);
-  }, [handleEditProperty]);
+    try {
+      // Convert plain object to FormData for backend compatibility
+      const formDataToSend = new FormData();
+      
+      // Add all form fields to FormData
+      Object.keys(formData).forEach(key => {
+        const value = formData[key];
+        if (value !== undefined && value !== null && value !== '') {
+          // Handle arrays (like amenities, keyHighlights)
+          if (Array.isArray(value)) {
+            formDataToSend.append(key, JSON.stringify(value));
+          }
+          // Handle objects (like maintenance)
+          else if (typeof value === 'object') {
+            formDataToSend.append(key, JSON.stringify(value));
+          }
+          // Handle regular values
+          else {
+            formDataToSend.append(key, value.toString());
+          }
+        }
+      });
+      
+      // Save the property
+      await handleEditProperty(propertyId, formDataToSend);
+      
+      // Refresh the properties list to show the latest changes
+      if (currentUser) {
+        await fetchUserProperties({
+          status: activeFilter !== 'all' ? activeFilter : undefined,
+          search: searchTerm.trim() || undefined
+        });
+      }
+      
+      setEditModalOpen(false);
+      setEditingProperty(null);
+      toast.success('Property updated successfully');
+    } catch (error) {
+      toast.error('Failed to update property: ' + error.message);
+      throw error; // Re-throw to let PropertyEditPage handle the error
+    }
+  }, [handleEditProperty, currentUser, activeFilter, searchTerm, fetchUserProperties]);
 
   if (!currentUser) {
     return (
@@ -529,21 +664,21 @@ export default function MyListingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate(-1)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-2 rounded-lg hover:bg-gray-100"
               >
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">My Properties</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <h1 className="text-xl font-semibold text-gray-900">My Properties</h1>
+                <p className="text-sm text-gray-600">
                   Manage your {filteredProperties.length} listings
                 </p>
               </div>
@@ -558,7 +693,7 @@ export default function MyListingsPage() {
                 Add Property
               </button>
               
-              <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+              <button className="p-2 rounded-lg hover:bg-gray-100">
                 <Download size={20} />
               </button>
             </div>
@@ -631,10 +766,10 @@ export default function MyListingsPage() {
             <div className="mx-auto h-12 w-12 text-gray-400">
               {searchTerm || activeFilter !== 'all' ? <Search /> : <Plus />}
             </div>
-            <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">
+            <h3 className="mt-2 text-lg font-medium text-gray-900">
               {searchTerm || activeFilter !== 'all' ? 'No properties found' : 'No properties yet'}
             </h3>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-gray-500">
               {searchTerm || activeFilter !== 'all'
                 ? 'Try adjusting your filters or search terms'
                 : 'Get started by posting your first property'
@@ -642,7 +777,11 @@ export default function MyListingsPage() {
             </p>
             {!searchTerm && activeFilter === 'all' && (
               <button
-                onClick={() => handleOpenPostWizard()}
+                onClick={() => {
+                  if (!handleOpenPostWizard()) {
+                    navigate('/login');
+                  }
+                }}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Post Your First Property
@@ -677,24 +816,6 @@ export default function MyListingsPage() {
         API_BASE_URL={API_BASE_URL}
       />
 
-      {/* Full Edit Property Page */}
-      {fullEditOpen && fullEditProperty && (
-        <PropertyEditPage
-          property={fullEditProperty}
-          isOpen={fullEditOpen}
-          onClose={() => {
-            setFullEditOpen(false);
-            setFullEditProperty(null);
-          }}
-          onSave={handleEditSave}
-          onChangeStatus={handleChangeStatus}
-          onEditPhotos={handleEditPhotos}
-          onDuplicate={handleDuplicate}
-          onPreviewListing={handleViewPublic}
-          API_BASE_URL={API_BASE_URL}
-        />
-      )}
-
       {/* Analytics Modal */}
       <PropertyAnalyticsPanel
         property={analyticsProperty}
@@ -709,9 +830,9 @@ export default function MyListingsPage() {
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center gap-3">
+          <div className="bg-white rounded-lg p-6 flex items-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="text-gray-900 dark:text-gray-100">Processing...</span>
+            <span className="text-gray-900">Processing...</span>
           </div>
         </div>
       )}

@@ -124,7 +124,7 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
 
   return (
     <div className="image-uploader">
-      <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+      <label className="block mb-2 font-medium text-gray-700">
         <Upload className="inline w-5 h-5 mr-2" />
         Upload Property Images
       </label>
@@ -132,9 +132,9 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
       {/* Enhanced Drag & Drop Area */}
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-          dragActive 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+          dragActive
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -151,7 +151,7 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
         <div className="space-y-2">
           <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
           <div>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Drag and drop images here, or <span className="text-blue-600 font-medium">browse</span>
             </p>
             <p className="text-xs text-gray-500 mt-1">
@@ -162,8 +162,8 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
       </div>
 
       {error && (
-        <div className="mt-2 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg">
-          <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+        <div className="mt-2 p-3 bg-red-100  border border-red-300  rounded-lg">
+          <p className="text-red-700  text-sm">{error}</p>
         </div>
       )}
 
@@ -171,7 +171,7 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
       {previews.length > 0 && (
         <div className="mt-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-medium text-gray-700 dark:text-gray-300">
+            <h3 className="font-medium text-gray-700">
               Image Previews ({previews.length}/20)
             </h3>
             <button
@@ -186,7 +186,7 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {previews.map((p, i) => (
               <div key={i} className="relative group">
-                <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow-md">
+                <div className="relative aspect-square bg-gray-100  rounded-lg overflow-hidden shadow-md">
                   <img 
                     src={p.url} 
                     alt={p.name} 
@@ -221,10 +221,10 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
                 
                 {/* File Info */}
                 <div className="mt-2 space-y-1">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate" title={p.name}>
+                  <p className="text-xs font-medium text-gray-700  truncate" title={p.name}>
                     {p.name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500">
                     {formatFileSize(p.size)}
                   </p>
                 </div>
@@ -237,7 +237,7 @@ export default function ImageUploader({ propertyId, onUploadComplete }) {
       {/* Upload Button */}
       {files.length > 0 && (
         <div className="mt-6 flex justify-between items-center">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-gray-600">
             {files.length} image{files.length !== 1 ? 's' : ''} ready to upload
           </div>
           <button 

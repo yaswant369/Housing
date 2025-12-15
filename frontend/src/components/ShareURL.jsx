@@ -63,15 +63,15 @@ export default function ShareURL({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showLabel && (
-        <span className={`text-gray-600 dark:text-gray-400 ${sizeClasses[size]}`}>
+        <span className={`text-gray-600  ${sizeClasses[size]}`}>
           Share:
         </span>
       )}
       
       <div className="flex items-center gap-1">
         {/* URL Display */}
-        <div className={`bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 ${sizeClasses[size]}`}>
-          <span className="text-gray-700 dark:text-gray-300 font-mono truncate max-w-xs">
+        <div className={`bg-gray-100  border border-gray-300  rounded-md px-3 py-2 ${sizeClasses[size]}`}>
+          <span className="text-gray-700  font-mono truncate max-w-xs">
             {url}
           </span>
         </div>

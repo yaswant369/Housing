@@ -33,7 +33,7 @@ async function createTestNotifications() {
       type: { $in: ['test', 'welcome', 'property_alert', 'system_update'] }
     });
 
-    // Create diverse test notifications
+    // Create diverse test notifications with correct priority values
     const testNotifications = [
       {
         id: `test_welcome_${Date.now()}`,
@@ -45,7 +45,7 @@ async function createTestNotifications() {
         isRead: false,
         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
         actionUrl: '/profile',
-        priority: 'normal',
+        priority: 'medium',
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Expires in 7 days
       },
       {
@@ -84,7 +84,7 @@ async function createTestNotifications() {
         isRead: true, // This one is already read
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
         actionUrl: '/premium',
-        priority: 'normal',
+        priority: 'medium',
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Expires in 30 days
       },
       {
@@ -93,11 +93,11 @@ async function createTestNotifications() {
         title: 'Security Alert: New Login Detected',
         message: 'A new login was detected from Chrome on Windows. If this wasn\'t you, please secure your account.',
         category: 'security',
-        type: 'login_alert',
+        type: 'security_alert',
         isRead: false,
         createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
         actionUrl: '/profile?tab=security',
-        priority: 'critical',
+        priority: 'urgent',
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // Expires in 1 day
       }
     ];

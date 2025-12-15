@@ -310,7 +310,7 @@ export default function LinksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -328,12 +328,12 @@ export default function LinksPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Introduction */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-12">
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Trusted External Resources
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            <p className="text-gray-600 max-w-3xl mx-auto">
               We've compiled a list of valuable external resources to help you with every aspect of real estate - 
               from mortgage planning to market research, legal guidance to home improvement. 
               All links are provided for your convenience and are maintained by their respective organizations.
@@ -344,17 +344,17 @@ export default function LinksPage() {
         {/* Link Categories */}
         <div className="space-y-12">
           {linkCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div key={categoryIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center">
                   <div className={`w-8 h-8 ${category.color} rounded-lg flex items-center justify-center mr-3`}>
                     <category.icon className="text-white" size={20} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-gray-900">
                       {category.title}
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                    <p className="text-gray-600 text-sm mt-1">
                       {category.description}
                     </p>
                   </div>
@@ -369,14 +369,14 @@ export default function LinksPage() {
                       href={link.url}
                       target={link.external ? "_blank" : "_self"}
                       rel={link.external ? "noopener noreferrer" : ""}
-                      className="flex items-start p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                      className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
                     >
                       <ExternalLink className="text-gray-400 mr-3 mt-1 group-hover:text-blue-600 transition-colors flex-shrink-0" size={16} />
                       <div className="flex-1">
-                        <h3 className="text-gray-900 dark:text-white font-medium group-hover:text-blue-600 transition-colors">
+                        <h3 className="text-gray-900 font-medium group-hover:text-blue-600 transition-colors">
                           {link.name}
                         </h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        <p className="text-gray-500 text-sm mt-1">
                           {link.description}
                         </p>
                       </div>
@@ -389,16 +389,16 @@ export default function LinksPage() {
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 mt-12">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mt-12">
           <div className="flex items-start">
             <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
               <FileText className="text-white" size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+              <h3 className="text-lg font-semibold text-yellow-800 mb-2">
                 Disclaimer
               </h3>
-              <p className="text-yellow-700 dark:text-yellow-300 text-sm leading-relaxed">
+              <p className="text-yellow-700 text-sm leading-relaxed">
                 The external links provided on this page are for informational purposes only. Propy Values does not endorse, 
                 guarantee, or take responsibility for the content, accuracy, or availability of these external websites. 
                 Users access these links at their own risk. We recommend reviewing the terms and privacy policies of 
@@ -438,7 +438,7 @@ export default function LinksPage() {
         </div>
 
         {/* Last Updated */}
-        <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+        <div className="mt-8 text-center text-gray-500 text-sm">
           <p>Last updated: December 2, 2025</p>
           <p>Links are reviewed and updated regularly to ensure accuracy and relevance.</p>
         </div>

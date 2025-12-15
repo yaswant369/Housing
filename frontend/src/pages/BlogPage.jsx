@@ -125,7 +125,7 @@ export default function BlogPage() {
   const regularPosts = filteredPosts.filter(post => !post.featured);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -142,7 +142,7 @@ export default function BlogPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Search and Filter Bar */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -162,7 +162,7 @@ export default function BlogPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     selectedCategory === category.id
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {category.name} ({category.count})
@@ -175,14 +175,14 @@ export default function BlogPage() {
         {/* Featured Posts */}
         {selectedCategory === 'all' && !searchTerm && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <TrendingUp className="mr-2" />
               Featured Articles
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {featuredPosts.map(post => (
-                <article key={post.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
-                  <div className="aspect-video bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
+                <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
+                  <div className="aspect-video bg-gray-200 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
                     <div className="absolute top-4 left-4 z-20">
                       <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -191,23 +191,23 @@ export default function BlogPage() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                    <div className="flex items-center text-sm text-gray-500 mb-3">
                       <Calendar size={14} className="mr-1" />
                       {new Date(post.date).toLocaleDateString()}
                       <span className="mx-2">•</span>
                       <Clock size={14} className="mr-1" />
                       {post.readTime}
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-gray-600 mb-4">
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <User size={16} className="text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{post.author}</span>
+                        <span className="text-sm text-gray-500">{post.author}</span>
                       </div>
                       <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center">
                         Read More <ArrowRight size={14} className="ml-1" />
@@ -222,27 +222,27 @@ export default function BlogPage() {
 
         {/* Regular Posts */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             {selectedCategory === 'all' ? 'Latest Articles' : categories.find(c => c.id === selectedCategory)?.name}
           </h2>
           
           {filteredPosts.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="text-gray-400" size={24} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 No articles found
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-gray-500">
                 Try adjusting your search terms or category filter
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {(selectedCategory === 'all' && !searchTerm ? regularPosts : filteredPosts).map(post => (
-                <article key={post.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
-                  <div className="aspect-video bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
+                <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer">
+                  <div className="aspect-video bg-gray-200 relative overflow-hidden">
                     <div className="absolute top-4 left-4">
                       <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                         {categories.find(c => c.id === post.category)?.name}
@@ -250,23 +250,23 @@ export default function BlogPage() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                    <div className="flex items-center text-sm text-gray-500 mb-3">
                       <Calendar size={14} className="mr-1" />
                       {new Date(post.date).toLocaleDateString()}
                       <span className="mx-2">•</span>
                       <Clock size={14} className="mr-1" />
                       {post.readTime}
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm line-clamp-3">
+                    <p className="text-gray-600 mb-4 text-sm line-clamp-3">
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <User size={16} className="text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{post.author}</span>
+                        <span className="text-sm text-gray-500">{post.author}</span>
                       </div>
                       <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center">
                         Read More <ArrowRight size={14} className="ml-1" />

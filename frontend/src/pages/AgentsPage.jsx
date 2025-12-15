@@ -84,7 +84,7 @@ export default function AgentsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -110,7 +110,7 @@ export default function AgentsPage() {
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm py-6">
+      <div className="bg-white shadow-sm py-6">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-wrap gap-4">
             <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -142,7 +142,7 @@ export default function AgentsPage() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {agents.map((agent) => (
-            <div key={agent.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            <div key={agent.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
@@ -151,12 +151,12 @@ export default function AgentsPage() {
                     </span>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-bold text-gray-900">
                       {agent.name}
                     </h3>
                     <div className="flex items-center text-yellow-500">
                       <Star size={16} className="fill-current" />
-                      <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">
+                      <span className="ml-1 text-sm text-gray-600">
                         {agent.rating} ({agent.reviews} reviews)
                       </span>
                     </div>
@@ -164,22 +164,22 @@ export default function AgentsPage() {
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-gray-600">
                     <MapPin size={16} className="mr-2" />
                     <span className="text-sm">{agent.location}</span>
                   </div>
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-gray-600">
                     <Award size={16} className="mr-2" />
                     <span className="text-sm">{agent.experience} experience</span>
                   </div>
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center text-gray-600">
                     <CheckCircle size={16} className="mr-2" />
                     <span className="text-sm">{agent.properties} properties sold</span>
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Specializations</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Specializations</h4>
                   <div className="flex flex-wrap gap-2">
                     {agent.specializations.map((spec, index) => (
                       <span

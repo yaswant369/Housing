@@ -20,8 +20,8 @@
   if (!data || data.length === 0) {
     return (
       <section className="py-8 px-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{title}</h2>
-        <p className="text-gray-500 dark:text-gray-400">No properties to display in this section.</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{title}</h2>
+        <p className="text-gray-500">No properties to display in this section.</p>
       </section>
     );
   }
@@ -32,10 +32,10 @@
       <section className="py-8">
         {/* Section Header with "See all" button */}
         <div className="flex justify-between items-center mb-4 px-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
           <button
             onClick={() => navigate('/properties')}
-            className="flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+            className="flex items-center text-blue-600 font-semibold hover:underline"
           >
             See all <ChevronRight size={18} />
           </button>
@@ -65,7 +65,7 @@
   // --- RENDER LOGIC 2: Standard Section (Grid Layout for Modern Cards) ---
   return (
     <section className="py-8 px-4">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">{title}</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
 
       {/* Modern grid layout optimized for the new card design */}
       <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">

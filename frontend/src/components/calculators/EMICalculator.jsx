@@ -29,22 +29,22 @@ export default function EMICalculator() {
   }, [loanAmount, interestRate, loanTenure]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+    <div className="bg-white rounded-xl p-6 shadow-lg">
       <div className="flex items-center mb-6">
         <Calculator className="text-blue-600 mr-3" size={28} />
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">EMI Calculator</h2>
+        <h2 className="text-2xl font-bold text-gray-800">EMI Calculator</h2>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Loan Amount (₹)
           </label>
           <input
             type="number"
             value={loanAmount}
             onChange={(e) => setLoanAmount(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="range"
@@ -58,7 +58,7 @@ export default function EMICalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Interest Rate (% per annum)
           </label>
           <input
@@ -66,7 +66,7 @@ export default function EMICalculator() {
             step="0.1"
             value={interestRate}
             onChange={(e) => setInterestRate(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="range"
@@ -80,14 +80,14 @@ export default function EMICalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Loan Tenure (Years)
           </label>
           <input
             type="number"
             value={loanTenure}
             onChange={(e) => setLoanTenure(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="range"
@@ -108,17 +108,17 @@ export default function EMICalculator() {
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Principal</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">₹{(result.principal / 100000).toFixed(1)}L</p>
+            <div className="bg-gray-100 rounded-lg p-4 text-center">
+              <p className="text-xs text-gray-600">Principal</p>
+              <p className="text-lg font-bold text-gray-900">₹{(result.principal / 100000).toFixed(1)}L</p>
             </div>
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Interest</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">₹{(result.totalInterest / 100000).toFixed(1)}L</p>
+            <div className="bg-gray-100 rounded-lg p-4 text-center">
+              <p className="text-xs text-gray-600">Interest</p>
+              <p className="text-lg font-bold text-gray-900">₹{(result.totalInterest / 100000).toFixed(1)}L</p>
             </div>
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Total</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">₹{(result.totalAmount / 100000).toFixed(1)}L</p>
+            <div className="bg-gray-100 rounded-lg p-4 text-center">
+              <p className="text-xs text-gray-600">Total Amount</p>
+              <p className="text-lg font-bold text-gray-900">₹{(result.totalAmount / 100000).toFixed(1)}L</p>
             </div>
           </div>
         </div>

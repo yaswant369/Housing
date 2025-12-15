@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import Header from './Header';
@@ -17,6 +17,7 @@ export default function MainLayout() {
     isPostWizardOpen, handleClosePostWizard, handleOpenPostWizard, propertyToEdit,
     isEditProfileModalOpen, handleCloseEditProfile, handleProfileUpdate,
     handleAddProperty, handleEditProperty,
+    comparedProperties, clearComparison,
   } = useContext(AppContext);
   
   const navigate = useNavigate();
@@ -49,6 +50,11 @@ export default function MainLayout() {
   const showComparison = !hideComparisonPaths.some(path => location.pathname.startsWith(path));
   const isFullScreen = hideHeaderFooterPaths.some(path => location.pathname.startsWith(path)) || isPostWizardOpen;
 
+  // Property comparison handlers
+  const handleCloseComparison = useCallback(() => {
+    clearComparison();
+  }, [clearComparison]);
+
   return (
     <div className={`flex flex-col min-h-screen ${showBottomNav ? 'pb-16' : ''}`}>
       <Toaster 
@@ -65,7 +71,12 @@ export default function MainLayout() {
         <Header
           currentUser={currentUser}
           onLoginClick={() => navigate('/login')}
-          onPostPropertyClick={() => handleOpenPostWizard()}
+          onPostPropertyClick={() => {
+            if (!handleOpenPostWizard()) {
+              // If handleOpenPostWizard returns false (user not logged in), redirect to login
+              navigate('/login');
+            }
+          }}
           onPremiumClick={() => navigate('/premium')}
           onFilterClick={() => navigate('/filter')}
         />
@@ -99,7 +110,13 @@ export default function MainLayout() {
         />
       )}
 
-      {showComparison && <PropertyComparison />}
+      {showComparison && comparedProperties.length > 0 && (
+        <PropertyComparison
+          properties={comparedProperties}
+          onClose={handleCloseComparison}
+          onClear={clearComparison}
+        />
+      )}
     </div>
   );
 }

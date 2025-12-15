@@ -96,48 +96,48 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <User className="text-blue-600" size={24} />
           Contact / Owner Details
         </h2>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gray-500">
           Section 9 of 9
         </div>
       </div>
 
       {/* Contact Overview */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">
           Contact Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+          <div className="text-center p-3 bg-white rounded-lg border">
             <Phone size={24} className="mx-auto mb-2 text-blue-600" />
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-bold text-gray-900">
               {formData.phoneNumber ? '1' : '0'}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Phone Numbers</p>
+            <p className="text-sm text-gray-600">Numbers</p>
           </div>
-          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+          <div className="text-center p-3 bg-white rounded-lg border">
             <Mail size={24} className="mx-auto mb-2 text-green-600" />
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-bold text-gray-900">
               {formData.email ? '1' : '0'}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Email Address</p>
+            <p className="text-sm text-gray-600">Address</p>
           </div>
-          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+          <div className="text-center p-3 bg-white rounded-lg border">
             <Shield size={24} className="mx-auto mb-2 text-purple-600" />
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-bold text-gray-900">
               {formData.contactOnlyLoggedIn ? 'Private' : 'Public'}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Contact Visibility</p>
+            <p className="text-sm text-gray-600">Visibility</p>
           </div>
         </div>
       </div>
 
       {/* Contact Role */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Your Role *
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,30 +152,30 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
                 onClick={() => handleInputChange('contactRole', role.value)}
                 className={`p-4 rounded-lg border-2 text-left transition-all ${
                   isSelected
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${
                     isSelected 
-                      ? 'bg-blue-100 dark:bg-blue-800' 
-                      : 'bg-gray-100 dark:bg-gray-700'
+                      ? 'bg-blue-100'
+                      : 'bg-gray-100'
                   }`}>
                     <IconComponent 
                       size={20} 
-                      className={isSelected ? 'text-blue-600' : 'text-gray-600 dark:text-gray-400'} 
+                      className={isSelected ? 'text-blue-600' : 'text-gray-600'}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className={`font-medium ${
                       isSelected 
-                        ? 'text-blue-900 dark:text-blue-100' 
-                        : 'text-gray-900 dark:text-gray-100'
+                        ? 'text-blue-900'
+                        : 'text-gray-900'
                     }`}>
                       {role.label}
                     </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-600 mt-1">
                       {role.description}
                     </p>
                     {isSelected && (
@@ -196,7 +196,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Full Name *
           </label>
           <div className="relative">
@@ -206,14 +206,14 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
               value={formData.ownerName || ''}
               onChange={(e) => handleInputChange('ownerName', e.target.value)}
               placeholder="Enter your full name"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
         </div>
 
         {/* Primary Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Primary Phone Number *
           </label>
           <div className="relative">
@@ -224,7 +224,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
               onChange={(e) => handleInputChange('phoneNumber', e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="9876543210"
               maxLength={10}
-              className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               {getVerificationIcon('phone')}
@@ -247,7 +247,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
       {/* Alternate Phone */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="text-sm font-medium text-gray-700">
             Alternate Phone Number
           </label>
           <button
@@ -268,7 +268,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
               onChange={(e) => handleInputChange('alternatePhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="9876543210"
               maxLength={10}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
         )}
@@ -276,7 +276,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Email Address
         </label>
         <div className="relative">
@@ -286,7 +286,7 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
             value={formData.email || ''}
             onChange={(e) => handleInputChange('email', e.target.value)}
             placeholder="your.email@example.com"
-            className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             {getVerificationIcon('email')}
@@ -301,13 +301,13 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
 
       {/* WhatsApp and Privacy Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-gray-900">
           Communication Preferences
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* WhatsApp */}
-          <label className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+          <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
             <input
               type="checkbox"
               checked={formData.whatsapp || false}
@@ -317,14 +317,14 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
             <div className="flex items-center gap-2">
               <MessageCircle className="text-green-600" size={20} />
               <div>
-                <span className="font-medium text-gray-900 dark:text-gray-100">WhatsApp Updates</span>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Receive updates via WhatsApp</p>
+                <span className="font-medium text-gray-900">Updates</span>
+                <p className="text-sm text-gray-600">Property updates via WhatsApp</p>
               </div>
             </div>
           </label>
 
           {/* Contact Privacy */}
-          <label className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+          <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
             <input
               type="checkbox"
               checked={formData.contactOnlyLoggedIn || false}
@@ -338,10 +338,10 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
                 <Eye className="text-gray-600" size={20} />
               )}
               <div>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
+                <span className="font-medium text-gray-900">
                   {formData.contactOnlyLoggedIn ? 'Private Contact' : 'Public Contact'}
                 </span>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {formData.contactOnlyLoggedIn 
                     ? 'Only logged-in users can see contact' 
                     : 'Anyone can see contact information'
@@ -355,16 +355,18 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
 
       {/* Contact Preview */}
       {formData.ownerName && (
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+        <div className="bg-gray-50 p-4 rounded-lg border">
+          <h4 className="font-medium text-gray-900 mb-3">
             Contact Information Preview
           </h4>
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <User size={16} className="text-gray-600" />
-              <span className="text-gray-900 dark:text-gray-100">{formData.ownerName}</span>
+              <span className="text-gray-900">
+                {formData.ownerName}
+              </span>
               {selectedRole && (
-                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                   {selectedRole.label}
                 </span>
               )}
@@ -372,7 +374,9 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
             {formData.phoneNumber && (
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-green-600" />
-                <span className="text-gray-900 dark:text-gray-100">{formData.phoneNumber}</span>
+                <span className="text-gray-900">
+                  {formData.phoneNumber}
+                </span>
                 {formData.whatsapp && (
                   <MessageCircle size={14} className="text-green-500" />
                 )}
@@ -381,7 +385,9 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
             {formData.email && (
               <div className="flex items-center gap-3">
                 <Mail size={16} className="text-blue-600" />
-                <span className="text-gray-900 dark:text-gray-100">{formData.email}</span>
+                <span className="text-gray-900">
+                  {formData.email}
+                </span>
               </div>
             )}
           </div>
@@ -389,16 +395,16 @@ const PropertyContactSection = ({ property, formData, onInputChange }) => {
       )}
 
       {/* Contact Guidelines */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <div className="p-1 bg-amber-100 dark:bg-amber-800 rounded">
+          <div className="p-1 bg-amber-100 rounded">
             <Shield className="text-amber-600" size={16} />
           </div>
           <div>
-            <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
+            <h4 className="font-semibold text-amber-800 mb-1">
               Contact Information Guidelines
             </h4>
-            <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+            <ul className="text-sm text-amber-700 space-y-1">
               <li>• Only share contact details you are authorized to use</li>
               <li>• Verify your phone number and email for faster response</li>
               <li>• Private contact mode reduces spam but may reduce inquiries</li>

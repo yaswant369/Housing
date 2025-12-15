@@ -29,6 +29,7 @@ export default function Footer() {
             <h5 className="font-bold text-white mb-4">Explore</h5>
             <ul className="space-y-2">
               <FooterLink to="/">Home</FooterLink>
+              <FooterLink to="/property-marketing">Property Marketing</FooterLink>
               <FooterLink to="/filter?status=Buy">Properties for Buy</FooterLink>
               <FooterLink to="/filter?status=Rent">Properties for Rent</FooterLink>
               <FooterLink to="/premium">Premium Plans</FooterLink>

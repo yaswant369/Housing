@@ -104,7 +104,7 @@ export default function SitemapPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -122,7 +122,7 @@ export default function SitemapPage() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Quick Links */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Quick Access
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -130,10 +130,10 @@ export default function SitemapPage() {
               <Link
                 key={index}
                 to={link.path}
-                className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow group"
+                className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow group"
               >
                 <div className={`w-3 h-3 ${link.color} rounded-full mr-4`}></div>
-                <span className="text-gray-900 dark:text-white font-medium group-hover:text-blue-600 transition-colors">
+                <span className="text-gray-900 font-medium group-hover:text-blue-600 transition-colors">
                   {link.name}
                 </span>
               </Link>
@@ -144,11 +144,11 @@ export default function SitemapPage() {
         {/* Site Sections */}
         <div className="space-y-12">
           {siteSections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div key={sectionIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center">
                   <section.icon className="text-blue-600 mr-3" size={24} />
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-gray-900">
                     {section.title}
                   </h2>
                 </div>
@@ -160,14 +160,14 @@ export default function SitemapPage() {
                     <Link
                       key={linkIndex}
                       to={link.path}
-                      className="flex items-start p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                      className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
                     >
                       <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                       <div>
-                        <h3 className="text-gray-900 dark:text-white font-medium group-hover:text-blue-600 transition-colors">
+                        <h3 className="text-gray-900 font-medium group-hover:text-blue-600 transition-colors">
                           {link.name}
                         </h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        <p className="text-gray-500 text-sm mt-1">
                           {link.description}
                         </p>
                       </div>
@@ -205,12 +205,12 @@ export default function SitemapPage() {
         </div>
 
         {/* Help Section */}
-        <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8">
+        <div className="mt-12 bg-white rounded-xl p-8">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Need Help?
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Our support team is here to assist you
             </p>
           </div>
@@ -218,47 +218,48 @@ export default function SitemapPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link
               to="/contact"
-              className="text-center p-6 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+              className="text-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <Phone className="mx-auto text-blue-600 mb-3" size={32} />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600">
+              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
                 Contact Us
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <p className="text-gray-500 text-sm">
                 Get in touch with our team
               </p>
             </Link>
-            
-            <Link
-              to="/faq"
-              className="text-center p-6 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
-            >
-              <FileText className="mx-auto text-blue-600 mb-3" size={32} />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600">
-                FAQ
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Find answers to common questions
-              </p>
-            </Link>
-            
+          
             <Link
               to="/chat"
-              className="text-center p-6 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+              className="text-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <Settings className="mx-auto text-blue-600 mb-3" size={32} />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600">
+              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
                 Live Support
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <p className="text-gray-500 text-sm">
                 Chat with our support team
               </p>
             </Link>
+          
+            <Link
+              to="/faq"
+              className="text-center p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <FileText className="mx-auto text-blue-600 mb-3" size={32} />
+              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+                FAQ
+              </h3>
+              <p className="text-gray-500 text-sm">
+                Find answers to common questions
+              </p>
+            </Link>
+             
           </div>
         </div>
 
         {/* Last Updated */}
-        <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
+        <div className="mt-12 text-center text-gray-500 text-sm">
           <p>Last updated: December 2, 2025</p>
           <p>This site map is updated regularly to reflect new pages and features.</p>
         </div>

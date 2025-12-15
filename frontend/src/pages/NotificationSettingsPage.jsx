@@ -85,10 +85,10 @@ export default function NotificationSettingsPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <RefreshCw size={32} className="animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading notification settings...</p>
+          <p className="text-gray-600">Loading notification settings...</p>
         </div>
       </div>
     );
@@ -96,10 +96,10 @@ export default function NotificationSettingsPage() {
 
   if (!settings) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400 mb-4">Failed to load settings</p>
+          <p className="text-gray-600 mb-4">Failed to load settings</p>
           <button
             onClick={loadSettings}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -112,19 +112,19 @@ export default function NotificationSettingsPage() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
+      <header className="flex items-center justify-between p-4 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center">
-          <button 
+          <button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 mr-2"
+            className="p-2 rounded-full hover:bg-gray-200 mr-2"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
             <h2 className="font-bold text-lg">Notification Settings</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               Manage how you receive notifications
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function NotificationSettingsPage() {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleReset}
-              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800"
               disabled={saving}
             >
               Reset
@@ -158,7 +158,7 @@ export default function NotificationSettingsPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 pb-24 space-y-6">
         {/* Global Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="font-semibold text-lg mb-4 flex items-center">
             <Bell className="mr-2" size={20} />
             Global Settings
@@ -168,7 +168,7 @@ export default function NotificationSettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium">Enable Notifications</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   Receive notifications from our platform
                 </p>
               </div>
@@ -178,7 +178,7 @@ export default function NotificationSettingsPage() {
                 aria-checked={settings.enabled}
                 onClick={() => handleSettingChange('enabled', !settings.enabled)}
                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  settings.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                  settings.enabled ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -192,16 +192,16 @@ export default function NotificationSettingsPage() {
         </div>
 
         {/* Category Settings */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="font-semibold text-lg mb-4">Category Preferences</h3>
           
           <div className="space-y-6">
             {Object.entries(settings.categories || {}).map(([category, categorySettings]) => (
-              <div key={category} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-6 last:pb-0">
+              <div key={category} className="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="font-medium capitalize">{category}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600">
                       Manage {category} related notifications
                     </p>
                   </div>
@@ -211,7 +211,7 @@ export default function NotificationSettingsPage() {
                     aria-checked={categorySettings.enabled}
                     onClick={() => handleSettingChange(`categories.${category}.enabled`, !categorySettings.enabled)}
                     className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                      categorySettings.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                      categorySettings.enabled ? 'bg-blue-600' : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -226,7 +226,7 @@ export default function NotificationSettingsPage() {
                   <div className="ml-6 space-y-4">
                     {/* Frequency */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Frequency
                       </label>
                       <select
@@ -234,7 +234,7 @@ export default function NotificationSettingsPage() {
                         name={`frequency-${category}`}
                         value={categorySettings.frequency}
                         onChange={(e) => handleSettingChange(`categories.${category}.frequency`, e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                       >
                         <option value="immediate">Immediate</option>
                         <option value="daily">Daily Digest</option>
@@ -245,7 +245,7 @@ export default function NotificationSettingsPage() {
 
                     {/* Channels */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Channels
                       </label>
                       <div className="space-y-2">
@@ -295,7 +295,7 @@ export default function NotificationSettingsPage() {
         </div>
 
         {/* Do Not Disturb */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="font-semibold text-lg mb-4 flex items-center">
             <Clock className="mr-2" size={20} />
             Do Not Disturb
@@ -305,7 +305,7 @@ export default function NotificationSettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium">Enable Do Not Disturb</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   Pause notifications during quiet hours
                 </p>
               </div>
@@ -315,7 +315,7 @@ export default function NotificationSettingsPage() {
                 aria-checked={settings.doNotDisturb?.enabled || false}
                 onClick={() => handleSettingChange('doNotDisturb.enabled', !(settings.doNotDisturb?.enabled || false))}
                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  settings.doNotDisturb?.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                  settings.doNotDisturb?.enabled ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -329,7 +329,7 @@ export default function NotificationSettingsPage() {
             {settings.doNotDisturb?.enabled && (
               <div className="ml-6 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Start Time
                   </label>
                   <input
@@ -338,11 +338,11 @@ export default function NotificationSettingsPage() {
                     type="time"
                     value={settings.doNotDisturb.startTime || '22:00'}
                     onChange={(e) => handleSettingChange('doNotDisturb.startTime', e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     End Time
                   </label>
                   <input
@@ -351,7 +351,7 @@ export default function NotificationSettingsPage() {
                     type="time"
                     value={settings.doNotDisturb.endTime || '07:00'}
                     onChange={(e) => handleSettingChange('doNotDisturb.endTime', e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                   />
                 </div>
               </div>
@@ -361,12 +361,12 @@ export default function NotificationSettingsPage() {
 
         {/* Summary */}
         {hasChanges && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center">
-              <AlertCircle size={20} className="text-blue-600 dark:text-blue-400 mr-2" />
+              <AlertCircle size={20} className="text-blue-600 mr-2" />
               <div>
-                <h4 className="font-medium text-blue-800 dark:text-blue-200">Unsaved Changes</h4>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
+                <h4 className="font-medium text-blue-800">Changes</h4>
+                <p className="text-sm text-blue-700">
                   You have unsaved changes to your notification settings.
                 </p>
               </div>

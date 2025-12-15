@@ -45,23 +45,23 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
   const renderSEOTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Search Engine Optimization
         </h3>
         
         {/* Custom URL Slug */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Custom URL Slug
           </label>
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 dark:text-gray-400">yourdomain.com/properties/</span>
+            <span className="text-gray-600">https://propy.com/property/</span>
             <input
               type="text"
               value={formData.urlSlug || ''}
               onChange={(e) => onInputChange('urlSlug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
               placeholder="beautiful-2bhk-andheri-east"
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
           <p className="text-xs text-gray-500 mt-1">
@@ -71,7 +71,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
 
         {/* Meta Title */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Meta Title
           </label>
           <input
@@ -80,7 +80,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
             onChange={(e) => onInputChange('metaTitle', e.target.value)}
             placeholder="2 BHK Apartment for Rent in Andheri East, Mumbai | ₹25,000"
             maxLength={60}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           />
           <div className="flex justify-between mt-1">
             <p className="text-xs text-gray-500">
@@ -94,7 +94,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
 
         {/* Meta Description */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Meta Description
           </label>
           <textarea
@@ -103,7 +103,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
             placeholder="Spacious 2 BHK apartment in Andheri East with modern amenities, prime location near metro station. Rent ₹25,000/month. Ready to move."
             rows={3}
             maxLength={160}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
           />
           <div className="flex justify-between mt-1">
             <p className="text-xs text-gray-500">
@@ -116,22 +116,22 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
         </div>
 
         {/* SEO Score */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-          <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h4 className="font-semibold text-blue-900 mb-3">
             SEO Health Score
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">85%</div>
-              <p className="text-sm text-blue-700 dark:text-blue-300">Overall SEO Score</p>
+              <p className="text-sm text-blue-700">SEO Score</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">Good</div>
-              <p className="text-sm text-green-700 dark:text-green-300">Title Length</p>
+              <p className="text-sm text-green-700">Title Length</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-amber-600">Fair</div>
-              <p className="text-sm text-amber-700 dark:text-amber-300">Description Length</p>
+              <p className="text-sm text-amber-700">Description Length</p>
             </div>
           </div>
         </div>
@@ -142,89 +142,89 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
   const renderAnalyticsTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Property Performance Analytics
         </h3>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <div className="flex items-center gap-3">
               <Eye className="text-blue-600" size={24} />
               <div>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                <p className="text-2xl font-bold text-blue-900">
                   {property.viewsLast7Days || 0}
                 </p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">Views (7 days)</p>
+                <p className="text-sm text-blue-600">Views (7 days)</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
             <div className="flex items-center gap-3">
               <Users className="text-green-600" size={24} />
               <div>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <p className="text-2xl font-bold text-green-900">
                   {property.leadsLast7Days || 0}
                 </p>
-                <p className="text-sm text-green-600 dark:text-green-400">Leads (7 days)</p>
+                <p className="text-sm text-green-600">Leads (7 days)</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
             <div className="flex items-center gap-3">
               <Phone className="text-purple-600" size={24} />
               <div>
-                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                  {Math.round(((property.leadsLast7Days || 0) / Math.max(property.viewsLast7Days || 1, 1)) * 100)}%
+                <p className="text-2xl font-bold text-purple-900">
+                  {property.viewsLast7Days ? Math.round(((property.leadsLast7Days || 0) / property.viewsLast7Days) * 100) : 0}%
                 </p>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Conversion Rate</p>
+                <p className="text-sm text-purple-600">Conversion Rate</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
             <div className="flex items-center gap-3">
               <Heart className="text-orange-600" size={24} />
               <div>
-                <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                <p className="text-2xl font-bold text-orange-900">
                   {property.shortlistsCount || 0}
                 </p>
-                <p className="text-sm text-orange-600 dark:text-orange-400">Shortlists</p>
+                <p className="text-sm text-orange-600">Shortlists</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Performance Comparison */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border">
-          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+        <div className="bg-gray-50 p-4 rounded-lg border">
+          <h4 className="font-semibold text-gray-900 mb-3">
             Market Comparison
           </h4>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Your property views vs. average</span>
+              <span className="text-gray-700">Property views vs. average</span>
               <div className="flex items-center gap-2">
-                <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-3/4 h-2 bg-blue-500 rounded-full"></div>
                 </div>
                 <span className="text-sm text-blue-600">+75%</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Your conversion rate vs. average</span>
+              <span className="text-gray-700">Conversion rate vs. average</span>
               <div className="flex items-center gap-2">
-                <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-1/2 h-2 bg-green-500 rounded-full"></div>
                 </div>
                 <span className="text-sm text-green-600">+25%</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Your shortlist rate vs. average</span>
+              <span className="text-gray-700">Shortlist rate vs. average</span>
               <div className="flex items-center gap-2">
-                <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-2/3 h-2 bg-purple-500 rounded-full"></div>
                 </div>
                 <span className="text-sm text-purple-600">+40%</span>
@@ -234,25 +234,25 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
         </div>
 
         {/* Top Traffic Sources */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border">
-          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+        <div className="bg-gray-50 p-4 rounded-lg border">
+          <h4 className="font-semibold text-gray-900 mb-3">
             Top Traffic Sources (Last 30 Days)
           </h4>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Search Results</span>
+              <span className="text-gray-700">Search Results</span>
               <span className="font-medium">45%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Direct Traffic</span>
+              <span className="text-gray-700">Direct Traffic</span>
               <span className="font-medium">30%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Referral Sites</span>
+              <span className="text-gray-700">Referral Sites</span>
               <span className="font-medium">20%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Social Media</span>
+              <span className="text-gray-700">Social Media</span>
               <span className="font-medium">5%</span>
             </div>
           </div>
@@ -264,29 +264,29 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
   const renderBoostTab = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Boost Visibility & Upgrade Plan
         </h3>
 
         {/* Current Plan */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700 mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h4 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              <h4 className="text-xl font-bold text-blue-900">
                 Current Plan: {property.planType === 'free' ? 'Free' : property.planType === 'featured' ? 'Featured' : 'Premium'}
               </h4>
-              <p className="text-blue-700 dark:text-blue-300">
+              <p className="text-blue-700">
                 {property.planType === 'free' ? 'Basic listing with standard visibility' :
                  property.planType === 'featured' ? 'Enhanced visibility with priority placement' :
                  'Maximum visibility with premium features'}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <div className="text-2xl font-bold text-blue-900">
                 {property.planType === 'free' ? '₹0' : 
                  property.planType === 'featured' ? '₹299' : '₹599'}/month
               </div>
-              <div className="text-sm text-blue-700 dark:text-blue-300">
+              <div className="text-sm text-blue-700">
                 {property.planType === 'free' ? 'Forever free' : 'Auto-renewal'}
               </div>
             </div>
@@ -296,7 +296,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               Upgrade Plan
             </button>
-            <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+            <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
               Change Plan
             </button>
           </div>
@@ -305,13 +305,13 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
         {/* Available Plans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className={`border-2 rounded-lg p-6 ${
-            property.planType === 'free' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700'
+            property.planType === 'free' ? 'border-green-500 bg-green-50' : 'border-gray-200'
           }`}>
             <div className="text-center">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Free Plan</h4>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">₹0</div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">Forever</p>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+              <h4 className="text-xl font-bold text-gray-900 mb-2">Free Plan</h4>
+              <div className="text-3xl font-bold text-gray-900 mb-1">₹0</div>
+              <p className="text-gray-600 mb-4">Forever</p>
+              <ul className="text-sm text-gray-600 space-y-2 mb-6">
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-green-600" />
                   Basic listing
@@ -330,7 +330,7 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
                   Current Plan
                 </button>
               ) : (
-                <button className="w-full py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <button className="w-full py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                   Downgrade
                 </button>
               )}
@@ -338,16 +338,16 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
           </div>
 
           <div className={`border-2 rounded-lg p-6 ${
-            property.planType === 'featured' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'
+            property.planType === 'featured' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
           }`}>
             <div className="text-center">
               <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full mb-2 inline-block">
                 POPULAR
               </div>
-              <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Featured Plan</h4>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">₹299</div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">per month</p>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+              <h4 className="text-xl font-bold text-gray-900 mb-2">Featured Plan</h4>
+              <div className="text-3xl font-bold text-gray-900 mb-1">₹299</div>
+              <p className="text-gray-600 mb-4">per month</p>
+              <ul className="text-sm text-gray-600 space-y-2 mb-6">
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-green-600" />
                   Priority placement
@@ -378,13 +378,13 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
           </div>
 
           <div className={`border-2 rounded-lg p-6 ${
-            property.planType === 'premium' ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-gray-700'
+            property.planType === 'premium' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'
           }`}>
             <div className="text-center">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Premium Plan</h4>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">₹599</div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">per month</p>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+              <h4 className="text-xl font-bold text-gray-900 mb-2">Premium Plan</h4>
+              <div className="text-3xl font-bold text-gray-900 mb-1">₹599</div>
+              <p className="text-gray-600 mb-4">per month</p>
+              <ul className="text-sm text-gray-600 space-y-2 mb-6">
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-green-600" />
                   Top placement
@@ -420,32 +420,32 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
         </div>
 
         {/* Quick Boost Options */}
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-700">
-          <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-4">
+        <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+          <h4 className="font-semibold text-yellow-800 mb-4">
             🚀 Quick Boost Options
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border hover:shadow-md transition-shadow">
+            <button className="flex items-center gap-3 p-4 bg-white rounded-lg border hover:shadow-md transition-shadow">
               <Zap className="text-yellow-600" size={24} />
               <div className="text-left">
-                <div className="font-medium text-gray-900 dark:text-gray-100">24-Hour Boost</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">₹99 • Increased visibility</div>
+                <div className="font-medium text-gray-900">Instant Boost</div>
+                <div className="text-sm text-gray-600">• Increased visibility</div>
               </div>
             </button>
             
-            <button className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border hover:shadow-md transition-shadow">
+            <button className="flex items-center gap-3 p-4 bg-white rounded-lg border hover:shadow-md transition-shadow">
               <Target className="text-blue-600" size={24} />
               <div className="text-left">
-                <div className="font-medium text-gray-900 dark:text-gray-100">Featured This Week</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">₹199 • Priority placement</div>
+                <div className="font-medium text-gray-900">Featured This Week</div>
+                <div className="text-sm text-gray-600">• Priority placement</div>
               </div>
             </button>
             
-            <button className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border hover:shadow-md transition-shadow">
+            <button className="flex items-center gap-3 p-4 bg-white rounded-lg border hover:shadow-md transition-shadow">
               <Star className="text-purple-600" size={24} />
               <div className="text-left">
-                <div className="font-medium text-gray-900 dark:text-gray-100">Premium Badge</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">₹149 • Trust indicator</div>
+                <div className="font-medium text-gray-900">Premium Badge</div>
+                <div className="text-sm text-gray-600">• Trust indicator</div>
               </div>
             </button>
           </div>
@@ -471,17 +471,17 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Settings className="text-blue-600" size={24} />
           Advanced Options
         </h2>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gray-500">
           Optional Features
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200">
         <nav className="flex space-x-8">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
@@ -491,8 +491,8 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 <IconComponent size={18} className={activeTab === tab.id ? tab.color : ''} />
@@ -509,14 +509,14 @@ const PropertyEditLayout = ({ property, formData, onInputChange }) => {
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
           <Info className="text-blue-600 mt-0.5" size={16} />
           <div>
-            <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+            <h4 className="font-semibold text-blue-800 mb-1">
               Advanced Features
             </h4>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+            <p className="text-sm text-blue-700">
               These optional features help optimize your listing for better visibility and performance. 
               SEO optimization improves search rankings, analytics provide insights, and boosting options increase visibility.
             </p>

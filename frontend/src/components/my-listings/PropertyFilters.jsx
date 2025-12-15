@@ -194,7 +194,7 @@ export default function PropertyFilters({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
       {/* Enhanced Search Bar */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1">
@@ -204,20 +204,22 @@ export default function PropertyFilters({
             placeholder="Search by Property ID, Title, Location, Building name..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           
           {/* Search Suggestions */}
           {searchSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
               {searchSuggestions.map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => onSearchChange(suggestion)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
                 >
                   <Search size={16} className="text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">{suggestion}</span>
+                  <span className="text-gray-700">
+                    {suggestion}
+                  </span>
                 </button>
               ))}
             </div>
@@ -225,13 +227,13 @@ export default function PropertyFilters({
         </div>
         
         {/* Enhanced View Mode Toggle */}
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+        <div className="flex bg-gray-100 rounded-lg p-1">
           <button
             onClick={() => onViewModeChange('grid')}
             className={`p-2 rounded-md transition-colors ${
               viewMode === 'grid' 
-                ? 'bg-white dark:bg-gray-600 text-blue-600 shadow-sm' 
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                ? 'bg-white text-blue-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-800'
             }`}
             title="Grid View"
           >
@@ -241,8 +243,8 @@ export default function PropertyFilters({
             onClick={() => onViewModeChange('list')}
             className={`p-2 rounded-md transition-colors ${
               viewMode === 'list' 
-                ? 'bg-white dark:bg-gray-600 text-blue-600 shadow-sm' 
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                ? 'bg-white text-blue-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-800'
             }`}
             title="List View"
           >
@@ -263,7 +265,7 @@ export default function PropertyFilters({
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeFilter === tab.key
                     ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 <IconComponent size={16} className={activeFilter === tab.key ? 'text-white' : tab.color || 'text-gray-500'} />
@@ -271,7 +273,7 @@ export default function PropertyFilters({
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
                   activeFilter === tab.key 
                     ? 'bg-white/20 text-white' 
-                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
+                    : 'bg-gray-200 text-gray-600'
                 }`}>
                   {getFilteredCount(tab.key)}
                 </span>
@@ -284,7 +286,7 @@ export default function PropertyFilters({
         <div className="relative">
           <button
             onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
           >
             <ArrowUpDown size={16} />
             <span className="text-sm font-medium">
@@ -294,9 +296,9 @@ export default function PropertyFilters({
           </button>
 
           {isSortDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
               <div className="p-2">
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-3 py-2">Sort Properties</h4>
+                <h4 className="text-sm font-semibold text-gray-700 px-3 py-2">Sort Properties</h4>
                 {sortOptions.map(option => {
                   const IconComponent = option.icon;
                   return (
@@ -306,16 +308,16 @@ export default function PropertyFilters({
                         onSortChange(option.key);
                         setIsSortDropdownOpen(false);
                       }}
-                      className={`w-full flex items-start gap-3 px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-lg ${
-                        sortBy === option.key ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      className={`w-full flex items-start gap-3 px-3 py-3 text-left hover:bg-gray-50 transition-colors rounded-lg ${
+                        sortBy === option.key ? 'bg-blue-50' : ''
                       }`}
                     >
                       <IconComponent size={16} className={`mt-0.5 ${sortBy === option.key ? 'text-blue-600' : 'text-gray-400'}`} />
                       <div className="flex-1">
-                        <div className={`text-sm font-medium ${sortBy === option.key ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                        <div className={`text-sm font-medium ${sortBy === option.key ? 'text-blue-700' : 'text-gray-700'}`}>
                           {option.label}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        <div className="text-xs text-gray-500 mt-0.5">
                           {option.description}
                         </div>
                       </div>
@@ -334,19 +336,20 @@ export default function PropertyFilters({
       {/* Results Summary and Advanced Filters */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            Showing <span className="font-semibold text-gray-900 dark:text-gray-100">{totalCount}</span> properties
+          <span className="text-sm text-gray-600">
+            Showing <span className="font-semibold text-gray-900">{totalCount}</span> properties
           </span>
           
           {hasActiveFilters && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-              <span className="text-sm text-blue-600 dark:text-blue-400">
-                {getActiveFiltersCount()} filter{getActiveFiltersCount() !== 1 ? 's' : ''} applied
+              <span className="text-sm text-gray-500">
+                <span className="text-sm text-blue-600">
+                  {getActiveFiltersCount()} filter{getActiveFiltersCount() !== 1 ? 's' : ''} applied
+                </span>
               </span>
               <button
                 onClick={clearAdvancedFilters}
-                className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+                className="text-sm text-red-600 hover:text-red-800"
               >
                 Clear all
               </button>
@@ -360,8 +363,8 @@ export default function PropertyFilters({
             onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
               hasActiveFilters 
-                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             <SlidersHorizontal size={16} />
@@ -378,12 +381,12 @@ export default function PropertyFilters({
 
       {/* Advanced Filters Panel */}
       {isAdvancedFiltersOpen && (
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-6 pt-6 border-t border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Property Types */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Property Type
               </label>
               <div className="space-y-2">
@@ -404,7 +407,9 @@ export default function PropertyFilters({
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                       <IconComponent size={16} className="text-gray-500" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{type.label}</span>
+                      <span className="text-sm text-gray-700">
+                        {type.label}
+                      </span>
                     </label>
                   );
                 })}
@@ -413,7 +418,7 @@ export default function PropertyFilters({
 
             {/* BHK Configuration */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 BHK Configuration
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -431,7 +436,7 @@ export default function PropertyFilters({
                       className={`py-2 px-3 text-sm rounded-lg border transition-colors ${
                         isSelected
                           ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       {bhk} BHK
@@ -443,7 +448,7 @@ export default function PropertyFilters({
 
             {/* Price Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Price Range (₹)
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -455,7 +460,7 @@ export default function PropertyFilters({
                     ...prev,
                     priceRange: { ...prev.priceRange, min: e.target.value }
                   }))}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 />
                 <input
                   type="number"
@@ -465,17 +470,17 @@ export default function PropertyFilters({
                     ...prev,
                     priceRange: { ...prev.priceRange, max: e.target.value }
                   }))}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 />
               </div>
-              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="mt-2 text-xs text-gray-500">
                 Price in Lakhs (e.g., 10 = ₹10 Lakh)
               </div>
             </div>
 
             {/* Area Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Area Range (sq.ft)
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -487,7 +492,7 @@ export default function PropertyFilters({
                     ...prev,
                     areaRange: { ...prev.areaRange, min: e.target.value }
                   }))}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 />
                 <input
                   type="number"
@@ -497,14 +502,14 @@ export default function PropertyFilters({
                     ...prev,
                     areaRange: { ...prev.areaRange, max: e.target.value }
                   }))}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 />
               </div>
             </div>
 
             {/* Furnishing */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Furnishing Status
               </label>
               <div className="space-y-2">
@@ -523,7 +528,9 @@ export default function PropertyFilters({
                         }}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+                      <span className="text-sm text-gray-700">
+                        {option.label}
+                      </span>
                     </label>
                   );
                 })}
@@ -532,7 +539,7 @@ export default function PropertyFilters({
 
             {/* Plan Types */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Plan Type
               </label>
               <div className="space-y-2">
@@ -561,7 +568,7 @@ export default function PropertyFilters({
 
           {/* Amenities */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
               Amenities & Features
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -579,8 +586,8 @@ export default function PropertyFilters({
                     }}
                     className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
                       isSelected
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300'
-                        : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                        ? 'bg-blue-50 border-blue-200 text-blue-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     <IconComponent size={16} />
@@ -592,16 +599,16 @@ export default function PropertyFilters({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             <button
               onClick={() => setIsAdvancedFiltersOpen(false)}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={clearAdvancedFilters}
-              className="px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
+              className="px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
             >
               Clear All
             </button>

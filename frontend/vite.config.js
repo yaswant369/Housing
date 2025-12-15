@@ -1,4 +1,4 @@
- // Simple Vite config without external dependencies
+// Vite config with Tailwind CSS v4 support
 export default {
   server: {
     port: 5173,
